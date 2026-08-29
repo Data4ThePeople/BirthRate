@@ -297,6 +297,59 @@ def describe(ct: dict) -> tuple[list[str], list[str]]:
     return fields, zones
 
 
+def verify(uid: str) -> None:
+    """Find a created page in any release and print what actually landed.
+
+    The Migration API is write-only, and a write token cannot read the Content
+    API, so this needs PRISMIC_READ_TOKEN - a Content API access token - set
+    alongside it. Without one there is no way to confirm from outside the
+    dashboard what a publish produced.
+    """
+    import requests
+
+    read = os.environ.get("PRISMIC_READ_TOKEN")
+    if not read:
+        sys.exit("set PRISMIC_READ_TOKEN (a Content API access token) to verify")
+    (repo,) = env("PRISMIC_REPO")
+    base = f"https://{repo}.cdn.prismic.io/api/v2"
+    api = requests.get(base, params={"access_token": read}, timeout=45)
+    if not api.ok:
+        sys.exit(f"could not read the repository ({api.status_code})")
+
+    refs = api.json()["refs"]
+    print(f"  releases visible: " +
+          ", ".join(f"{r.get('label')!r}" for r in refs))
+    for ref in refs:
+        r = requests.get(base + "/documents/search", timeout=60, params={
+            "access_token": read, "ref": ref["ref"],
+            "q": f'[[at(my.blog_post.uid,"{uid}")]]'})
+        hits = r.json().get("results", []) if r.ok else []
+        if not hits:
+            continue
+        doc = hits[0]
+        data = doc["data"]
+        print(f"\n  found in release {ref.get('label')!r}")
+        print(f"    id={doc['id']}  uid={doc['uid']}  type={doc['type']}")
+        print(f"    page_title:  {str(data.get('page_title'))[:72]}")
+        print(f"    subtitle:    {str(data.get('page_subtitle'))[:72]}")
+        print(f"    published:   {data.get('published_date')}")
+        for sl in data.get("slices", []):
+            kind = sl["slice_type"]
+            if kind == "paragarph_text":
+                blocks = sl["primary"]["paragraph_text"]
+                kinds = ", ".join(sorted({b["type"] for b in blocks}))
+                print(f"    {kind:<26s} {len(blocks):>3d} blocks ({kinds})")
+            elif kind == "blog_body_content_image":
+                im = sl["primary"]["image"]
+                cap = sl["primary"].get("source_text") or []
+                print(f"    {kind:<26s} {im.get('dimensions')} "
+                      f"caption={'yes' if cap else 'NO'} url={'ok' if im.get('url') else 'MISSING'}")
+            else:
+                print(f"    {kind:<26s} {sl.get('variation')}")
+        return
+    print(f"\n  no page with uid {uid!r} found in any release")
+
+
 def list_types() -> None:
     """Print each custom type, its text fields and its slice zones."""
     import requests
@@ -450,11 +503,16 @@ def main() -> None:
                     help="print custom type and field ids from the repository")
     ap.add_argument("--check", action="store_true",
                     help="report which Prismic APIs the token is allowed to use")
+    ap.add_argument("--verify", metavar="UID",
+                    help="find a created page in any release and show what landed")
     args = ap.parse_args()
     load_dotenv()
 
     if args.check:
         check_token()
+        return
+    if args.verify:
+        verify(args.verify)
         return
     if args.list_types:
         list_types()
