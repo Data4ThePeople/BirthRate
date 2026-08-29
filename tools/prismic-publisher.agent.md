@@ -35,6 +35,24 @@ the converter emits slices accordingly:
 | `![alt](path.png)` | `blog_body_content_image`, alt and caption included |
 | an italic line right after an image | folded into that image's `source_text` |
 | a raw `<iframe>` | `html_embed`, `fullWidth`, with `embed_height` |
+| `::: blurb Title` … `:::` | `highlited_page_blurb` |
+
+Sections get air: each heading after the first closes the current text slice,
+drops a 20px `spacer`, and opens a new one. No spacer is added next to an image
+or embed, which carry their own margin.
+
+A callout box is written as a fence, and its body is ordinary Markdown:
+
+```
+::: blurb Where the data comes from
+- USDA's SNAP Retailer Locator, 2006-2025.
+- A public file, updated monthly.
+:::
+```
+
+Omit the title for the `noTitle` variation. Use `::: blurb-full` for the
+full-width variations. Suggest a blurb for sources, caveats and definitions -
+the asides that would otherwise interrupt the argument.
 
 So **leave `PRISMIC_FIELD` blank**. Set it only for a type that genuinely has a
 Rich Text field; the script validates it against the live type and refuses a

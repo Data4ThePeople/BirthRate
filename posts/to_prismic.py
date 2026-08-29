@@ -171,6 +171,22 @@ def convert(markdown: str, tables: str = "preformatted") -> list[dict]:
                                    "text": "  ".join("-" * w for w in widths), "spans": []})
             continue
 
+        # ::: blurb  Optional heading      -> highlited_page_blurb
+        # ::: blurb-full Optional heading    -> its full-width variation
+        fence = re.match(r"^:::\s*(?P<kind>blurb(?:-full)?)\s*(?P<title>.*)$", line)
+        if fence:
+            inner: list[str] = []
+            i += 1
+            while i < len(lines) and not lines[i].strip().startswith(":::"):
+                inner.append(lines[i])
+                i += 1
+            i += 1  # closing fence
+            blocks.append({"type": "blurb",
+                           "title": fence["title"].strip(),
+                           "full": fence["kind"].endswith("-full"),
+                           "blocks": convert("\n".join(inner), tables)})
+            continue
+
         if line.lstrip().startswith("<iframe"):
             html = [line]
             while i + 1 < len(lines) and "</iframe>" not in html[-1]:
@@ -448,8 +464,17 @@ def build_data(blocks: list[dict], meta: dict, title: str) -> dict:
 
 
 def create_document(blocks: list[dict], meta: dict, title: str, uid: str,
-                    dry_run: bool) -> None:
+                    dry_run: bool, ledger_path: Path | None = None) -> None:
+    """Create the page, or update it if this uid was created from here before.
+
+    Without the ledger a second run would create a duplicate rather than
+    revise the page, since the API has no upsert.
+    """
     import requests
+
+    ledger = (json.loads(ledger_path.read_text())
+              if ledger_path and ledger_path.exists() else {})
+    existing = ledger.get(uid)
 
     (doc_type,) = env("PRISMIC_TYPE")
 
@@ -478,17 +503,34 @@ def create_document(blocks: list[dict], meta: dict, title: str, uid: str,
     if dry_run:
         shape = (f"{len(data['slices'])} slices" if "slices" in data
                  else f"field {list(data)[0]}")
-        print(f"    would POST {MIGRATION_API}  type={doc_type} uid={uid}  {shape}")
+        verb = f"PUT (update {existing})" if existing else "POST (create)"
+        print(f"    would {verb}  type={doc_type} uid={uid}  {shape}")
         for sl in data.get("slices", []):
-            print(f"      {sl['slice_type']} ({sl['variation']})")
+            label = sl["primary"].get("spacer_value", sl["variation"])
+            print(f"      {sl['slice_type']} ({label})")
         return
-    resp = requests.post(MIGRATION_API,
-                         headers={**headers(), "Content-Type": "application/json"},
-                         json=body, timeout=120)
+
+    if existing:
+        # type, lang and alternate_language_id are ignored on update
+        payload = {k: v for k, v in body.items() if k in ("uid", "data", "title", "tags")}
+        resp = requests.put(f"{MIGRATION_API}/{existing}",
+                            headers={**headers(), "Content-Type": "application/json"},
+                            json=payload, timeout=120)
+    else:
+        resp = requests.post(MIGRATION_API,
+                             headers={**headers(), "Content-Type": "application/json"},
+                             json=body, timeout=120)
     time.sleep(RATE_LIMIT_SECONDS)
     if resp.status_code >= 300:
-        sys.exit(f"create failed ({resp.status_code}): {resp.text[:400]}")
-    print(f"    created draft {resp.json().get('id', '')} in the Migration Release")
+        verb = "update" if existing else "create"
+        sys.exit(f"{verb} failed ({resp.status_code}): {resp.text[:400]}")
+
+    doc_id = existing or resp.json().get("id", "")
+    if ledger_path:
+        ledger[uid] = doc_id
+        ledger_path.write_text(json.dumps(ledger, indent=2))
+    action = "updated" if existing else "created"
+    print(f"    {action} draft {doc_id} in the Migration Release")
 
 
 def main() -> None:
@@ -533,7 +575,8 @@ def main() -> None:
 
         if args.publish:
             upload_assets(blocks, path.parent, cache_path, args.dry_run)
-            create_document(blocks, meta, title, path.stem, args.dry_run)
+            create_document(blocks, meta, title, path.stem, args.dry_run,
+                            path.parent / ".prismic-documents.json")
         else:
             pending = sum(1 for b in blocks if b.get("type") == "image")
             out = path.with_suffix(".prismic.json")

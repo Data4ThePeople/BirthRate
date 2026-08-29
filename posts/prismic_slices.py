@@ -7,6 +7,9 @@ live repository:
     paragarph_text            primary.paragraph_text   Rich Text  (the body;
                               carries paragraph, heading1-3, list-item,
                               o-list-item - note Prismic's own spelling)
+    spacer                    primary.spacer_value     e.g. "20px"
+    highlited_page_blurb      primary.title            Text  (optional)
+                              primary.content          Rich Text
     blog_body_content_image   primary.image            Image
                               primary.source_text      Rich Text  (caption)
     html_embed / fullWidth    primary.html_content     Rich Text with one
@@ -21,6 +24,12 @@ from __future__ import annotations
 
 TEXT_BLOCKS = {"paragraph", "heading1", "heading2", "heading3", "heading4",
                "heading5", "heading6", "list-item", "o-list-item", "preformatted"}
+HEADINGS = {"heading1", "heading2", "heading3", "heading4", "heading5", "heading6"}
+
+# Sections read better with air above their heading. A break closes the current
+# text slice, drops a spacer, and opens a new one - but not against an image,
+# which brings its own margin.
+SECTION_GAP = "20px"
 
 
 def _rt(blocks: list[dict]) -> list[dict]:
@@ -38,9 +47,8 @@ def _slice(slice_type: str, primary: dict, variation: str = "default") -> dict:
 def to_slices(blocks: list[dict]) -> list[dict]:
     """Group flat Markdown blocks into slices.
 
-    Runs of text become one paragarph_text slice each, broken wherever an
-    image or embed interrupts them, which mirrors how the existing posts are
-    put together.
+    Runs of text become paragarph_text slices, broken at each section heading
+    with a spacer between, and wherever an image, embed or blurb interrupts.
     """
     slices: list[dict] = []
     run: list[dict] = []
@@ -49,6 +57,15 @@ def to_slices(blocks: list[dict]) -> list[dict]:
         if run:
             slices.append(_slice("paragarph_text", {"paragraph_text": _rt(run)}))
             run.clear()
+
+    def gap() -> None:
+        """A spacer, unless one is already there or an image sits alongside."""
+        if not slices:
+            return
+        if slices[-1]["slice_type"] in ("spacer", "blog_body_content_image",
+                                        "html_embed"):
+            return
+        slices.append(_slice("spacer", {"spacer_value": SECTION_GAP}))
 
     i = 0
     while i < len(blocks):
@@ -81,6 +98,22 @@ def to_slices(blocks: list[dict]) -> list[dict]:
                                        "text": block["html"], "spans": []}]),
                  "embed_height": block.get("height", "760px")},
                 variation="fullWidth"))
+        elif kind == "blurb":
+            flush()
+            gap()
+            primary = {"content": _rt(block["blocks"])}
+            variation = "noTitle" if not block.get("title") else "default"
+            if block.get("title"):
+                primary = {"title": block["title"], **primary}
+            if block.get("full"):
+                variation = ("noTitleFullWidth" if variation == "noTitle"
+                             else "defaultFullWidth")
+            slices.append(_slice("highlited_page_blurb", primary, variation))
+        elif kind in HEADINGS and run:
+            # a heading that opens a new section, rather than the first block
+            flush()
+            gap()
+            run.append(block)
         elif kind in TEXT_BLOCKS:
             run.append(block)
         i += 1

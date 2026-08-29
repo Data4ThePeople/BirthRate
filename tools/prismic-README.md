@@ -11,6 +11,15 @@ drafts. Used by the `prismic-publisher` agent, and usable directly.
 `prismic` is a wrapper around `.venv/bin/python to_prismic.py`, so it carries
 its own `requests` and `Pillow` and does not depend on the project it runs in.
 
+Markdown conventions beyond the usual: `::: blurb Title` … `:::` becomes a
+highlighted callout (omit the title, or use `::: blurb-full`, for the other
+variations), a raw `<iframe>` becomes an embed slice, and an italic line
+immediately after an image becomes that image's caption. Headings after the
+first get a 20px spacer above them.
+
+Re-running a post updates the page it created before rather than duplicating
+it, tracked in `.prismic-documents.json` beside the Markdown.
+
 Created pages land in the **Migration Release**, not in the main document list -
 review and publish them from there. Uploaded images go straight to the media
 library, so images showing up while the page appears missing is expected.

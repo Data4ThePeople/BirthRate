@@ -9,3 +9,4 @@ posts/*.prismic.json
 viz/dist/
 posts/.prismic-assets.json
 .env
+posts/.prismic-documents.json
