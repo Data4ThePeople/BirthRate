@@ -1,4 +1,14 @@
+---
+title: How this map was built
+subtitle: Every US county, every year from 1982 to 2024, and the sources behind it.
+date: 2026-08-29
+description: Methodology for the county fertility map: sources, the suppression problem, geographic harmonisation, and where numbers are estimated.
+keywords: methodology, fertility, county data, NCHS, Census, SEER
+---
+
 # How this map was built
+
+<iframe src="https://data4thepeople.github.io/BirthRate/map.html" width="100%" height="760" style="border:0" loading="lazy" title="County fertility map, 1982-2024"></iframe>
 
 ## What it shows
 

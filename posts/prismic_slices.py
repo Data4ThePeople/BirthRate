@@ -1,0 +1,89 @@
+"""Turn parsed Markdown blocks into the slice structure a blog_post expects.
+
+The blog_post type has no single Rich Text body. Its content is a slice zone,
+so an import has to emit slices rather than a flat field. Learned from the
+live repository:
+
+    paragarph_text            primary.paragraph_text   Rich Text  (the body;
+                              carries paragraph, heading1-3, list-item,
+                              o-list-item - note Prismic's own spelling)
+    blog_body_content_image   primary.image            Image
+                              primary.source_text      Rich Text  (caption)
+    html_embed / fullWidth    primary.html_content     Rich Text with one
+                                                       preformatted block of
+                                                       raw HTML
+                              primary.embed_height     e.g. "1200px"
+
+Rich Text blocks in this repository carry a `direction` key alongside type,
+text and spans, so they are written that way here too.
+"""
+from __future__ import annotations
+
+TEXT_BLOCKS = {"paragraph", "heading1", "heading2", "heading3", "heading4",
+               "heading5", "heading6", "list-item", "o-list-item", "preformatted"}
+
+
+def _rt(blocks: list[dict]) -> list[dict]:
+    """Rich Text as this repository stores it."""
+    return [{"type": b["type"], "text": b.get("text", ""),
+             "spans": b.get("spans", []), "direction": "ltr"} for b in blocks]
+
+
+def _slice(slice_type: str, primary: dict, variation: str = "default") -> dict:
+    return {"slice_type": slice_type, "slice_label": None,
+            "variation": variation, "version": "initial",
+            "items": [], "primary": primary}
+
+
+def to_slices(blocks: list[dict]) -> list[dict]:
+    """Group flat Markdown blocks into slices.
+
+    Runs of text become one paragarph_text slice each, broken wherever an
+    image or embed interrupts them, which mirrors how the existing posts are
+    put together.
+    """
+    slices: list[dict] = []
+    run: list[dict] = []
+
+    def flush() -> None:
+        if run:
+            slices.append(_slice("paragarph_text", {"paragraph_text": _rt(run)}))
+            run.clear()
+
+    i = 0
+    while i < len(blocks):
+        block = blocks[i]
+        kind = block.get("type")
+
+        if kind == "image":
+            flush()
+            caption: list[dict] = []
+            # an italic line straight after an image is its caption, and belongs
+            # in the image slice rather than floating as its own paragraph
+            nxt = blocks[i + 1] if i + 1 < len(blocks) else None
+            if (nxt and nxt.get("type") == "paragraph"
+                    and len(nxt.get("spans", [])) == 1
+                    and nxt["spans"][0]["type"] == "em"
+                    and nxt["spans"][0]["start"] == 0
+                    and nxt["spans"][0]["end"] == len(nxt["text"])):
+                caption = _rt([{**nxt, "spans": []}])
+                i += 1
+            image = {k: block[k] for k in ("id", "alt", "copyright", "dimensions")
+                     if k in block}
+            image.setdefault("copyright", None)
+            slices.append(_slice("blog_body_content_image",
+                                 {"image": image, "source_text": caption}))
+        elif kind == "embed":
+            flush()
+            slices.append(_slice(
+                "html_embed",
+                {"html_content": _rt([{"type": "preformatted",
+                                       "text": block["html"], "spans": []}]),
+                 "embed_height": block.get("height", "760px")},
+                variation="fullWidth"))
+        elif kind in TEXT_BLOCKS:
+            run.append(block)
+        i += 1
+
+    flush()
+    return slices

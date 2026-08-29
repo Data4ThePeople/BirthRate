@@ -38,6 +38,8 @@ import sys
 import time
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 def load_dotenv() -> None:
     """Read .env from the project root or beside this script.
 
@@ -108,6 +110,21 @@ def block(kind: str, text: str) -> dict:
     return {"type": kind, "text": plain, "spans": spans}
 
 
+def split_frontmatter(text: str) -> tuple[dict, str]:
+    """Pull a leading --- block of key: value pairs off the Markdown."""
+    if not text.startswith("---"):
+        return {}, text
+    end = text.find("\n---", 3)
+    if end < 0:
+        return {}, text
+    meta: dict[str, str] = {}
+    for line in text[3:end].strip().splitlines():
+        key, sep, value = line.partition(":")
+        if sep:
+            meta[key.strip()] = value.strip().strip('"\'')
+    return meta, text[end + 4:].lstrip("\n")
+
+
 def convert(markdown: str, tables: str = "preformatted") -> list[dict]:
     blocks: list[dict] = []
     lines = markdown.replace("\r\n", "\n").split("\n")
@@ -146,6 +163,16 @@ def convert(markdown: str, tables: str = "preformatted") -> list[dict]:
                 if n == 0:
                     blocks.append({"type": "preformatted",
                                    "text": "  ".join("-" * w for w in widths), "spans": []})
+            continue
+
+        if line.lstrip().startswith("<iframe"):
+            html = [line]
+            while i + 1 < len(lines) and "</iframe>" not in html[-1]:
+                i += 1
+                html.append(lines[i])
+            blocks.append({"type": "embed", "html": " ".join(x.strip() for x in html),
+                           "height": "760px"})
+            i += 1
             continue
 
         image = re.match(r"^!\[(?P<alt>[^\]]*)\]\((?P<src>[^)]+)\)\s*$", line)
@@ -265,20 +292,49 @@ def upload_assets(blocks: list[dict], base: Path, cache_path: Path,
         block["dimensions"] = {"width": asset["width"], "height": asset["height"]}
 
 
-def create_document(blocks: list[dict], title: str, uid: str, dry_run: bool) -> None:
+def build_data(blocks: list[dict], meta: dict, title: str) -> dict:
+    """The document body. blog_post keeps its content in a slice zone, so a
+    flat Rich Text field is only used when PRISMIC_FIELD names one."""
+    field = os.environ.get("PRISMIC_FIELD", "").strip()
+    if field and field != "slices":
+        return {field: [b for b in blocks if b.get("type") != "embed"]}
+
+    from prismic_slices import to_slices
+
+    body = [b for b in blocks if b.get("type") != "heading1"]
+    data = {
+        "page_title": meta.get("title", title),
+        "page_subtitle": meta.get("subtitle", ""),
+        "published_date": meta.get("date", ""),
+        "updated_date": meta.get("updated", meta.get("date", "")),
+        "meta_title": meta.get("meta_title", meta.get("title", title)),
+        "meta_description": meta.get("description", meta.get("subtitle", "")),
+        "meta_keywords": meta.get("keywords", ""),
+        "make_this_main_post": False,
+        "slices": to_slices(body),
+    }
+    return {k: v for k, v in data.items() if v != ""}
+
+
+def create_document(blocks: list[dict], meta: dict, title: str, uid: str,
+                    dry_run: bool) -> None:
     import requests
 
-    doc_type, field = env("PRISMIC_TYPE", "PRISMIC_FIELD")
+    (doc_type,) = env("PRISMIC_TYPE")
+    data = build_data(blocks, meta, title)
     body = {
         "title": title,
         "type": doc_type,
         "uid": uid,
         "lang": os.environ.get("PRISMIC_LANG", "en-us"),
-        "data": {field: blocks},
+        "data": data,
     }
     if dry_run:
-        print(f"    would POST {MIGRATION_API}  type={doc_type} uid={uid} "
-              f"field={field} blocks={len(blocks)}")
+        shape = (f"{len(data['slices'])} slices" if "slices" in data
+                 else f"field {list(data)[0]}")
+        print(f"    would POST {MIGRATION_API}  type={doc_type} uid={uid}  {shape}")
+        for sl in data.get("slices", []):
+            print(f"      {sl['slice_type']} ({sl['variation']})")
         return
     resp = requests.post(MIGRATION_API,
                          headers={**headers(), "Content-Type": "application/json"},
@@ -310,7 +366,8 @@ def main() -> None:
 
     cache_path = Path(__file__).parent / ".prismic-assets.json"
     for path in args.files:
-        blocks = convert(path.read_text(), args.tables)
+        meta, markdown = split_frontmatter(path.read_text())
+        blocks = convert(markdown, args.tables)
         title = next((b["text"] for b in blocks if b["type"] == "heading1"), path.stem)
         counts: dict[str, int] = {}
         for b in blocks:
@@ -320,11 +377,11 @@ def main() -> None:
 
         if args.publish:
             upload_assets(blocks, path.parent, cache_path, args.dry_run)
-            create_document(blocks, title, path.stem, args.dry_run)
+            create_document(blocks, meta, title, path.stem, args.dry_run)
         else:
             pending = sum(1 for b in blocks if b.get("type") == "image")
             out = path.with_suffix(".prismic.json")
-            out.write_text(json.dumps(blocks, indent=2))
+            out.write_text(json.dumps(build_data(blocks, meta, title), indent=2))
             note = (f"; {pending} image block(s) still need asset ids, "
                     f"which --publish fills in") if pending else ""
             print(f"    wrote {out.name}{note}")
