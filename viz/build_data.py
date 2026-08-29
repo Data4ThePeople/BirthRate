@@ -10,7 +10,8 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from birthrate.analysis import by_metro, load, shift_share  # noqa: E402
+from birthrate.analysis import (by_county_type, by_metro, load,  # noqa: E402
+                                shift_share)
 from birthrate.geography import UNIT_LABELS, to_unit  # noqa: E402
 from birthrate.sources.rucc import RUCC_CLASS  # noqa: E402
 from project import geometry_paths, state_paths  # noqa: E402
@@ -159,6 +160,16 @@ def main() -> None:
             "share_end": round(r["share_end"] * 100, 2),
         })
 
+    ctypes = by_county_type(panel)
+    county_types = {
+        label: {
+            "units": v["units"],
+            "gfr": [round(x, 1) for x in v["gfr"].reindex(years)],
+            "change8287": round(100 * (v["gfr"][1987] / v["gfr"][1982] - 1), 1),
+        }
+        for label, v in ctypes.items()
+    }
+
     national = panel.groupby("year").apply(
         lambda g: 1000 * g["births"].sum() / g["women_15_44"].sum(),
         include_groups=False,
@@ -179,6 +190,7 @@ def main() -> None:
         "national": [round(v, 1) for v in national.reindex(years)],
         "metro": metro_series,
         "rucc": rucc_rows,
+        "countyTypes": county_types,
         "decomposition": {
             "within": round(ss["within"].sum(), 2),
             "between": round(ss["between"].sum(), 2),

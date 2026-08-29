@@ -10,7 +10,7 @@
   --ink:#14140f; --ink-2:#4f4e48; --muted:#88867e;
   --rule:#dedcd3; --rule-strong:#c3c2b7;
   --accent:#1853c6; --accent-soft:#e8edf9;
-  --series-1:#2a78d6; --series-2:#eb6834;
+  --series-1:#2a78d6; --series-2:#eb6834; --series-3:#1baf7a;
   --d0:#b0062d; --d1:#cb6c6d; --d2:#dcb2b0; --d3:#e4e2db;
   --d4:#acbfdf; --d5:#638bd5; --d6:#1853c6; --dnull:#e4e3dd;
   --s0:#cde2fb; --s1:#9ec5f4; --s2:#6da7ec; --s3:#3987e5;
@@ -25,7 +25,7 @@
     --ink:#ffffff; --ink-2:#c3c2b7; --muted:#8d8b83;
     --rule:#2c2c2a; --rule-strong:#3d3d3a;
     --accent:#5f9bff; --accent-soft:#182233;
-    --series-1:#3987e5; --series-2:#d95926;
+    --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70;
     --d0:#ee6951; --d1:#bf5542; --d2:#914234; --d3:#383835;
     --d4:#246099; --d5:#2b7ec9; --d6:#319cfc; --dnull:#2a2a28;
     --s0:#0d366b; --s1:#184f95; --s2:#256abf; --s3:#3987e5;
@@ -40,7 +40,7 @@
   --ink:#ffffff; --ink-2:#c3c2b7; --muted:#8d8b83;
   --rule:#2c2c2a; --rule-strong:#3d3d3a;
   --accent:#5f9bff; --accent-soft:#182233;
-  --series-1:#3987e5; --series-2:#d95926;
+  --series-1:#3987e5; --series-2:#d95926; --series-3:#199e70;
   --d0:#ee6951; --d1:#bf5542; --d2:#914234; --d3:#383835;
   --d4:#246099; --d5:#2b7ec9; --d6:#319cfc; --dnull:#2a2a28;
   --s0:#0d366b; --s1:#184f95; --s2:#256abf; --s3:#3987e5;
@@ -441,6 +441,44 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   </div>
 </section>
 
+<section id="commodities">
+  <div class="section-head">
+    <h2>What broke in the 1980s</h2>
+    <p>The first half of the story &mdash; rural fertility falling away while metro
+    held flat &mdash; has a shape to it. Grouping rural counties by what their economies
+    ran on in the late 1970s, the collapse tracks <strong>commodity exposure</strong>.
+    Mining counties fell furthest, farming counties next, and rural counties built on
+    manufacturing, government or retirement fell about as much as the country as a
+    whole. Those are the two sectors that a soaring dollar, twenty percent interest
+    rates and a global price crash hit hardest, and they are the two that show up here.</p>
+    <p style="margin-top:12px">Counties are classified on their 1975&ndash;79 income
+    shares, before either bust. Later editions of this classification move counties out
+    of the category once the industry leaves, which would quietly erase the effect being
+    looked for.</p>
+  </div>
+  <div class="chartgrid">
+    <div class="panel panel-pad chart">
+      <div class="chart-title">
+        <span class="t">Fall in the fertility rate, 1982&ndash;87</span>
+        <span class="s">Rural counties by 1979 economic type, with all metro counties for scale</span>
+      </div>
+      <div id="chart-sector"></div>
+    </div>
+    <div class="panel panel-pad chart">
+      <div class="chart-title">
+        <span class="t">And where they went next</span>
+        <span class="s">Births per 1,000 women aged 15&ndash;44</span>
+      </div>
+      <div class="legend-inline" id="lg-sector"></div>
+      <div id="chart-sectorline"></div>
+    </div>
+  </div>
+  <details class="tabledrop">
+    <summary>Show as a table</summary>
+    <div class="tablescroll"><table id="tbl-sector"></table></div>
+  </details>
+</section>
+
 <section id="decomposition">
   <div class="section-head">
     <h2>It is not people moving</h2>
@@ -776,7 +814,9 @@ function lineChart(host, series, opts){
 
   series.forEach(s => {
     const d = s.values.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
-    svg.appendChild(el("path", { d, class: "serie", stroke: `var(${s.color})` }));
+    const attrs = { d, class: "serie", stroke: `var(${s.color})` };
+    if (s.dash) attrs["stroke-dasharray"] = s.dash;
+    svg.appendChild(el("path", attrs));
     svg.appendChild(el("circle", { cx: X(NY - 1), cy: Y(s.values[NY - 1]), r: 4,
                                    fill: `var(${s.color})`, class: "dot" }));
   });
@@ -926,6 +966,65 @@ lineChart(document.getElementById("chart-gap"),
   });
   document.getElementById("chart-rucc").appendChild(svg);
   inlineLegend(document.getElementById("lg-rucc"), SERIES);
+})();
+
+/* ---------- commodity exposure ---------- */
+(function sectorChart(){
+  const T = D.countyTypes;
+  const order = ["Mining", "Farming", "Persistent poverty", "Other rural",
+                 "Government", "Manufacturing", "Retirement destination", "Metro"];
+  const rows = order.filter(k => T[k]).map(k => ({ k, ...T[k] }));
+  const W = 560, rowH = 30, M = { t: 24, r: 54, b: 26, l: 168 };
+  const H = M.t + rows.length * rowH + M.b, iw = W - M.l - M.r;
+  const maxAbs = Math.max(...rows.map(r => Math.abs(r.change8287)));
+  const X = v => M.l + (Math.abs(v) / maxAbs) * iw;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img",
+    "aria-label": "Fall in the fertility rate 1982 to 1987 by county economic type" });
+
+  rows.forEach((r, i) => {
+    const y = M.t + i * rowH, isMetro = r.k === "Metro";
+    const cat = el("text", { x: M.l - 10, y: y + rowH / 2 + 4, "text-anchor": "end",
+                             class: "barcat" });
+    cat.textContent = r.k;
+    if (isMetro) cat.setAttribute("fill", "var(--muted)");
+    svg.appendChild(cat);
+    // the two commodity sectors carry the finding; everything else recedes
+    const fill = r.k === "Mining" ? "var(--series-2)"
+               : r.k === "Farming" ? "var(--series-1)"
+               : isMetro ? "var(--rule-strong)" : "var(--s2)";
+    svg.appendChild(el("rect", { x: M.l, y: y + 8, height: rowH - 16,
+      width: Math.max(1.5, X(r.change8287) - M.l), class: "bar", fill }));
+    const lab = el("text", { x: X(r.change8287) + 7, y: y + rowH / 2 + 4,
+                             class: "barlabel" });
+    lab.textContent = r.change8287.toFixed(1) + "%";
+    svg.appendChild(lab);
+  });
+  svg.appendChild(el("line", { x1: M.l, x2: M.l, y1: M.t, y2: M.t + rows.length * rowH,
+    stroke: "var(--rule-strong)", "stroke-width": 1 }));
+  const cap = el("text", { x: M.l, y: H - 8, class: "barlabel" });
+  cap.textContent = "\u2190 larger fall"; svg.appendChild(cap);
+  document.getElementById("chart-sector").appendChild(svg);
+
+  const SER = [
+    { name: "Mining", color: "--series-2", values: T.Mining.gfr },
+    { name: "Farming", color: "--series-1", values: T.Farming.gfr },
+    { name: "Other rural", color: "--series-3", values: T["Other rural"].gfr },
+    { name: "Metro", color: "--muted", values: T.Metro.gfr, dash: "4 3" },
+  ];
+  inlineLegend(document.getElementById("lg-sector"), SER);
+  lineChart(document.getElementById("chart-sectorline"), SER,
+    { ticks: [55, 65, 75, 85], fmtY: v => String(v), fmtV: v => v.toFixed(1),
+      label: "Fertility rate 1982 to 2024 for mining, farming, other rural and metro counties" });
+
+  const tbl = document.getElementById("tbl-sector");
+  let h = `<thead><tr><th>1979 county type</th><th>Counties</th><th>1982</th>` +
+          `<th>1987</th><th>2024</th><th>1982-87</th></tr></thead><tbody>`;
+  rows.forEach(r => {
+    h += `<tr><td>${r.k}</td><td>${r.units.toLocaleString()}</td>` +
+         `<td>${r.gfr[0].toFixed(1)}</td><td>${r.gfr[YEARS.indexOf(1987)].toFixed(1)}</td>` +
+         `<td>${r.gfr[NY - 1].toFixed(1)}</td><td>${r.change8287.toFixed(1)}%</td></tr>`;
+  });
+  tbl.innerHTML = h + "</tbody>";
 })();
 
 /* ---------- decomposition ---------- */

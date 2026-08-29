@@ -124,3 +124,63 @@ def shift_share(df: pd.DataFrame | None = None, start: int = 1991,
     })
     order = [RUCC_CLASS[i] for i in range(1, 10) if RUCC_CLASS[i] in out.index]
     return out.loc[order]
+
+
+# 1979 ERS typology columns, in the order they are reported.
+COUNTY_TYPES = [
+    ("MINTP79R", "Mining"),
+    ("AGTP79R", "Farming"),
+    ("POVTP79", "Persistent poverty"),
+    ("GVTTP79R", "Government"),
+    ("MFGTP79R", "Manufacturing"),
+    ("RETTP79", "Retirement destination"),
+]
+
+
+def _typology_units() -> pd.DataFrame:
+    """1979 county types indexed by stable analysis unit.
+
+    Merged units span more than one county and so have no single economic
+    type; they are dropped rather than assigned a guess.
+    """
+    from birthrate.geography import UNIT_LABELS, to_unit
+    from birthrate.sources.typology import load_typology_full
+
+    t = load_typology_full()
+    t["unit"] = t["fips"].map(to_unit)
+    t = t[t["unit"].notna() & ~t["unit"].isin(UNIT_LABELS)]
+    return t.drop_duplicates("unit").set_index("unit")
+
+
+def by_county_type(df: pd.DataFrame | None = None) -> dict:
+    """Fertility trajectories for rural counties grouped by 1979 economic type.
+
+    The 1979 typology measures income shares over 1975-79, before the farm and
+    energy busts, so a county's classification cannot be a consequence of the
+    downturn being examined. Later editions reclassify counties that lost the
+    industry, which would bias the comparison toward zero.
+    """
+    df = load() if df is None else df
+    types = _typology_units()
+
+    nonmetro = df[df["fips"].isin(types.index) & df["rucc_2013"].between(4, 9)]
+    metro = df[df["rucc_2013"].le(3)]
+
+    def series(sub: pd.DataFrame) -> pd.Series:
+        g = sub.groupby("year").agg(b=("births", "sum"), w=("women_15_44", "sum"))
+        return 1000 * g["b"] / g["w"]
+
+    out: dict[str, dict] = {}
+    other = set(nonmetro["fips"].unique())
+    for col, label in COUNTY_TYPES:
+        units = set(types.index[types[col] == 1]) & set(nonmetro["fips"].unique())
+        if len(units) < 25:
+            continue
+        out[label] = {"units": len(units), "gfr": series(nonmetro[nonmetro.fips.isin(units)])}
+        if col in ("MINTP79R", "AGTP79R"):
+            other -= units
+
+    out["Other rural"] = {"units": len(other),
+                          "gfr": series(nonmetro[nonmetro.fips.isin(other)])}
+    out["Metro"] = {"units": metro["fips"].nunique(), "gfr": series(metro)}
+    return out
