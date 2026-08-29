@@ -92,7 +92,13 @@ src/birthrate/
   metrics.py        GFR, expected births, comparative fertility ratio
   panel.py          assembles data/processed/county_year_fertility.parquet
   analysis.py       metro/nonmetro series and the shift-share decomposition
-viz/                projection, payload build, page build
+viz/
+  project.py        TopoJSON -> Albers USA SVG paths
+  build_data.py     compiles the panel + geometry into one JSON payload
+  build_page.py     the full analysis page
+  build_map.py      the standalone embeddable map, stripped from the same template
+  export_charts.py  each chart as a standalone PNG for the posts
+  wrap_standalone.py  wraps a built page as a complete HTML document for hosting
 tests/validate.py   18 end-to-end checks
 ```
 
@@ -103,8 +109,16 @@ tests/validate.py   18 end-to-end checks
 .venv/bin/python src/birthrate/fetch.py
 PYTHONPATH=src .venv/bin/python src/birthrate/panel.py
 PYTHONPATH=src .venv/bin/python tests/validate.py
-PYTHONPATH=src .venv/bin/python viz/build_data.py && .venv/bin/python viz/build_page.py
+PYTHONPATH=src .venv/bin/python viz/build_data.py
+.venv/bin/python viz/build_page.py      # viz/fertility.html
+.venv/bin/python viz/build_map.py       # viz/map.html
+.venv/bin/python viz/wrap_standalone.py # viz/dist/*.html, for self-hosting
+.venv/bin/python viz/export_charts.py   # posts/images/*.png
 ```
+
+The files in `viz/` are fragments: the artifact platform supplies the doctype and
+`<head>`. **To host them yourself, use `viz/dist/`** — without a doctype the browser
+falls into quirks mode.
 
 ## Timing versus quantum
 

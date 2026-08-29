@@ -137,7 +137,7 @@ input[type=range]{flex:1; accent-color:var(--accent); height:22px; min-width:140
 .statebar .unit{font-size:.74rem; color:var(--muted); align-self:center}
 .tooltip .u{font-size:.85em; opacity:.75}
 .county{transition:opacity .18s}
-.county.dim{opacity:.12}
+.county.dim{opacity:.12; pointer-events:none}
 #usmap{transition:none}
 .mapbox{position:relative; overflow-x:auto}
 .mapbox svg{display:block; width:100%; height:auto; min-width:620px;
@@ -785,13 +785,16 @@ function moveTip(ev){
   if (y + h > r.height) y = Math.max(0, ev.clientY - r.top - h - 16);
   tip.style.left = x + "px"; tip.style.top = y + "px";
 }
-gCounties.addEventListener("pointermove", ev => {
-  const t = ev.target.closest(".county");
-  if (!t){ hideTip(); return; }
-  const i = +t.dataset.i;
+// Bound to the whole map, not just the counties group: moving from a county
+// into empty space inside the map - ocean, Canada, the gaps around the insets -
+// fires nothing on the group, so the tooltip was never told to hide.
+usmap.addEventListener("pointermove", ev => {
+  const hit = ev.target.closest && ev.target.closest(".county");
+  if (!hit){ hideTip(); return; }
+  const i = +hit.dataset.i;
   if (i !== hoverIdx){
     if (hoverIdx >= 0) paths[hoverIdx].classList.remove("hi");
-    hoverIdx = i; t.classList.add("hi"); showTip(i);
+    hoverIdx = i; hit.classList.add("hi"); showTip(i);
   }
   moveTip(ev);
 });
@@ -799,7 +802,9 @@ function hideTip(){
   if (hoverIdx >= 0) paths[hoverIdx].classList.remove("hi");
   hoverIdx = -1; tip.dataset.show = "0";
 }
-document.getElementById("usmap").addEventListener("pointerleave", hideTip);
+usmap.addEventListener("pointerleave", hideTip);
+mapbox.addEventListener("pointerleave", hideTip);
+window.addEventListener("blur", hideTip);
 
 /* ---------- playback ---------- */
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
