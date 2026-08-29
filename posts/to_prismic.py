@@ -269,8 +269,30 @@ def check_token() -> None:
         print("\n  Write access confirmed; --publish will work.")
 
 
+def fetch_type(type_id: str) -> dict | None:
+    import requests
+
+    resp = requests.get(CUSTOM_TYPES_API, headers=headers(), timeout=60)
+    if resp.status_code >= 300:
+        return None
+    return next((ct for ct in resp.json() if ct["id"] == type_id), None)
+
+
+def describe(ct: dict) -> tuple[list[str], list[str]]:
+    """Rich-text-ish field ids, and slice zone ids, in a custom type."""
+    fields, zones = [], []
+    for tab in (ct.get("json") or {}).values():
+        for field_id, field in tab.items():
+            kind = field.get("type")
+            if kind in ("StructuredText", "Text"):
+                fields.append(field_id)
+            elif kind in ("Slices", "Slices2", "SliceZone"):
+                zones.append(field_id)
+    return fields, zones
+
+
 def list_types() -> None:
-    """Print each custom type and its Rich Text fields, to fill in the env vars."""
+    """Print each custom type, its text fields and its slice zones."""
     import requests
 
     resp = requests.get(CUSTOM_TYPES_API, headers=headers(), timeout=60)
@@ -280,9 +302,15 @@ def list_types() -> None:
         print(f"\nPRISMIC_TYPE={ct['id']}    ({ct.get('label', '')})")
         for tab in (ct.get("json") or {}).values():
             for field_id, field in tab.items():
-                if field.get("type") in ("StructuredText", "Text"):
-                    kind = field.get("config", {}).get("label", field["type"])
-                    print(f"  PRISMIC_FIELD={field_id:<24s} {kind}")
+                kind = field.get("type")
+                if kind in ("StructuredText", "Text"):
+                    label = field.get("config", {}).get("label", kind)
+                    print(f"  PRISMIC_FIELD={field_id:<24s} {label}")
+                elif kind in ("Slices", "Slices2", "SliceZone"):
+                    names = sorted((field.get("config", {}).get("choices") or {}))
+                    print(f"  slice zone '{field_id}' -> leave PRISMIC_FIELD blank")
+                    for n in names:
+                        print(f"      {n}")
 
 
 def upload_assets(blocks: list[dict], base: Path, cache_path: Path,
@@ -333,7 +361,7 @@ def build_data(blocks: list[dict], meta: dict, title: str) -> dict:
     """The document body. blog_post keeps its content in a slice zone, so a
     flat Rich Text field is only used when PRISMIC_FIELD names one."""
     field = os.environ.get("PRISMIC_FIELD", "").strip()
-    if field and field != "slices":
+    if field and field not in ("slices", "auto"):
         return {field: [b for b in blocks if b.get("type") != "embed"]}
 
     from prismic_slices import to_slices
@@ -358,6 +386,21 @@ def create_document(blocks: list[dict], meta: dict, title: str, uid: str,
     import requests
 
     (doc_type,) = env("PRISMIC_TYPE")
+
+    # A PRISMIC_FIELD naming something the type does not have would produce a
+    # document with an empty body, so check it against the real type first.
+    field = os.environ.get("PRISMIC_FIELD", "").strip()
+    if field and field not in ("slices", "auto"):
+        ct = fetch_type(doc_type)
+        if ct is not None:
+            fields, zones = describe(ct)
+            if field not in fields:
+                sys.exit(
+                    f"PRISMIC_FIELD={field!r} is not a field on {doc_type}.\n"
+                    f"  text fields: {', '.join(fields) or 'none'}\n"
+                    f"  slice zones: {', '.join(zones) or 'none'}\n"
+                    f"  For a slice-based type, leave PRISMIC_FIELD blank.")
+
     data = build_data(blocks, meta, title)
     body = {
         "title": title,
