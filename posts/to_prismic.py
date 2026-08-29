@@ -1,25 +1,32 @@
-"""Convert a Markdown post into Prismic Rich Text JSON, and optionally upload it.
+"""Push a Markdown post into Prismic, images and all.
 
-Prismic Rich Text is a flat list of blocks. Each block carries plain text plus
-`spans` - character offsets marking bold, italic and links - so the Markdown
-markers have to be stripped while their positions are recorded.
+Three steps, so nothing has to be laid out by hand:
 
-Supported blocks: heading1-6, paragraph, list-item, o-list-item, preformatted.
-Rich Text has no table type, so Markdown tables are emitted as preformatted
-monospace blocks by default. That renders correctly but is not a real table;
-for a proper one, use Prismic's dedicated Table field in a slice, or drop in an
-image. Pass --tables=skip to leave them out and place them by hand.
+  1. Convert Markdown to Prismic Rich Text. Blocks are flat, and bold, italic
+     and links are character offsets into the plain text, so the markers are
+     stripped while their positions are recorded.
+  2. Upload each referenced image to the media library through the Asset API,
+     caching the returned ids so re-runs do not create duplicates.
+  3. Create the page through the Migration API, which lands it as a draft in
+     the Migration Release for review.
+
+Rich Text has no table block. Markdown tables become aligned preformatted
+text; for a real table use Prismic's Table field in a slice, or an image.
 
 Usage
-    python to_prismic.py post.md                 # write post.prismic.json
-    python to_prismic.py post.md --upload        # also POST to the Migration API
+    python to_prismic.py posts/*.md                 # convert only, writes .prismic.json
+    python to_prismic.py --list-types               # discover type and field ids
+    python to_prismic.py posts/*.md --publish       # upload assets, then create pages
+    python to_prismic.py posts/*.md --publish -n    # dry run: show every call first
 
-Uploading needs a write token and repository, from the environment:
-    PRISMIC_TOKEN     permanent token (Settings > API & Security)
-    PRISMIC_REPO      repository id, e.g. "birthrate"
-    PRISMIC_TYPE      custom type id to create, e.g. "blog_post"
-    PRISMIC_FIELD     Rich Text field id in that type, e.g. "content"
-Documents arrive as drafts in the Migration Release for review.
+Environment
+    PRISMIC_TOKEN   permanent token, from Settings > API & Security
+    PRISMIC_REPO    repository id, e.g. "data4thepeople"
+    PRISMIC_TYPE    custom type to create, e.g. "blog_post"   (--list-types finds it)
+    PRISMIC_FIELD   the Rich Text field in that type, e.g. "content"
+    PRISMIC_LANG    optional, defaults to en-us
+
+Both APIs allow one request per second, which the script paces itself to.
 """
 from __future__ import annotations
 
@@ -28,7 +35,13 @@ import json
 import os
 import re
 import sys
+import time
 from pathlib import Path
+
+ASSET_API = "https://asset-api.prismic.io/assets"
+MIGRATION_API = "https://migration.prismic.io/documents"
+CUSTOM_TYPES_API = "https://customtypes.prismic.io/customtypes"
+RATE_LIMIT_SECONDS = 1.1  # both APIs allow one request per second
 
 INLINE = re.compile(
     r"\*\*(?P<strong>[^*]+)\*\*"
@@ -115,10 +128,9 @@ def convert(markdown: str, tables: str = "preformatted") -> list[dict]:
             # Rich Text images must point at a Prismic-hosted asset, so the file
             # cannot be inlined from here. Leave an obvious marker at the right
             # position for the image to be dropped in.
-            name = image["src"].rsplit("/", 1)[-1]
-            blocks.append({"type": "preformatted",
-                           "text": f"[IMAGE: {name}]", "spans": []})
-            images.append(name)
+            blocks.append({"type": "image", "_src": image["src"],
+                           "alt": image["alt"]})
+            images.append(image["src"])
             i += 1
             continue
 
@@ -152,56 +164,144 @@ def convert(markdown: str, tables: str = "preformatted") -> list[dict]:
         print(f"  note: {len(warnings)} table(s) rendered as preformatted text "
               f"({tables}); Prismic Rich Text has no table block", file=sys.stderr)
     if images:
-        print(f"  note: {len(images)} image placeholder(s): {', '.join(images)}",
-              file=sys.stderr)
+        print(f"  {len(images)} image(s) referenced", file=sys.stderr)
     return blocks
 
 
-def upload(blocks: list[dict], title: str, uid: str) -> None:
+def env(*names: str) -> list[str]:
+    missing = [n for n in names if not os.environ.get(n)]
+    if missing:
+        sys.exit("set " + ", ".join(missing))
+    return [os.environ[n] for n in names]
+
+
+def headers() -> dict:
+    token, repo = env("PRISMIC_TOKEN", "PRISMIC_REPO")
+    return {"Authorization": f"Bearer {token}", "repository": repo}
+
+
+def list_types() -> None:
+    """Print each custom type and its Rich Text fields, to fill in the env vars."""
     import requests
 
-    missing = [v for v in ("PRISMIC_TOKEN", "PRISMIC_REPO", "PRISMIC_TYPE", "PRISMIC_FIELD")
-               if not os.environ.get(v)]
-    if missing:
-        sys.exit(f"set {', '.join(missing)} to upload")
+    resp = requests.get(CUSTOM_TYPES_API, headers=headers(), timeout=60)
+    if resp.status_code >= 300:
+        sys.exit(f"could not list custom types ({resp.status_code}): {resp.text[:300]}")
+    for ct in resp.json():
+        print(f"\nPRISMIC_TYPE={ct['id']}    ({ct.get('label', '')})")
+        for tab in (ct.get("json") or {}).values():
+            for field_id, field in tab.items():
+                if field.get("type") in ("StructuredText", "Text"):
+                    kind = field.get("config", {}).get("label", field["type"])
+                    print(f"  PRISMIC_FIELD={field_id:<24s} {kind}")
+
+
+def upload_assets(blocks: list[dict], base: Path, cache_path: Path,
+                  dry_run: bool) -> None:
+    """Upload each image once and swap the local path for its Prismic asset id."""
+    import requests
+
+    cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
+    for block in blocks:
+        if block.get("type") != "image":
+            continue
+        src = block.pop("_src")
+        path = (base / src).resolve()
+        if not path.exists():
+            sys.exit(f"image not found: {path}")
+
+        if src not in cache:
+            if dry_run:
+                print(f"    would upload {path.name}")
+                cache[src] = {"id": "DRYRUN", "width": 0, "height": 0}
+            else:
+                with path.open("rb") as fh:
+                    resp = requests.post(
+                        ASSET_API, headers=headers(),
+                        files={"file": (path.name, fh, "image/png")},
+                        data={"alt": block.get("alt", "")}, timeout=180)
+                time.sleep(RATE_LIMIT_SECONDS)
+                if resp.status_code >= 300:
+                    sys.exit(f"asset upload failed for {path.name} "
+                             f"({resp.status_code}): {resp.text[:300]}")
+                body = resp.json()
+                from PIL import Image
+
+                with Image.open(path) as im:
+                    w, h = im.size
+                cache[src] = {"id": body.get("id") or body.get("asset_id"),
+                              "width": w, "height": h}
+                print(f"    uploaded {path.name} -> {cache[src]['id']}")
+            cache_path.write_text(json.dumps(cache, indent=2))
+
+        asset = cache[src]
+        block["id"] = asset["id"]
+        block["copyright"] = None
+        block["dimensions"] = {"width": asset["width"], "height": asset["height"]}
+
+
+def create_document(blocks: list[dict], title: str, uid: str, dry_run: bool) -> None:
+    import requests
+
+    doc_type, field = env("PRISMIC_TYPE", "PRISMIC_FIELD")
     body = {
         "title": title,
-        "type": os.environ["PRISMIC_TYPE"],
+        "type": doc_type,
         "uid": uid,
         "lang": os.environ.get("PRISMIC_LANG", "en-us"),
-        "data": {os.environ["PRISMIC_FIELD"]: blocks},
+        "data": {field: blocks},
     }
-    resp = requests.post(
-        "https://migration.prismic.io/documents",
-        headers={"Authorization": f"Bearer {os.environ['PRISMIC_TOKEN']}",
-                 "repository": os.environ["PRISMIC_REPO"],
-                 "Content-Type": "application/json"},
-        json=body, timeout=60)
+    if dry_run:
+        print(f"    would POST {MIGRATION_API}  type={doc_type} uid={uid} "
+              f"field={field} blocks={len(blocks)}")
+        return
+    resp = requests.post(MIGRATION_API,
+                         headers={**headers(), "Content-Type": "application/json"},
+                         json=body, timeout=120)
+    time.sleep(RATE_LIMIT_SECONDS)
     if resp.status_code >= 300:
-        sys.exit(f"upload failed {resp.status_code}: {resp.text[:400]}")
-    print(f"  uploaded as a draft in the Migration Release: {resp.json().get('id', '')}")
+        sys.exit(f"create failed ({resp.status_code}): {resp.text[:400]}")
+    print(f"    created draft {resp.json().get('id', '')} in the Migration Release")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("files", nargs="+", type=Path)
+    ap.add_argument("files", nargs="*", type=Path)
     ap.add_argument("--tables", choices=["preformatted", "skip"], default="preformatted")
-    ap.add_argument("--upload", action="store_true")
+    ap.add_argument("--publish", action="store_true",
+                    help="upload images and create the pages in Prismic")
+    ap.add_argument("-n", "--dry-run", action="store_true",
+                    help="with --publish, show every call without making it")
+    ap.add_argument("--list-types", action="store_true",
+                    help="print custom type and field ids from the repository")
     args = ap.parse_args()
 
+    if args.list_types:
+        list_types()
+        return
+    if not args.files:
+        ap.error("give at least one Markdown file, or --list-types")
+
+    cache_path = Path(__file__).parent / ".prismic-assets.json"
     for path in args.files:
-        md = path.read_text()
-        blocks = convert(md, args.tables)
-        out = path.with_suffix(".prismic.json")
-        out.write_text(json.dumps(blocks, indent=2))
+        blocks = convert(path.read_text(), args.tables)
         title = next((b["text"] for b in blocks if b["type"] == "heading1"), path.stem)
         counts: dict[str, int] = {}
         for b in blocks:
             counts[b["type"]] = counts.get(b["type"], 0) + 1
-        print(f"{path.name} -> {out.name}  {len(blocks)} blocks  "
+        print(f"{path.name} -> {len(blocks)} blocks  "
               f"{', '.join(f'{k} {v}' for k, v in sorted(counts.items()))}")
-        if args.upload:
-            upload(blocks, title, path.stem)
+
+        if args.publish:
+            upload_assets(blocks, path.parent, cache_path, args.dry_run)
+            create_document(blocks, title, path.stem, args.dry_run)
+        else:
+            pending = sum(1 for b in blocks if b.get("type") == "image")
+            out = path.with_suffix(".prismic.json")
+            out.write_text(json.dumps(blocks, indent=2))
+            note = (f"; {pending} image block(s) still need asset ids, "
+                    f"which --publish fills in") if pending else ""
+            print(f"    wrote {out.name}{note}")
 
 
 if __name__ == "__main__":

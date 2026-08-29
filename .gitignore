@@ -7,3 +7,4 @@ __pycache__/
 viz/fertility_data.json
 posts/*.prismic.json
 viz/dist/
+posts/.prismic-assets.json
