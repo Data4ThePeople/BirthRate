@@ -335,8 +335,15 @@ def upload_assets(blocks: list[dict], base: Path, cache_path: Path,
 
         if src not in cache:
             if dry_run:
+                # never persisted: a placeholder id written to the cache would be
+                # trusted by the next real run, which then references an asset
+                # that does not exist
                 print(f"    would upload {path.name}")
                 cache[src] = {"id": "DRYRUN", "width": 0, "height": 0}
+                block["id"] = "DRYRUN"
+                block["copyright"] = None
+                block["dimensions"] = {"width": 0, "height": 0}
+                continue
             else:
                 with path.open("rb") as fh:
                     resp = requests.post(
@@ -355,7 +362,7 @@ def upload_assets(blocks: list[dict], base: Path, cache_path: Path,
                 cache[src] = {"id": body.get("id") or body.get("asset_id"),
                               "width": w, "height": h}
                 print(f"    uploaded {path.name} -> {cache[src]['id']}")
-            cache_path.write_text(json.dumps(cache, indent=2))
+                cache_path.write_text(json.dumps(cache, indent=2))
 
         asset = cache[src]
         block["id"] = asset["id"]
@@ -455,8 +462,8 @@ def main() -> None:
     if not args.files:
         ap.error("give at least one Markdown file, or --check / --list-types")
 
-    cache_path = Path(__file__).parent / ".prismic-assets.json"
     for path in args.files:
+        cache_path = path.parent / ".prismic-assets.json"
         meta, markdown = split_frontmatter(path.read_text())
         blocks = convert(markdown, args.tables)
         title = next((b["text"] for b in blocks if b["type"] == "heading1"), path.stem)
