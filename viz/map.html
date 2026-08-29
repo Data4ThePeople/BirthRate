@@ -55,7 +55,8 @@ body{
   font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:1120px; margin:0 auto; padding:0 24px 96px}
+.wrap{max-width:1120px; margin:0 auto; padding:0 24px 96px;
+  container-type:inline-size}
 h1,h2,h3{font-family:Newsreader,Georgia,"Times New Roman",serif; font-weight:500;
   text-wrap:balance; margin:0; letter-spacing:-.01em}
 h1{font-size:clamp(2.4rem,5.2vw,3.9rem); line-height:1.04; letter-spacing:-.025em}
@@ -223,10 +224,25 @@ ul.sources li{display:grid; grid-template-columns:150px 1fr; gap:14px; color:var
 ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weight:500;
   color:var(--ink); letter-spacing:.03em; text-transform:uppercase}
 
-@media (max-width:720px){
+@container (max-width:830px){
+  .controls{gap:10px; padding:12px 14px}
+  .segmented button{padding:6px 10px; font-size:.78rem}
+  .statepick select{font-size:.78rem; padding:6px 8px; max-width:38vw}
+  .playbar{flex:1 1 100%; min-width:0; gap:10px}
+  .playbar input[type=range]{min-width:0}
+  .yearout{font-size:1.15rem; min-width:3.6ch}
+  .yearnote{display:none}
+  /* let the map scale down rather than scroll sideways; the state selector is
+     the way in on a small screen */
+  .mapbox svg{min-width:0}
+  .legend{gap:14px}
+  .statebar{gap:12px}
+  .statebar .unit{display:none}
+}
+@container (max-width:720px){
   .decomp-row{grid-template-columns:1fr; gap:5px}
   ul.sources li{grid-template-columns:1fr; gap:2px}
-  .controls{gap:14px}
+  .chartgrid{grid-template-columns:1fr}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none !important; animation:none !important}
@@ -243,7 +259,7 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
 html,body{height:100%}
 body{background:var(--surface); margin:0; overflow:hidden}
 .wrap{max-width:none; padding:0; height:100%; display:flex; flex-direction:column;
-  container-type:inline-size; container-name:embed}
+  container-type:inline-size}
 #map{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
 .panel{border:0; border-radius:0; box-shadow:none; flex:1 1 auto; min-height:0;
   display:flex; flex-direction:column; width:100%}
@@ -261,7 +277,7 @@ body{background:var(--surface); margin:0; overflow:hidden}
 .embed-foot b{font-family:"IBM Plex Mono",monospace; font-weight:500;
   letter-spacing:.04em; text-transform:uppercase; font-size:.66rem; color:var(--ink-2)}
 
-@container embed (max-width: 830px){
+@container (max-width: 830px){
   .controls{gap:10px; padding:10px 12px}
   .segmented button{padding:6px 10px; font-size:.78rem}
   .statepick select{font-size:.78rem; padding:6px 8px}

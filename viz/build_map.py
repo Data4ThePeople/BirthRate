@@ -34,7 +34,7 @@ EMBED_CSS = """
 html,body{height:100%}
 body{background:var(--surface); margin:0; overflow:hidden}
 .wrap{max-width:none; padding:0; height:100%; display:flex; flex-direction:column;
-  container-type:inline-size; container-name:embed}
+  container-type:inline-size}
 #map{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
 .panel{border:0; border-radius:0; box-shadow:none; flex:1 1 auto; min-height:0;
   display:flex; flex-direction:column; width:100%}
@@ -52,7 +52,7 @@ body{background:var(--surface); margin:0; overflow:hidden}
 .embed-foot b{font-family:"IBM Plex Mono",monospace; font-weight:500;
   letter-spacing:.04em; text-transform:uppercase; font-size:.66rem; color:var(--ink-2)}
 
-@container embed (max-width: 830px){
+@container (max-width: 830px){
   .controls{gap:10px; padding:10px 12px}
   .segmented button{padding:6px 10px; font-size:.78rem}
   .statepick select{font-size:.78rem; padding:6px 8px}
