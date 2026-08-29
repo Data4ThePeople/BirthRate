@@ -73,7 +73,7 @@ def block(kind: str, text: str) -> dict:
 def convert(markdown: str, tables: str = "preformatted") -> list[dict]:
     blocks: list[dict] = []
     lines = markdown.replace("\r\n", "\n").split("\n")
-    i, warnings = 0, []
+    i, warnings, images = 0, [], []
 
     while i < len(lines):
         line = lines[i].rstrip()
@@ -110,6 +110,18 @@ def convert(markdown: str, tables: str = "preformatted") -> list[dict]:
                                    "text": "  ".join("-" * w for w in widths), "spans": []})
             continue
 
+        image = re.match(r"^!\[(?P<alt>[^\]]*)\]\((?P<src>[^)]+)\)\s*$", line)
+        if image:
+            # Rich Text images must point at a Prismic-hosted asset, so the file
+            # cannot be inlined from here. Leave an obvious marker at the right
+            # position for the image to be dropped in.
+            name = image["src"].rsplit("/", 1)[-1]
+            blocks.append({"type": "preformatted",
+                           "text": f"[IMAGE: {name}]", "spans": []})
+            images.append(name)
+            i += 1
+            continue
+
         bullet = re.match(r"^\s*[-*]\s+(.*)$", line)
         if bullet:
             blocks.append(block("list-item", bullet[1].strip()))
@@ -139,6 +151,9 @@ def convert(markdown: str, tables: str = "preformatted") -> list[dict]:
     if warnings:
         print(f"  note: {len(warnings)} table(s) rendered as preformatted text "
               f"({tables}); Prismic Rich Text has no table block", file=sys.stderr)
+    if images:
+        print(f"  note: {len(images)} image placeholder(s): {', '.join(images)}",
+              file=sys.stderr)
     return blocks
 
 

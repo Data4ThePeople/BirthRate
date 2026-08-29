@@ -26,6 +26,10 @@ That is worth sitting with, because it means most of what people describe as a l
 
 Split those 3,098 counties into metropolitan and non-metropolitan and the reorganisation is obvious.
 
+![Fertility rate, metro against non-metro counties, 1982-2024. Births per 1,000 women aged 15-44.](images/01-metro-vs-nonmetro-rate.png)
+
+*Fertility rate, metro against non-metro counties, 1982-2024. Births per 1,000 women aged 15-44.*
+
 - **1982** — metro 66.0, nonmetro 74.2. Rural fertility runs 8.2 points higher.
 - **1987** — they cross. Rural falls below metro for the first time.
 - **1994** — the low point. Rural now runs 3.7 points *below* metro.
@@ -39,6 +43,10 @@ This is the trap in choosing a start date. A panel beginning in 1991 — which i
 ## It is not age structure
 
 An obvious objection: rural populations are older, and an older female population produces fewer births even if nobody's behaviour changed. Since young adults have been leaving rural counties throughout this period, that could generate the whole pattern artificially.
+
+![The same comparison after standardising for each area's female age structure. Both crossings survive.](images/01-age-standardised.png)
+
+*The same comparison after standardising for each area's female age structure. Both crossings survive.*
 
 It doesn't. Applying the national age-specific fertility schedule to each area's own female age distribution — indirect standardisation, which asks how many births you would expect given who actually lives there — the same two crossings survive, in the same years. The divergence is in behaviour, not in the age pyramid.
 
@@ -59,6 +67,10 @@ That is a genuinely useful negative result, because "everyone moved to cities an
 ## What the map shows
 
 The county map runs all forty-three years. Two things stand out that the aggregates cannot show.
+
+![Change in the fertility rate by county, 1982-84 baseline to 2024. Red is decline, blue is increase.](images/01-map-change-since-1982.png)
+
+*Change in the fertility rate by county, 1982-84 baseline to 2024. Red is decline, blue is increase.*
 
 The **Mountain West** is the deepest red on the map — Utah, Idaho, Nevada, Arizona. These were the highest-fertility counties in the country in 1982 and they gave up the most. The steepest declines are not in the places with the lowest fertility; they are in the places that had the furthest to fall.
 

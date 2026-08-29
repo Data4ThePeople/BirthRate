@@ -28,6 +28,10 @@ Run both on the American data and they agree, which is the useful part.
 
 Between 2007 and 2024 the period rate fell from 2.11 to 1.59.
 
+![The calendar-year rate against the same rate corrected for postponement. Orange marks what real cohorts actually went on to have.](images/03-period-vs-adjusted.png)
+
+*The calendar-year rate against the same rate corrected for postponement. Orange marks what real cohorts actually went on to have.*
+
 Tempo-adjusted, it fell from 2.21 to 1.72.
 
 **Ninety-four percent of the decline survives the correction.** Tested across smoothing windows from three to eleven years, the answer ranges from 94% to 116% — every specification says the same thing. And the corrected 2024 figure of 1.72 is still far below the 2.1 needed to replace a generation.
@@ -38,12 +42,13 @@ Postponement is real and substantial — the mean age of childbearing rose from 
 
 The stronger test needs no adjustment at all. Follow real cohorts and count how many children they had borne by each age:
 
-| Cohort | by 25 | by 30 | by 35 | by 45 |
-|---|---|---|---|---|
-| 1950 | 1.02 | 1.57 | 1.89 | 2.05 |
-| 1970 | 0.83 | 1.38 | 1.84 | 2.13 |
-| 1980 | 0.78 | 1.36 | 1.85 | 2.17 |
-| **1990** | **0.62** | **1.11** | **1.59** | — |
+![Cumulative children per woman by exact age. The 1990 cohort runs below every predecessor and does not close the gap.](images/03-children-by-age.png)
+
+*Cumulative children per woman by exact age. The 1990 cohort runs below every predecessor and does not close the gap.*
+
+![Cumulative children per woman by age and birth cohort](images/03-cohort-table.png)
+
+*Cumulative children per woman by exact age, by birth cohort.*
 
 Read the 1970 and 1980 rows first. They run *below* the 1950 cohort at 25 and 30, then catch up completely by 45 and finish higher. That is what postponement looks like: behind early, level by the end.
 

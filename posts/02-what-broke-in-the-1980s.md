@@ -52,6 +52,10 @@ Farming-dependent counties do fall harder, and it holds up under scrutiny. They 
 
 The farm crisis is real in these numbers. It is not the largest effect in them.
 
+![Fall in the fertility rate, 1982-87, for rural counties grouped by what their economies ran on in 1975-79.](images/02-fall-by-county-type.png)
+
+*Fall in the fertility rate, 1982-87, for rural counties grouped by what their economies ran on in 1975-79.*
+
 Mining counties fell half again as much as farming counties, and the two groups barely overlap — seven counties out of roughly 750. The mining counties are exactly where you would expect: Texas, Kentucky, Wyoming, West Virginia, Colorado, Utah. Oil patch and Appalachian coal.
 
 Which points at the real organising principle. Oil went from about $35 a barrel in 1981 to roughly $10 by 1986, on the same schedule as grain, driven by the same soaring dollar and the same twenty percent interest rates. The farm crisis and the energy bust were not two events. They were one macroeconomic shock arriving in two industries.
@@ -61,6 +65,10 @@ Which points at the real organising principle. Oil went from about $35 a barrel 
 ## The gradient that reversed
 
 There is a second way to see it. Ranked along the USDA's rural–urban continuum, each era produces a clean monotonic gradient — and the two point in opposite directions at almost mirrored magnitudes.
+
+![The same groups carried through to 2024. Mining and farming counties start far above the rest and converge down onto them.](images/02-sector-trajectories.png)
+
+*The same groups carried through to 2024. Mining and farming counties start far above the rest and converge down onto them.*
 
 **1982 to 1994:** large metro +4.4%, small metro −8.8%, small town −19.5%, remote rural −22.3%. The more rural, the harder the fall.
 
