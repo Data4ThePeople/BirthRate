@@ -106,6 +106,40 @@ PYTHONPATH=src .venv/bin/python tests/validate.py
 PYTHONPATH=src .venv/bin/python viz/build_data.py && .venv/bin/python viz/build_page.py
 ```
 
+## Timing versus quantum
+
+A period rate is synthetic: when women postpone, births that will still happen are not
+happening yet, and the year reads low even if no generation ends up smaller. In 1976 the
+US period rate hit 1.73 and set off a decade of "birth dearth" alarm — but the women at
+peak childbearing age that year completed at **2.26** children. The panic measured
+postponement, not decline.
+
+The present decline is not the same illusion:
+
+| | |
+|---|---|
+| Period TFR, 2007 → 2024 | 2.11 → 1.59 |
+| Tempo-adjusted (Bongaarts–Feeney), 2007 → 2024 | 2.21 → 1.72 |
+| Share of the fall surviving the adjustment | **94%** (94–116% across smoothing windows) |
+| Mean age of childbearing | 27.9 → 30.0 |
+
+The model-free test agrees. Cumulative children per woman by exact age, by birth cohort:
+
+| Cohort | by 25 | by 30 | by 35 | by 45 |
+|---|---|---|---|---|
+| 1970 | 0.83 | 1.38 | 1.84 | 2.13 |
+| 1980 | 0.78 | 1.36 | 1.85 | 2.17 |
+| 1990 | **0.62** | **1.11** | **1.59** | — |
+
+The 1990 cohort is behind at every age and the absolute shortfall keeps widening
+(−0.16 by 25, −0.25 by 30, −0.26 by 35). Ages 35–44 contributed 0.32 children to the
+1980 cohort, so even matching that exactly leaves the 1990 cohort near 1.91.
+
+Two caveats. The Bongaarts–Feeney form used here is the aggregate one; the order-specific
+version is better behaved but needs birth order, which public data does not carry for the
+modern era. And cohorts born after 1980 are incomplete, so the quantum of women currently
+in their twenties and thirties is genuinely not yet knowable — only their trajectory is.
+
 ## What this does not answer
 
 Age standardisation removes the effect of local female age structure. It does not remove

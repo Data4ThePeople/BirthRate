@@ -13,6 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from birthrate.analysis import (by_county_type, by_metro, load,  # noqa: E402
                                 shift_share)
 from birthrate.geography import UNIT_LABELS, to_unit  # noqa: E402
+from birthrate.tempo import (bongaarts_feeney, cohort_completed_fertility,  # noqa: E402
+                             cumulative_by_age, national_asfr)
 from birthrate.sources.rucc import RUCC_CLASS  # noqa: E402
 from project import geometry_paths, state_paths  # noqa: E402
 
@@ -170,6 +172,21 @@ def main() -> None:
         for label, v in ctypes.items()
     }
 
+    asfr = national_asfr(1940, years[-1])
+    bf = bongaarts_feeney(asfr)
+    ccf = cohort_completed_fertility(asfr)
+    COHORTS = [1950, 1960, 1970, 1980, 1990]
+    tempo = {
+        "years": [int(y) for y in bf.index],
+        "tfr": [round(v, 3) for v in bf["tfr"]],
+        "adjusted": [None if pd.isna(v) else round(v, 3) for v in bf["tfr_adjusted"]],
+        "meanAge": [round(v, 2) for v in bf["mac"]],
+        "ccf": [{"cohort": int(c), "ccf": round(r.ccf, 3),
+                 "meanYear": round(r.mean_year, 1)} for c, r in ccf.iterrows()],
+        "cumulative": {str(c): v for c, v in cumulative_by_age(asfr, COHORTS).items()},
+        "cohorts": COHORTS,
+    }
+
     national = panel.groupby("year").apply(
         lambda g: 1000 * g["births"].sum() / g["women_15_44"].sum(),
         include_groups=False,
@@ -191,6 +208,7 @@ def main() -> None:
         "metro": metro_series,
         "rucc": rucc_rows,
         "countyTypes": county_types,
+        "tempo": tempo,
         "decomposition": {
             "within": round(ss["within"].sum(), 2),
             "between": round(ss["between"].sum(), 2),
