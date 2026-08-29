@@ -1,0 +1,7 @@
+data/raw/
+data/processed/
+__pycache__/
+*.pyc
+.venv/
+.idea/
+viz/fertility_data.json

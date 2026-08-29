@@ -1,0 +1,150 @@
+"""End-to-end validation of the county-year fertility panel.
+
+Run: PYTHONPATH=src .venv/bin/python tests/validate.py
+"""
+from __future__ import annotations
+
+import statistics
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from birthrate.panel import FIRST_YEAR, INTERPOLATED_YEARS, LAST_YEAR  # noqa: E402
+from birthrate.sources.asfr import BAND_TO_COL, load_asfr  # noqa: E402
+
+PANEL = Path("data/processed/county_year_fertility.parquet")
+
+# NCHS published national live births, calendar year, final data.
+NCHS_BIRTHS = {
+    1991: 4_110_907, 1992: 4_065_014, 1993: 4_000_240, 1994: 3_952_767,
+    1995: 3_899_589, 1996: 3_891_494, 1997: 3_880_894, 1998: 3_941_553,
+    1999: 3_959_417, 2000: 4_058_814, 2001: 4_025_933, 2002: 4_021_726,
+    2003: 4_089_950, 2004: 4_112_052, 2005: 4_138_349, 2006: 4_265_555,
+    2007: 4_316_233, 2008: 4_247_694, 2009: 4_130_665, 2010: 3_999_386,
+    2011: 3_953_590, 2012: 3_952_841, 2013: 3_932_181, 2014: 3_988_076,
+    2015: 3_978_497, 2016: 3_945_875, 2017: 3_855_500, 2018: 3_791_712,
+    2019: 3_747_540, 2020: 3_613_647, 2021: 3_664_292, 2022: 3_667_758,
+    2023: 3_596_017,
+}
+
+# Orleans and St Bernard Parish after Hurricane Katrina: a real population
+# event, not a data defect, and the only legitimate large discontinuity.
+KATRINA_UNITS = {"22071", "22087"}
+
+results: list[tuple[bool, str]] = []
+
+
+def check(name: str, ok: bool, detail: str = "") -> None:
+    results.append((bool(ok), f"{name}{': ' + detail if detail else ''}"))
+
+
+def main() -> int:
+    p = pd.read_parquet(PANEL)
+    nat = p.groupby("year").agg(births=("births", "sum"),
+                                women=("women_15_44", "sum"))
+    nat["gfr"] = 1000 * nat["births"] / nat["women"]
+
+    # --- 1. National births track published NCHS totals -------------------
+    cal = {y: abs(nat.loc[y, "births"] - v) / v * 100
+           for y, v in NCHS_BIRTHS.items()}
+    check("national births track NCHS (median <1%, max <4%)",
+          statistics.median(cal.values()) < 1.0 and max(cal.values()) < 4.0,
+          f"median {statistics.median(cal.values()):.2f}%, "
+          f"max {max(cal.values()):.2f}% ({max(cal, key=cal.get)})")
+
+    # --- 2. The residual is the July-June estimate-year window ------------
+    # PEP estimate year t spans Jul t-1 to Jun t, so it should sit closer to
+    # the mean of calendar years t-1 and t than to calendar year t alone.
+    blend = {}
+    for y in NCHS_BIRTHS:
+        if y - 1 in NCHS_BIRTHS:
+            mid = (NCHS_BIRTHS[y - 1] + NCHS_BIRTHS[y]) / 2
+            blend[y] = abs(nat.loc[y, "births"] - mid) / mid * 100
+    shared = [y for y in blend if y in cal]
+    check("estimate-year window explains the residual",
+          statistics.median(blend[y] for y in shared)
+          < statistics.median(cal[y] for y in shared)
+          and max(blend.values()) < max(cal.values()),
+          f"median {statistics.median(blend.values()):.2f}% vs "
+          f"{statistics.median(cal[y] for y in shared):.2f}% unaligned")
+
+    # --- 3. Denominators validated against the national rate schedule -----
+    band_cols = list(BAND_TO_COL.values())
+    asfr = load_asfr(FIRST_YEAR, LAST_YEAR).set_index("year")
+    expected = (p.groupby("year")[band_cols].sum() * asfr / 1000.0).sum(axis=1)
+    dev = {y: abs(expected[y] - v) / v * 100
+           for y, v in NCHS_BIRTHS.items()}
+    check("SEER age structure x NCHS rates reproduces NCHS births (<1%)",
+          max(dev.values()) < 1.0,
+          f"median {statistics.median(dev.values()):.2f}%, max {max(dev.values()):.2f}%")
+
+    # --- 4-5. Boundary integrity ------------------------------------------
+    per_year = p.groupby("year")["fips"].apply(frozenset)
+    check("unit set identical across all years", per_year.nunique() == 1,
+          f"{p.fips.nunique():,} units")
+    n_years = LAST_YEAR - FIRST_YEAR + 1
+    counts = p.groupby("fips")["year"].count()
+    check("every unit has every year", bool((counts == n_years).all()),
+          f"{n_years} years each")
+
+    # --- 6. No partial-year stub survived ---------------------------------
+    low = nat[nat["births"] < 2_000_000]
+    check("no partial-year stub in the series", low.empty,
+          "none" if low.empty else f"years {list(low.index)}")
+
+    # --- 7. Interpolation confined to documented gaps ---------------------
+    interp = sorted(int(y) for y in p.loc[p["births_interpolated"], "year"].unique())
+    check("interpolation only in documented gap years",
+          interp == INTERPOLATED_YEARS, str(interp))
+
+    # --- 8. Discontinuities ------------------------------------------------
+    ordered = p.sort_values(["fips", "year"]).copy()
+    prev = ordered.groupby("fips")["births"].shift()
+    jump = (ordered["births"] - prev).abs() / prev.where(prev > 0)
+    material = ordered.loc[
+        (jump > 0.5)
+        & (prev > 1000)
+        & ~ordered["fips"].isin(KATRINA_UNITS)
+        & ~ordered["year"].isin(INTERPOLATED_YEARS)
+    ]
+    check("no unexplained jumps in units with >1,000 births", material.empty,
+          "none" if material.empty
+          else str(material[["fips", "year"]].to_dict("records")))
+
+    flagged = int(p["births_outlier"].sum())
+    check("isolated source anomalies stay rare (<0.1% of rows)",
+          flagged / len(p) < 0.001, f"{flagged} of {len(p):,} rows")
+
+    # --- 9-10. Metric integrity -------------------------------------------
+    nat_cfr = p.groupby("year").apply(
+        lambda g: (g["births"] / g["cfr"]).sum() / g["births"].sum(),
+        include_groups=False,
+    )
+    ratio = p.groupby("year")["births"].sum() / p.groupby("year")["expected_births"].sum()
+    implied = p.groupby("year").apply(
+        lambda g: g["births"].sum() / g["expected_births"].sum(), include_groups=False
+    )
+    check("national CFR normalized to 1.0",
+          bool(((implied / ratio) - 1.0).abs().max() < 1e-9))
+    for col in ["gfr", "cfr", "rucc_2013", "expected_births"]:
+        check(f"no missing {col}", int(p[col].isna().sum()) == 0)
+
+    passed = sum(ok for ok, _ in results)
+    print(f"{'PASS' if passed == len(results) else 'FAIL'}  "
+          f"({passed}/{len(results)} checks)\n")
+    for ok, msg in results:
+        print(f"  {'PASS' if ok else 'FAIL'}  {msg}")
+
+    print("\nnational series:")
+    show = nat.loc[[1991, 1995, 2000, 2005, 2007, 2010, 2015, 2019, 2020, 2024]]
+    print(show.assign(births=lambda d: d.births.map("{:,.0f}".format),
+                      women=lambda d: d.women.map("{:,.0f}".format),
+                      gfr=lambda d: d.gfr.round(1)).to_string())
+    return 0 if passed == len(results) else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

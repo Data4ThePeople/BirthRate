@@ -1,0 +1,808 @@
+<title>The Rural Fertility Reversal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+:root{
+  color-scheme: light;
+  --plane:#f4f4f1; --surface:#fcfcfb; --surface-2:#efefea;
+  --ink:#14140f; --ink-2:#4f4e48; --muted:#88867e;
+  --rule:#dedcd3; --rule-strong:#c3c2b7;
+  --accent:#1853c6; --accent-soft:#e8edf9;
+  --series-1:#2a78d6; --series-2:#eb6834;
+  --d0:#b0062d; --d1:#cb6c6d; --d2:#dcb2b0; --d3:#e4e2db;
+  --d4:#acbfdf; --d5:#638bd5; --d6:#1853c6; --dnull:#e4e3dd;
+  --s0:#cde2fb; --s1:#9ec5f4; --s2:#6da7ec; --s3:#3987e5;
+  --s4:#256abf; --s5:#184f95; --s6:#0d366b;
+  --shadow:0 1px 2px rgba(20,20,15,.06),0 8px 24px rgba(20,20,15,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232322;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#8d8b83;
+    --rule:#2c2c2a; --rule-strong:#3d3d3a;
+    --accent:#5f9bff; --accent-soft:#182233;
+    --series-1:#3987e5; --series-2:#d95926;
+    --d0:#ee6951; --d1:#bf5542; --d2:#914234; --d3:#383835;
+    --d4:#246099; --d5:#2b7ec9; --d6:#319cfc; --dnull:#2a2a28;
+    --s0:#0d366b; --s1:#184f95; --s2:#256abf; --s3:#3987e5;
+    --s4:#6da7ec; --s5:#9ec5f4; --s6:#cde2fb;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0d0d0d; --surface:#1a1a19; --surface-2:#232322;
+  --ink:#ffffff; --ink-2:#c3c2b7; --muted:#8d8b83;
+  --rule:#2c2c2a; --rule-strong:#3d3d3a;
+  --accent:#5f9bff; --accent-soft:#182233;
+  --series-1:#3987e5; --series-2:#d95926;
+  --d0:#ee6951; --d1:#bf5542; --d2:#914234; --d3:#383835;
+  --d4:#246099; --d5:#2b7ec9; --d6:#319cfc; --dnull:#2a2a28;
+  --s0:#0d366b; --s1:#184f95; --s2:#256abf; --s3:#3987e5;
+  --s4:#6da7ec; --s5:#9ec5f4; --s6:#cde2fb;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--plane); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px; margin:0 auto; padding:0 24px 96px}
+h1,h2,h3{font-family:Newsreader,Georgia,"Times New Roman",serif; font-weight:500;
+  text-wrap:balance; margin:0; letter-spacing:-.01em}
+h1{font-size:clamp(2.4rem,5.2vw,3.9rem); line-height:1.04; letter-spacing:-.025em}
+h2{font-size:clamp(1.6rem,3vw,2.15rem); line-height:1.15}
+h3{font-size:1.16rem; line-height:1.3}
+p{margin:0}
+a{color:var(--accent)}
+
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.72rem;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--muted);
+}
+header.masthead{padding:72px 0 40px; display:flex; flex-direction:column; gap:22px}
+header.masthead .rule{height:2px; background:var(--ink); width:64px}
+.standfirst{font-size:1.2rem; line-height:1.62; color:var(--ink-2); max-width:63ch}
+.standfirst strong{color:var(--ink); font-weight:600}
+.byline{font-family:"IBM Plex Mono",monospace; font-size:.76rem; color:var(--muted);
+  display:flex; gap:18px; flex-wrap:wrap; padding-top:6px;
+  border-top:1px solid var(--rule)}
+
+section{padding-top:64px}
+.section-head{display:flex; flex-direction:column; gap:12px; margin-bottom:26px; max-width:70ch}
+.section-head p{color:var(--ink-2)}
+
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); border-radius:3px; overflow:hidden}
+.tile{background:var(--surface); padding:22px 24px 24px; display:flex; flex-direction:column; gap:6px}
+.tile .k{font-family:"IBM Plex Mono",monospace; font-size:.68rem; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--muted)}
+.tile .v{font-family:Newsreader,Georgia,serif; font-size:2.7rem; line-height:1;
+  letter-spacing:-.02em; margin:4px 0 2px}
+.tile .d{font-size:.88rem; color:var(--ink-2); line-height:1.45}
+
+.panel{background:var(--surface); border:1px solid var(--rule); border-radius:3px;
+  box-shadow:var(--shadow)}
+.panel-pad{padding:22px 24px 26px}
+
+.controls{display:flex; flex-wrap:wrap; align-items:center; gap:20px;
+  padding:16px 24px; border-bottom:1px solid var(--rule)}
+.segmented{display:inline-flex; border:1px solid var(--rule-strong); border-radius:3px; overflow:hidden}
+.segmented button{
+  appearance:none; border:0; background:var(--surface); color:var(--ink-2);
+  font-family:inherit; font-size:.83rem; font-weight:500; padding:7px 15px; cursor:pointer;
+}
+.segmented button+button{border-left:1px solid var(--rule-strong)}
+.segmented button[aria-pressed="true"]{background:var(--ink); color:var(--surface)}
+.segmented button:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+
+.playbar{display:flex; align-items:center; gap:14px; flex:1 1 340px; min-width:280px}
+.play{appearance:none; width:38px; height:38px; flex:none; border-radius:50%;
+  border:1px solid var(--rule-strong); background:var(--surface); color:var(--ink);
+  cursor:pointer; display:grid; place-items:center}
+.play:hover{background:var(--surface-2)}
+.play:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.play svg{width:14px; height:14px; fill:currentColor}
+input[type=range]{flex:1; accent-color:var(--accent); height:22px; min-width:140px}
+.yearout{font-family:"IBM Plex Mono",monospace; font-size:1.5rem; font-weight:500;
+  font-variant-numeric:tabular-nums; min-width:4.2ch; text-align:right}
+.yearnote{font-family:"IBM Plex Mono",monospace; font-size:.68rem; color:var(--muted);
+  min-width:9ch}
+
+.mapbox{position:relative; overflow-x:auto}
+.mapbox svg{display:block; width:100%; height:auto; min-width:620px}
+.county{stroke:var(--surface); stroke-width:.22; vector-effect:non-scaling-stroke}
+.county.hi{stroke:var(--ink); stroke-width:1.4}
+.stateline{fill:none; stroke:var(--rule-strong); stroke-width:.55;
+  vector-effect:non-scaling-stroke; pointer-events:none}
+
+.legend{display:flex; flex-wrap:wrap; align-items:flex-end; gap:22px;
+  padding:16px 24px 20px; border-top:1px solid var(--rule)}
+.ramp{display:flex; flex-direction:column; gap:5px}
+.ramp .swatches{display:flex; gap:2px}
+.ramp .sw{width:44px; height:13px; border-radius:1px}
+.ramp .ticks{display:flex; gap:2px; font-family:"IBM Plex Mono",monospace;
+  font-size:.64rem; color:var(--muted); font-variant-numeric:tabular-nums}
+.ramp .ticks span{width:44px; text-align:right}
+.ramp .cap{font-family:"IBM Plex Mono",monospace; font-size:.66rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+
+.tooltip{position:absolute; pointer-events:none; z-index:20; opacity:0;
+  transition:opacity .1s; background:var(--surface); border:1px solid var(--rule-strong);
+  border-radius:3px; box-shadow:var(--shadow); padding:11px 13px; min-width:186px}
+.tooltip[data-show="1"]{opacity:1}
+.tooltip .tt-name{font-weight:600; font-size:.9rem; line-height:1.3; margin-bottom:7px}
+.tooltip dl{margin:0; display:grid; grid-template-columns:auto auto; gap:3px 14px;
+  font-size:.8rem; font-variant-numeric:tabular-nums}
+.tooltip dt{color:var(--muted)}
+.tooltip dd{margin:0; text-align:right; font-family:"IBM Plex Mono",monospace}
+
+.chartgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(400px,1fr)); gap:24px}
+.chart-title{display:flex; flex-direction:column; gap:3px; margin-bottom:4px}
+.chart-title .t{font-weight:600; font-size:.98rem}
+.chart-title .s{font-size:.83rem; color:var(--ink-2)}
+.legend-inline{display:flex; gap:16px; flex-wrap:wrap; margin:10px 0 2px;
+  font-size:.82rem; color:var(--ink-2)}
+.legend-inline span{display:inline-flex; align-items:center; gap:7px}
+.legend-inline i{width:14px; height:3px; border-radius:2px; display:inline-block}
+.chart svg{display:block; width:100%; height:auto; overflow:visible}
+.grid line{stroke:var(--rule); stroke-width:1}
+.axis line{stroke:var(--rule-strong); stroke-width:1}
+.axis text,.tick text{font-family:"IBM Plex Mono",monospace; font-size:10px;
+  fill:var(--muted); font-variant-numeric:tabular-nums}
+.serie{fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+.dot{stroke:var(--surface); stroke-width:2}
+.bar{rx:2}
+.barlabel{font-family:"IBM Plex Mono",monospace; font-size:10.5px; fill:var(--ink-2);
+  font-variant-numeric:tabular-nums}
+.barcat{font-size:11.5px; fill:var(--ink); font-family:"IBM Plex Sans",sans-serif}
+.annot{font-size:11px; fill:var(--ink-2)}
+.annot-line{stroke:var(--rule-strong); stroke-width:1; stroke-dasharray:3 3}
+
+.decomp{display:flex; flex-direction:column; gap:14px}
+.decomp-row{display:grid; grid-template-columns:190px 1fr auto; gap:16px; align-items:center}
+.decomp-row .lbl{font-size:.88rem}
+.decomp-track{height:26px; background:var(--surface-2); border-radius:2px; position:relative}
+.decomp-fill{position:absolute; top:0; bottom:0; border-radius:2px}
+.decomp-val{font-family:"IBM Plex Mono",monospace; font-size:.85rem;
+  font-variant-numeric:tabular-nums; min-width:8ch; text-align:right}
+
+details.tabledrop{margin-top:18px; border-top:1px solid var(--rule); padding-top:14px}
+details.tabledrop summary{cursor:pointer; font-size:.85rem; color:var(--ink-2);
+  font-family:"IBM Plex Mono",monospace; letter-spacing:.04em}
+details.tabledrop summary:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.tablescroll{overflow-x:auto; margin-top:14px}
+table{border-collapse:collapse; width:100%; font-size:.83rem;
+  font-variant-numeric:tabular-nums}
+th,td{text-align:right; padding:6px 12px; border-bottom:1px solid var(--rule); white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--muted); font-weight:500; font-family:"IBM Plex Mono",monospace;
+  font-size:.7rem; letter-spacing:.08em; text-transform:uppercase}
+
+.prose{max-width:66ch; display:flex; flex-direction:column; gap:16px; color:var(--ink-2)}
+.prose h3{color:var(--ink); margin-top:12px}
+.prose strong{color:var(--ink); font-weight:600}
+.notegrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px}
+.note{display:flex; flex-direction:column; gap:7px}
+.note .h{font-weight:600; font-size:.92rem; color:var(--ink)}
+.note p{font-size:.88rem; color:var(--ink-2); line-height:1.55}
+ul.sources{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:9px;
+  font-size:.86rem}
+ul.sources li{display:grid; grid-template-columns:150px 1fr; gap:14px; color:var(--ink-2)}
+ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weight:500;
+  color:var(--ink); letter-spacing:.03em; text-transform:uppercase}
+
+@media (max-width:720px){
+  .decomp-row{grid-template-columns:1fr; gap:5px}
+  ul.sources li{grid-template-columns:1fr; gap:2px}
+  .controls{gap:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important; animation:none !important}
+}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <div class="eyebrow">County fertility &middot; United States &middot; 1991&ndash;2024</div>
+  <div class="rule"></div>
+  <h1>The rural fertility reversal</h1>
+  <p class="standfirst">In 1991 American women in metropolitan counties had children at a
+  <strong>higher</strong> rate than women in rural ones. Thirty-three years later the ranking has
+  flipped and the gap is wide. This is a map of where the birth rate actually fell &mdash; and it
+  fell hardest in the biggest cities.</p>
+  <div class="byline">
+    <span>3,098 county units</span><span>34 years</span>
+    <span>Census PEP &middot; SEER &middot; NCHS</span>
+  </div>
+</header>
+
+<section id="findings" style="padding-top:34px">
+  <div class="tiles">
+    <div class="tile">
+      <div class="k">National fertility rate</div>
+      <div class="v" id="tile-nat">&mdash;</div>
+      <div class="d">Births per 1,000 women aged 15&ndash;44, 1991 &rarr; 2024.</div>
+    </div>
+    <div class="tile">
+      <div class="k">Large metro counties</div>
+      <div class="v" id="tile-metro">&mdash;</div>
+      <div class="d">Change in fertility rate, counties in metro areas of 1M+.</div>
+    </div>
+    <div class="tile">
+      <div class="k">Remote rural counties</div>
+      <div class="v" id="tile-rural">&mdash;</div>
+      <div class="d">Same measure, rural counties not adjacent to any metro area.</div>
+    </div>
+    <div class="tile">
+      <div class="k">Counties that rose</div>
+      <div class="v" id="tile-rose">&mdash;</div>
+      <div class="d">Share of county units where fertility is higher now than in 1991.</div>
+    </div>
+  </div>
+</section>
+
+<section id="map">
+  <div class="section-head">
+    <h2>Thirty-four years, county by county</h2>
+    <p>Press play to run the series. The default view shows each county against
+    its own 1991&ndash;93 baseline, so colour means change rather than level; switch to
+    <em>Fertility rate</em> to see levels instead. Rates are three-year pooled averages,
+    which keeps small counties from flickering.</p>
+  </div>
+
+  <div class="panel">
+    <div class="controls">
+      <div class="segmented" role="group" aria-label="Map measure">
+        <button type="button" id="btn-chg" aria-pressed="true">Change since 1991</button>
+        <button type="button" id="btn-lvl" aria-pressed="false">Fertility rate</button>
+      </div>
+      <div class="playbar">
+        <button class="play" id="play" type="button" aria-label="Play the animation">
+          <svg id="play-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1.5v13l11-6.5z"/></svg>
+        </button>
+        <input type="range" id="year" min="0" max="33" value="33" step="1"
+               aria-label="Year" aria-valuetext="2024">
+        <div class="yearout" id="yearout">2024</div>
+        <div class="yearnote" id="yearnote"></div>
+      </div>
+    </div>
+
+    <div class="mapbox" id="mapbox">
+      <svg id="usmap" viewBox="25 54 847 501" role="img"
+           aria-label="Choropleth map of United States counties by fertility rate">
+        <g id="counties"></g>
+        <path id="states" class="stateline"></path>
+      </svg>
+      <div class="tooltip" id="tip" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="legend">
+      <div class="ramp">
+        <div class="cap" id="legend-cap">Change vs 1991&ndash;93 baseline</div>
+        <div class="swatches" id="legend-sw"></div>
+        <div class="ticks" id="legend-tk"></div>
+      </div>
+      <div class="ramp">
+        <div class="cap">Coverage</div>
+        <div style="font-size:.8rem; color:var(--ink-2); max-width:30ch; line-height:1.4">
+          Every county unit carries a value in every year &mdash; nothing on this map is
+          suppressed or missing.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="divergence">
+  <div class="section-head">
+    <h2>The crossover</h2>
+    <p>Splitting those counties into metropolitan and non-metropolitan gives the clearest
+    view of what happened. The two lines cross in the mid-2000s. The right-hand chart repeats
+    the exercise after standardising for the age structure of each area's female
+    population &mdash; the divergence survives, so it is not an artefact of who is older
+    where.</p>
+  </div>
+  <div class="chartgrid">
+    <div class="panel panel-pad chart">
+      <div class="chart-title">
+        <span class="t">Fertility rate</span>
+        <span class="s">Births per 1,000 women aged 15&ndash;44</span>
+      </div>
+      <div class="legend-inline" id="lg1"></div>
+      <div id="chart-gfr"></div>
+    </div>
+    <div class="panel panel-pad chart">
+      <div class="chart-title">
+        <span class="t">Age-standardised fertility</span>
+        <span class="s">Observed &divide; expected births, national average = 1.00</span>
+      </div>
+      <div class="legend-inline" id="lg2"></div>
+      <div id="chart-cfr"></div>
+    </div>
+  </div>
+  <details class="tabledrop">
+    <summary>Show these series as a table</summary>
+    <div class="tablescroll"><table id="tbl-metro"></table></div>
+  </details>
+</section>
+
+<section id="gradient">
+  <div class="section-head">
+    <h2>A gradient, not a divide</h2>
+    <p>The decline is not simply "cities versus countryside". Ranked along the USDA's
+    rural&ndash;urban continuum, the size of the fall tracks settlement density almost
+    monotonically: the denser the county, the further fertility fell.</p>
+  </div>
+  <div class="panel panel-pad">
+    <div class="chart-title">
+      <span class="t">Change in fertility rate, 1991&ndash;2024</span>
+      <span class="s">County units grouped by USDA rural&ndash;urban continuum code, frozen at the 2013 vintage</span>
+    </div>
+    <div id="chart-rucc"></div>
+    <details class="tabledrop">
+      <summary>Show as a table</summary>
+      <div class="tablescroll"><table id="tbl-rucc"></table></div>
+    </details>
+  </div>
+</section>
+
+<section id="decomposition">
+  <div class="section-head">
+    <h2>It is not people moving</h2>
+    <p>Women of childbearing age did move to cities: non-metro counties held
+    <span id="share91">&mdash;</span> of American women aged 15&ndash;44 in 1991 and
+    <span id="share24">&mdash;</span> by 2024. But that redistribution explains almost none
+    of the national decline. Splitting the change in the national rate into the part from
+    rates falling <em>within</em> groups and the part from women <em>moving between</em>
+    them settles it.</p>
+  </div>
+  <div class="panel panel-pad">
+    <div class="decomp" id="decomp"></div>
+    <p style="margin-top:18px; font-size:.86rem; color:var(--ink-2); max-width:70ch">
+      Migration between rural and urban America is close to irrelevant to the national
+      total, because in 1991 the places women moved <em>to</em> had the higher birth rates.
+      The decline happened inside places &mdash; and most of all inside the largest ones.
+    </p>
+  </div>
+</section>
+
+<section id="notes">
+  <div class="section-head"><h2>How this was built</h2></div>
+  <div class="prose">
+    <p>Public US birth data has a hard geographic floor: NCHS removes all geography from
+    natality microdata after 2004, and CDC WONDER identifies only counties of 100,000+
+    people, pooling everything smaller into an unnamed remainder. A map built that way
+    leaves most of rural America blank &mdash; fatal for this question.</p>
+    <p>The way around it is the Census Bureau's Population Estimates Program, which
+    publishes an annual birth count for <strong>every</strong> county as an input to its
+    population estimates. Those counts come from the same vital records but are not
+    suppressed. Paired with SEER's county population by age and sex, they give a complete
+    county fertility panel from 1991 to 2024.</p>
+  </div>
+
+  <div class="notegrid" style="margin-top:32px">
+    <div class="note"><div class="h">Estimate years, not calendar years</div>
+      <p>PEP birth years run July to June. Aligning our series to a July&ndash;June blend of
+      published NCHS calendar-year totals cuts the median discrepancy from 0.63% to 0.28%,
+      confirming the offset is the window and not an error.</p></div>
+    <div class="note"><div class="h">Two interpolated years</div>
+      <p>Every PEP vintage reports a partial quarter in its launch year, so no published
+      county file covers estimate years 2000 and 2010. Both are linearly interpolated and
+      flagged; 2020 is recovered from the vintage-2020 release.</p></div>
+    <div class="note"><div class="h">Merged geographies</div>
+      <p>Alaska, Connecticut and Hawaii are held as single statewide units, and Broomfield
+      County is merged with the four Colorado counties it was carved from in 2001, because
+      the sources cannot be reconciled below that level. Alaska is excluded from the
+      metro/non-metro series, where a single code would be misleading.</p></div>
+    <div class="note"><div class="h">What standardisation does and does not remove</div>
+      <p>The age-standardised measure removes the effect of the local female age structure.
+      It does not remove differences in who lives where &mdash; education, income, nativity,
+      marital status. Those remain open questions, not answered here.</p></div>
+  </div>
+
+  <h3 style="margin-top:38px; margin-bottom:14px">Sources</h3>
+  <ul class="sources">
+    <li><b>Births</b><span>US Census Bureau, Population Estimates Program &mdash; county components of change, vintages 1999, 2009, 2020 and 2024.</span></li>
+    <li><b>Population</b><span>NCI SEER, US county population data by age, sex and race, 1969&ndash;2024.</span></li>
+    <li><b>Rate schedule</b><span>NCHS via data.cdc.gov &mdash; birth rates for females by age group (1940&ndash;2018) and DQS birth and fertility rates (2016&ndash;2024).</span></li>
+    <li><b>Classification</b><span>USDA ERS Rural&ndash;Urban Continuum Codes, 1993 / 2003 / 2013 / 2023 vintages.</span></li>
+    <li><b>Boundaries</b><span>US Atlas TIGER-derived county and state geometry, projected to Albers USA.</span></li>
+  </ul>
+</section>
+
+</div>
+
+<script id="payload" type="application/json">__DATA__</script>
+<script>
+"use strict";
+const D = JSON.parse(document.getElementById("payload").textContent);
+const YEARS = D.years, NY = YEARS.length;
+const fmt1 = n => (n == null ? "\u2014" : n.toFixed(1));
+const pct  = n => (n == null ? "\u2014" : (n > 0 ? "+" : "") + n.toFixed(1) + "%");
+
+/* ---------- scales ---------- */
+// 6 breaks -> 7 bins, matching the 7-step ramps. Neutral band is the middle bin.
+const CHG_BREAKS = [-25, -15, -5, 5, 15, 25];
+const LVL_BREAKS = [46, 52, 58, 64, 70, 78];
+const DIV = ["--d0","--d1","--d2","--d3","--d4","--d5","--d6"];
+const SEQ = ["--s0","--s1","--s2","--s3","--s4","--s5","--s6"];
+
+function binOf(v, breaks){
+  if (v == null || Number.isNaN(v)) return -1;
+  let i = 0; while (i < breaks.length && v >= breaks[i]) i++;
+  return i;
+}
+function precompute(rows, breaks){
+  return rows.map(r => { const a = new Int8Array(r.length);
+    for (let i = 0; i < r.length; i++) a[i] = binOf(r[i], breaks); return a; });
+}
+const BIN = { chg: precompute(D.chg, CHG_BREAKS), lvl: precompute(D.gfr, LVL_BREAKS) };
+
+/* ---------- map ---------- */
+const gCounties = document.getElementById("counties");
+const paths = [], pathUnit = [];
+{
+  const frag = document.createDocumentFragment();
+  for (const fips in D.geo){
+    const el = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    el.setAttribute("d", D.geo[fips]);
+    el.setAttribute("class", "county");
+    el.dataset.i = String(paths.length);
+    frag.appendChild(el);
+    paths.push(el); pathUnit.push(D.geoUnit[fips]);
+  }
+  gCounties.appendChild(frag);
+  document.getElementById("states").setAttribute("d", Object.values(D.states).join(""));
+}
+
+let mode = "chg", yi = NY - 1;
+const drawn = new Int8Array(paths.length).fill(-99);
+
+function paint(force){
+  const bins = BIN[mode][yi];
+  const ramp = mode === "chg" ? DIV : SEQ;
+  for (let i = 0; i < paths.length; i++){
+    const b = bins[pathUnit[i]];
+    if (!force && drawn[i] === b) continue;
+    drawn[i] = b;
+    paths[i].style.fill = b < 0 ? "var(--dnull)" : `var(${ramp[b]})`;
+  }
+}
+
+const yearout = document.getElementById("yearout");
+const yearnote = document.getElementById("yearnote");
+const slider = document.getElementById("year");
+slider.max = String(NY - 1);
+
+function setYear(i, force){
+  yi = Math.max(0, Math.min(NY - 1, i));
+  slider.value = String(yi);
+  const y = YEARS[yi];
+  yearout.textContent = y;
+  slider.setAttribute("aria-valuetext", String(y));
+  yearnote.textContent = D.interpolatedYears.includes(y) ? "interpolated" : "";
+  paint(force);
+  if (hoverIdx >= 0) showTip(hoverIdx);
+}
+
+/* ---------- legend ---------- */
+function buildLegend(){
+  const sw = document.getElementById("legend-sw"), tk = document.getElementById("legend-tk");
+  const cap = document.getElementById("legend-cap");
+  sw.textContent = ""; tk.textContent = "";
+  const ramp = mode === "chg" ? DIV : SEQ;
+  const breaks = mode === "chg" ? CHG_BREAKS : LVL_BREAKS;
+  cap.textContent = mode === "chg"
+    ? "Change vs 1991\u201393 baseline (%)" : "Births per 1,000 women 15\u201344";
+  ramp.forEach((v, i) => {
+    const d = document.createElement("div");
+    d.className = "sw"; d.style.background = `var(${v})`;
+    d.title = i === 0 ? `below ${breaks[0]}`
+            : i === ramp.length - 1 ? `above ${breaks[breaks.length - 1]}`
+            : `${breaks[i - 1]} to ${breaks[i]}`;
+    sw.appendChild(d);
+    const t = document.createElement("span");
+    t.textContent = i < breaks.length ? String(breaks[i]) : "";
+    tk.appendChild(t);
+  });
+}
+
+/* ---------- tooltip ---------- */
+const tip = document.getElementById("tip"), mapbox = document.getElementById("mapbox");
+let hoverIdx = -1;
+
+function showTip(i){
+  const u = pathUnit[i], unit = D.units[u];
+  const g = D.gfr[yi][u], c = D.chg[yi][u], b = D.births[yi][u];
+  tip.innerHTML =
+    `<div class="tt-name">${D.names[unit] || unit}</div><dl>` +
+    `<dt>Year</dt><dd>${YEARS[yi]}</dd>` +
+    `<dt>Rate</dt><dd>${fmt1(g)}</dd>` +
+    `<dt>vs 1991</dt><dd>${pct(c)}</dd>` +
+    `<dt>Births</dt><dd>${b == null ? "\u2014" : b.toLocaleString()}</dd></dl>`;
+  tip.dataset.show = "1";
+}
+function moveTip(ev){
+  const r = mapbox.getBoundingClientRect();
+  let x = ev.clientX - r.left + 16, y = ev.clientY - r.top + 16;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  if (x + w > r.width) x = ev.clientX - r.left - w - 16;
+  if (y + h > r.height) y = Math.max(0, ev.clientY - r.top - h - 16);
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+gCounties.addEventListener("pointermove", ev => {
+  const t = ev.target.closest(".county");
+  if (!t){ hideTip(); return; }
+  const i = +t.dataset.i;
+  if (i !== hoverIdx){
+    if (hoverIdx >= 0) paths[hoverIdx].classList.remove("hi");
+    hoverIdx = i; t.classList.add("hi"); showTip(i);
+  }
+  moveTip(ev);
+});
+function hideTip(){
+  if (hoverIdx >= 0) paths[hoverIdx].classList.remove("hi");
+  hoverIdx = -1; tip.dataset.show = "0";
+}
+document.getElementById("usmap").addEventListener("pointerleave", hideTip);
+
+/* ---------- playback ---------- */
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const playBtn = document.getElementById("play"), playIcon = document.getElementById("play-icon");
+const ICON_PLAY = "M3 1.5v13l11-6.5z", ICON_PAUSE = "M3 1.5h4v13H3zM9 1.5h4v13H9z";
+let timer = null;
+
+function setPlaying(on){
+  if (on){
+    if (yi >= NY - 1) setYear(0);
+    playBtn.setAttribute("aria-label", "Pause the animation");
+    playIcon.firstElementChild.setAttribute("d", ICON_PAUSE);
+    timer = setInterval(() => {
+      if (yi >= NY - 1){ setPlaying(false); return; }
+      setYear(yi + 1);
+    }, 430);
+  } else {
+    clearInterval(timer); timer = null;
+    playBtn.setAttribute("aria-label", "Play the animation");
+    playIcon.firstElementChild.setAttribute("d", ICON_PLAY);
+  }
+}
+playBtn.addEventListener("click", () => setPlaying(timer === null));
+slider.addEventListener("input", () => { setPlaying(false); setYear(+slider.value); });
+
+const btnChg = document.getElementById("btn-chg"), btnLvl = document.getElementById("btn-lvl");
+function setMode(m){
+  mode = m;
+  btnChg.setAttribute("aria-pressed", String(m === "chg"));
+  btnLvl.setAttribute("aria-pressed", String(m === "lvl"));
+  buildLegend(); paint(true);
+}
+btnChg.addEventListener("click", () => setMode("chg"));
+btnLvl.addEventListener("click", () => setMode("lvl"));
+
+/* ---------- line charts ---------- */
+const NS = "http://www.w3.org/2000/svg";
+const el = (n, a) => { const e = document.createElementNS(NS, n);
+  for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+function lineChart(host, series, opts){
+  const W = 560, H = 300, M = { t: 14, r: 18, b: 30, l: 44 };
+  const iw = W - M.l - M.r, ih = H - M.t - M.b;
+  const all = series.flatMap(s => s.values);
+  let lo = Math.min(...all), hi = Math.max(...all);
+  const padY = (hi - lo) * 0.12; lo -= padY; hi += padY;
+  if (opts.zero) lo = Math.min(lo, opts.zero);
+  const X = i => M.l + (i / (NY - 1)) * iw;
+  const Y = v => M.t + ih - ((v - lo) / (hi - lo)) * ih;
+
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img",
+                          "aria-label": opts.label });
+  const gGrid = el("g", { class: "grid" });
+  const ticks = opts.ticks;
+  ticks.forEach(v => {
+    gGrid.appendChild(el("line", { x1: M.l, x2: W - M.r, y1: Y(v), y2: Y(v) }));
+    const t = el("text", { x: M.l - 8, y: Y(v) + 3.5, "text-anchor": "end" });
+    t.textContent = opts.fmtY(v); gGrid.appendChild(t);
+  });
+  svg.appendChild(gGrid);
+
+  const gAx = el("g", { class: "axis" });
+  gAx.appendChild(el("line", { x1: M.l, x2: W - M.r, y1: M.t + ih, y2: M.t + ih }));
+  [0, 9, 19, 29, NY - 1].forEach(i => {
+    const t = el("text", { x: X(i), y: H - 10, "text-anchor": "middle" });
+    t.textContent = YEARS[i]; gAx.appendChild(t);
+  });
+  svg.appendChild(gAx);
+
+  if (opts.zero != null){
+    svg.appendChild(el("line", { x1: M.l, x2: W - M.r, y1: Y(opts.zero), y2: Y(opts.zero),
+                                 class: "annot-line" }));
+  }
+
+  series.forEach(s => {
+    const d = s.values.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+    svg.appendChild(el("path", { d, class: "serie", stroke: `var(${s.color})` }));
+    svg.appendChild(el("circle", { cx: X(NY - 1), cy: Y(s.values[NY - 1]), r: 4,
+                                   fill: `var(${s.color})`, class: "dot" }));
+  });
+
+  // crossover marker where the two series swap order
+  if (series.length === 2){
+    for (let i = 1; i < NY; i++){
+      const a0 = series[0].values[i - 1] - series[1].values[i - 1];
+      const a1 = series[0].values[i] - series[1].values[i];
+      if (a0 === 0 || (a0 > 0) !== (a1 > 0)){
+        svg.appendChild(el("line", { x1: X(i), x2: X(i), y1: M.t, y2: M.t + ih, class: "annot-line" }));
+        const t = el("text", { x: X(i) + 6, y: M.t + 12, class: "annot" });
+        t.textContent = "cross " + YEARS[i]; svg.appendChild(t);
+        break;
+      }
+    }
+  }
+
+  const hover = el("g", {}); svg.appendChild(hover);
+  const vline = el("line", { y1: M.t, y2: M.t + ih, class: "annot-line", opacity: 0 });
+  hover.appendChild(vline);
+  const hdots = series.map(s => { const c = el("circle", { r: 4.5, fill: `var(${s.color})`,
+    class: "dot", opacity: 0 }); hover.appendChild(c); return c; });
+
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "relative";
+  wrapper.appendChild(svg);
+  const tt = document.createElement("div");
+  tt.className = "tooltip"; wrapper.appendChild(tt);
+
+  svg.addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect();
+    const px = (ev.clientX - r.left) / r.width * W;
+    let i = Math.round((px - M.l) / iw * (NY - 1));
+    i = Math.max(0, Math.min(NY - 1, i));
+    vline.setAttribute("x1", X(i)); vline.setAttribute("x2", X(i));
+    vline.setAttribute("opacity", 1);
+    hdots.forEach((c, k) => { c.setAttribute("cx", X(i));
+      c.setAttribute("cy", Y(series[k].values[i])); c.setAttribute("opacity", 1); });
+    tt.innerHTML = `<div class="tt-name">${YEARS[i]}</div><dl>` +
+      series.map(s => `<dt>${s.name}</dt><dd>${opts.fmtV(s.values[i])}</dd>`).join("") + `</dl>`;
+    tt.dataset.show = "1";
+    const bx = wrapper.getBoundingClientRect();
+    let x = ev.clientX - bx.left + 14;
+    if (x + tt.offsetWidth > bx.width) x = ev.clientX - bx.left - tt.offsetWidth - 14;
+    tt.style.left = x + "px"; tt.style.top = "8px";
+  });
+  svg.addEventListener("pointerleave", () => {
+    tt.dataset.show = "0"; vline.setAttribute("opacity", 0);
+    hdots.forEach(c => c.setAttribute("opacity", 0));
+  });
+
+  host.appendChild(wrapper);
+}
+
+function inlineLegend(host, series){
+  host.innerHTML = series.map(s =>
+    `<span><i style="background:var(${s.color})"></i>${s.name}</span>`).join("");
+}
+
+const METRO = [
+  { name: "Metro", color: "--series-1", values: D.metro.Metro.gfr },
+  { name: "Nonmetro", color: "--series-2", values: D.metro.Nonmetro.gfr },
+];
+const METRO_C = [
+  { name: "Metro", color: "--series-1", values: D.metro.Metro.cfr },
+  { name: "Nonmetro", color: "--series-2", values: D.metro.Nonmetro.cfr },
+];
+inlineLegend(document.getElementById("lg1"), METRO);
+inlineLegend(document.getElementById("lg2"), METRO_C);
+lineChart(document.getElementById("chart-gfr"), METRO,
+  { ticks: [50, 55, 60, 65, 70], fmtY: v => String(v), fmtV: v => v.toFixed(1),
+    label: "Fertility rate, metro versus non-metro counties, 1991 to 2024" });
+lineChart(document.getElementById("chart-cfr"), METRO_C,
+  { ticks: [0.95, 1.00, 1.05, 1.10, 1.15], fmtY: v => v.toFixed(2),
+    fmtV: v => v.toFixed(3), zero: 1,
+    label: "Age-standardised fertility, metro versus non-metro counties, 1991 to 2024" });
+
+/* ---------- rural-urban gradient bars ---------- */
+(function ruccChart(){
+  const rows = D.rucc, W = 900, rowH = 34, M = { t: 8, r: 60, b: 26, l: 200 };
+  const H = M.t + rows.length * rowH + M.b, iw = W - M.l - M.r;
+  const maxAbs = Math.max(...rows.map(r => Math.abs(r.change)));
+  const X = v => M.l + (Math.abs(v) / maxAbs) * iw;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img",
+    "aria-label": "Change in fertility rate by rural-urban continuum class" });
+
+  rows.forEach((r, i) => {
+    const y = M.t + i * rowH;
+    const cat = el("text", { x: M.l - 12, y: y + rowH / 2 + 4, "text-anchor": "end", class: "barcat" });
+    cat.textContent = r.cls; svg.appendChild(cat);
+    // ordinal ramp: denser classes darker, mirroring the map's sequential hue
+    const step = SEQ[Math.max(1, SEQ.length - 1 - Math.round(i * (SEQ.length - 2) / (rows.length - 1)))];
+    svg.appendChild(el("rect", { x: M.l, y: y + 7, width: Math.max(1, X(r.change) - M.l),
+      height: rowH - 16, class: "bar", fill: `var(${step})` }));
+    const lab = el("text", { x: X(r.change) + 8, y: y + rowH / 2 + 4, class: "barlabel" });
+    lab.textContent = r.change.toFixed(1) + "%"; svg.appendChild(lab);
+  });
+  svg.appendChild(el("line", { x1: M.l, x2: M.l, y1: M.t, y2: M.t + rows.length * rowH,
+    stroke: "var(--rule-strong)", "stroke-width": 1 }));
+  const cap = el("text", { x: M.l, y: H - 8, class: "barlabel" });
+  cap.textContent = "\u2190 larger decline"; svg.appendChild(cap);
+  document.getElementById("chart-rucc").appendChild(svg);
+})();
+
+/* ---------- decomposition ---------- */
+(function decomp(){
+  const d = D.decomposition;
+  const rows = [
+    ["Rates falling within groups", d.within, "--series-1"],
+    ["Women moving between groups", d.between, "--series-2"],
+    ["Interaction", d.interaction, "--muted"],
+  ];
+  const max = Math.max(...rows.map(r => Math.abs(r[1])));
+  const host = document.getElementById("decomp");
+  rows.forEach(([label, v, color]) => {
+    const row = document.createElement("div"); row.className = "decomp-row";
+    row.innerHTML =
+      `<div class="lbl">${label}</div>` +
+      `<div class="decomp-track"><div class="decomp-fill" style="left:0;` +
+      `width:${(Math.abs(v) / max * 100).toFixed(1)}%;background:var(${color})"></div></div>` +
+      `<div class="decomp-val">${v > 0 ? "+" : ""}${v.toFixed(2)}</div>`;
+    host.appendChild(row);
+  });
+  const total = d.within + d.between + d.interaction;
+  const row = document.createElement("div"); row.className = "decomp-row";
+  row.innerHTML = `<div class="lbl" style="font-weight:600">Total change in national rate</div>` +
+    `<div></div><div class="decomp-val" style="font-weight:600">${total.toFixed(2)}</div>`;
+  host.appendChild(row);
+})();
+
+/* ---------- tables ---------- */
+(function tables(){
+  const t = document.getElementById("tbl-metro");
+  let h = `<thead><tr><th>Year</th><th>Metro rate</th><th>Nonmetro rate</th>` +
+          `<th>Gap</th><th>Metro std.</th><th>Nonmetro std.</th></tr></thead><tbody>`;
+  YEARS.forEach((y, i) => {
+    const m = D.metro.Metro, n = D.metro.Nonmetro;
+    h += `<tr><td>${y}</td><td>${m.gfr[i].toFixed(1)}</td><td>${n.gfr[i].toFixed(1)}</td>` +
+         `<td>${(n.gfr[i] - m.gfr[i]).toFixed(1)}</td>` +
+         `<td>${m.cfr[i].toFixed(3)}</td><td>${n.cfr[i].toFixed(3)}</td></tr>`;
+  });
+  t.innerHTML = h + "</tbody>";
+
+  const r = document.getElementById("tbl-rucc");
+  let rh = `<thead><tr><th>Rural&ndash;urban class</th><th>1991</th><th>2024</th>` +
+           `<th>Change</th><th>Share of women 1991</th><th>Share 2024</th></tr></thead><tbody>`;
+  D.rucc.forEach(x => {
+    rh += `<tr><td>${x.cls}</td><td>${x.start.toFixed(1)}</td><td>${x.end.toFixed(1)}</td>` +
+          `<td>${x.change.toFixed(1)}%</td><td>${x.share_start.toFixed(2)}%</td>` +
+          `<td>${x.share_end.toFixed(2)}%</td></tr>`;
+  });
+  r.innerHTML = rh + "</tbody>";
+})();
+
+/* ---------- headline tiles ---------- */
+(function tiles(){
+  const n0 = D.national[0], n1 = D.national[NY - 1];
+  document.getElementById("tile-nat").textContent = `${n0.toFixed(0)} \u2192 ${n1.toFixed(0)}`;
+  const first = D.rucc[0], last = D.rucc[D.rucc.length - 1];
+  document.getElementById("tile-metro").textContent = first.change.toFixed(1) + "%";
+  document.getElementById("tile-rural").textContent = last.change.toFixed(1) + "%";
+  let rose = 0, n = 0;
+  const lastChg = D.chg[NY - 1];
+  for (const v of lastChg){ if (v != null){ n++; if (v > 0) rose++; } }
+  document.getElementById("tile-rose").textContent = Math.round(rose / n * 100) + "%";
+  document.getElementById("share91").textContent =
+    (D.rucc.slice(3).reduce((a, x) => a + x.share_start, 0)).toFixed(1) + "%";
+  document.getElementById("share24").textContent =
+    (D.rucc.slice(3).reduce((a, x) => a + x.share_end, 0)).toFixed(1) + "%";
+})();
+
+/* ---------- boot ---------- */
+buildLegend();
+setYear(NY - 1, true);
+if (!reduced) setTimeout(() => setPlaying(true), 900);
+</script>
