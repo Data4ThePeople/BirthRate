@@ -47,7 +47,13 @@ def load_dotenv() -> None:
     PRISMIC_TOKEN=... or an export still overrides the file.
     """
     here = Path(__file__).resolve().parent
-    for candidate in (here.parent / ".env", here / ".env"):
+    candidates = [
+        Path(os.environ["PRISMIC_ENV"]) if os.environ.get("PRISMIC_ENV") else None,
+        Path.cwd() / ".env",              # the project being published from
+        here / ".env",                    # the shared install, one config for all
+        Path.home() / ".prismic.env",
+    ]
+    for candidate in [c for c in candidates if c]:
         if not candidate.exists():
             continue
         for raw in candidate.read_text().splitlines():
