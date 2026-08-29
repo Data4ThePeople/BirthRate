@@ -232,6 +232,43 @@ def headers() -> dict:
     return {"Authorization": f"Bearer {token}", "repository": repo}
 
 
+def check_token() -> None:
+    """Report which Prismic APIs the configured token is allowed to use.
+
+    A Content API access token and a write token are created in different
+    places in the dashboard and look alike, so this distinguishes them before
+    a publish run fails halfway.
+    """
+    import requests
+
+    token, repo = env("PRISMIC_TOKEN", "PRISMIC_REPO")
+    h = headers()
+    checks = [
+        ("Content API   (read)", "GET",
+         f"https://{repo}.cdn.prismic.io/api/v2", {}, {"access_token": token}),
+        ("Asset API     (write)", "GET", f"{ASSET_API}?limit=1", h, None),
+        ("Types API     (write)", "GET", CUSTOM_TYPES_API, h, None),
+    ]
+    ok_write = True
+    for name, method, url, hdrs, params in checks:
+        try:
+            r = requests.request(method, url, headers=hdrs, params=params, timeout=45)
+        except Exception as exc:  # noqa: BLE001 - report and continue
+            print(f"  {name}  ERROR {exc}")
+            continue
+        verdict = "ok" if r.ok else f"denied ({r.status_code})"
+        if not r.ok and "write" in name:
+            ok_write = False
+        print(f"  {name}  {verdict}")
+    if not ok_write:
+        print("\n  This looks like a Content API access token, which cannot write.")
+        print("  Create a write token: Prismic > Settings > API & Security >")
+        print("  'Write APIs' section - a different section from the access token")
+        print("  at the top of that page. Or run:  npx prismic token create --write")
+    else:
+        print("\n  Write access confirmed; --publish will work.")
+
+
 def list_types() -> None:
     """Print each custom type and its Rich Text fields, to fill in the env vars."""
     import requests
@@ -355,14 +392,19 @@ def main() -> None:
                     help="with --publish, show every call without making it")
     ap.add_argument("--list-types", action="store_true",
                     help="print custom type and field ids from the repository")
+    ap.add_argument("--check", action="store_true",
+                    help="report which Prismic APIs the token is allowed to use")
     args = ap.parse_args()
     load_dotenv()
 
+    if args.check:
+        check_token()
+        return
     if args.list_types:
         list_types()
         return
     if not args.files:
-        ap.error("give at least one Markdown file, or --list-types")
+        ap.error("give at least one Markdown file, or --check / --list-types")
 
     cache_path = Path(__file__).parent / ".prismic-assets.json"
     for path in args.files:
