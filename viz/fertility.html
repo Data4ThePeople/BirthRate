@@ -15,6 +15,7 @@
   --d4:#acbfdf; --d5:#638bd5; --d6:#1853c6; --dnull:#e4e3dd;
   --s0:#cde2fb; --s1:#9ec5f4; --s2:#6da7ec; --s3:#3987e5;
   --s4:#256abf; --s5:#184f95; --s6:#0d366b;
+  --band:rgba(20,20,15,.045);
   --shadow:0 1px 2px rgba(20,20,15,.06),0 8px 24px rgba(20,20,15,.05);
 }
 @media (prefers-color-scheme: dark){
@@ -29,6 +30,7 @@
     --d4:#246099; --d5:#2b7ec9; --d6:#319cfc; --dnull:#2a2a28;
     --s0:#0d366b; --s1:#184f95; --s2:#256abf; --s3:#3987e5;
     --s4:#6da7ec; --s5:#9ec5f4; --s6:#cde2fb;
+    --band:rgba(255,255,255,.055);
     --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
   }
 }
@@ -43,6 +45,7 @@
   --d4:#246099; --d5:#2b7ec9; --d6:#319cfc; --dnull:#2a2a28;
   --s0:#0d366b; --s1:#184f95; --s2:#256abf; --s3:#3987e5;
   --s4:#6da7ec; --s5:#9ec5f4; --s6:#cde2fb;
+  --band:rgba(255,255,255,.055);
   --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3);
 }
 
@@ -333,6 +336,56 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   </details>
 </section>
 
+<section id="clocks">
+  <div class="section-head">
+    <h2>Two clocks</h2>
+    <p>The national rate and the metro&ndash;rural gap move on completely different
+    schedules. Between 1991 and 2007 the national rate dipped, recovered, and arrived
+    back where it started &mdash; sixteen years of nothing. Almost the entire fall in the
+    level has come since. The gap underneath it did no such thing: it widened at a steady
+    pace right through the flat years, and was already half open before the level moved at
+    all.</p>
+  </div>
+  <div class="chartgrid">
+    <div class="panel panel-pad chart">
+      <div class="chart-title">
+        <span class="t">The level: flat, then a cliff</span>
+        <span class="s">National births per 1,000 women aged 15&ndash;44</span>
+      </div>
+      <div id="chart-national"></div>
+    </div>
+    <div class="panel panel-pad chart">
+      <div class="chart-title">
+        <span class="t">The gap: steady all along</span>
+        <span class="s">Nonmetro rate minus metro rate, in births per 1,000 women</span>
+      </div>
+      <div id="chart-gap"></div>
+    </div>
+  </div>
+  <div class="tiles" style="margin-top:24px">
+    <div class="tile">
+      <div class="k">1991 &rarr; 2007</div>
+      <div class="v" id="tile-era1">&mdash;</div>
+      <div class="d">Change in the national rate over the first sixteen years.</div>
+    </div>
+    <div class="tile">
+      <div class="k">2007 &rarr; 2024</div>
+      <div class="v" id="tile-era2">&mdash;</div>
+      <div class="d">Change over the seventeen years since.</div>
+    </div>
+    <div class="tile">
+      <div class="k">Gap opened before 2007</div>
+      <div class="v" id="tile-gap1">&mdash;</div>
+      <div class="d">Points of metro&ndash;rural divergence added while the level was flat.</div>
+    </div>
+    <div class="tile">
+      <div class="k">Gap opened after 2007</div>
+      <div class="v" id="tile-gap2">&mdash;</div>
+      <div class="d">Points added since. The divergence never paused.</div>
+    </div>
+  </div>
+</section>
+
 <section id="gradient">
   <div class="section-head">
     <h2>A gradient, not a divide</h2>
@@ -604,6 +657,16 @@ function lineChart(host, series, opts){
 
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img",
                           "aria-label": opts.label });
+
+  (opts.bands || []).forEach(b => {
+    const x0 = X(b.from), x1 = X(b.to);
+    svg.appendChild(el("rect", { x: x0, y: M.t, width: x1 - x0, height: ih,
+                                 fill: "var(--band)" }));
+    const t = el("text", { x: (x0 + x1) / 2, y: M.t + 13, class: "annot",
+                           "text-anchor": "middle" });
+    t.textContent = b.label; svg.appendChild(t);
+  });
+
   const gGrid = el("g", { class: "grid" });
   const ticks = opts.ticks;
   ticks.forEach(v => {
@@ -706,6 +769,33 @@ lineChart(document.getElementById("chart-cfr"), METRO_C,
   { ticks: [0.95, 1.00, 1.05, 1.10, 1.15], fmtY: v => v.toFixed(2),
     fmtV: v => v.toFixed(3), zero: 1,
     label: "Age-standardised fertility, metro versus non-metro counties, 1991 to 2024" });
+
+/* ---------- two clocks: level versus gap ---------- */
+const PIVOT = YEARS.indexOf(2007);
+const GAP = D.metro.Nonmetro.gfr.map((v, i) => +(v - D.metro.Metro.gfr[i]).toFixed(2));
+
+lineChart(document.getElementById("chart-national"),
+  [{ name: "National", color: "--series-1", values: D.national }],
+  { ticks: [55, 60, 65, 70], fmtY: v => String(v), fmtV: v => v.toFixed(1),
+    bands: [{ from: 0, to: PIVOT, label: "level flat" }],
+    label: "National fertility rate, 1991 to 2024, flat until 2007 then falling" });
+
+lineChart(document.getElementById("chart-gap"),
+  [{ name: "Nonmetro minus metro", color: "--series-2", values: GAP }],
+  { ticks: [-4, -2, 0, 2, 4, 6], fmtY: v => String(v), fmtV: v => (v > 0 ? "+" : "") + v.toFixed(1),
+    zero: 0, bands: [{ from: 0, to: PIVOT, label: "gap already opening" }],
+    label: "Nonmetro minus metro fertility rate, widening steadily from 1991 to 2024" });
+
+(function eraTiles(){
+  const n = D.national, g = GAP, last = NY - 1;
+  const pc = (a, b) => (b / a - 1) * 100;
+  const set = (id, txt) => { document.getElementById(id).textContent = txt; };
+  set("tile-era1", pc(n[0], n[PIVOT]).toFixed(1) + "%");
+  set("tile-era2", pc(n[PIVOT], n[last]).toFixed(1) + "%");
+  const d1 = g[PIVOT] - g[0], d2 = g[last] - g[PIVOT];
+  set("tile-gap1", "+" + d1.toFixed(1));
+  set("tile-gap2", "+" + d2.toFixed(1));
+})();
 
 /* ---------- rural-urban gradient bars ---------- */
 (function ruccChart(){

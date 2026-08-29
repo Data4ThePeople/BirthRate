@@ -11,16 +11,23 @@ metro/nonmetro divergence visible in other domains also shows up in birth rates.
 | Large metro counties (1M+) | **−26.9%** |
 | Remote rural counties | **−2.8%** |
 | Counties where fertility *rose* | **27%** |
+| Share of the net decline occurring after 2007 | **96%** |
 | Share of the national decline explained by migration between metro and nonmetro | **≈0%** |
 
-Three things came out of it:
+Four things came out of it:
 
 1. **The ranking reversed.** In 1991 metro counties had *higher* fertility than nonmetro
    ones (70.1 vs 67.3). The lines cross around 2005; by 2024 nonmetro leads by 6.6 points.
 2. **It is a gradient, not a divide.** Ranked along the USDA rural–urban continuum, the
    decline tracks settlement density almost monotonically, from −26.9% in the largest
    metros to −2.8% in the most remote rural counties.
-3. **It is not people moving.** Women aged 15–44 did shift toward metro areas (nonmetro
+3. **The level and the geography move on different clocks.** The national rate was
+   69.7 in 1991, dipped to 63.7 by 1998 and recovered to 69.1 by 2007 - sixteen years
+   of net nothing - then fell to 53.5. **96% of the net decline came after 2007.** The
+   metro-rural gap did the opposite: it widened by 4.7 points before 2007 and 4.7 points
+   after, a steady march straight through the flat era. The 1998-2007 recovery was itself
+   lopsided, with nonmetro up 13.1% against metro's 7.8%.
+4. **It is not people moving.** Women aged 15–44 did shift toward metro areas (nonmetro
    held 15.1% of them in 1991, 12.1% in 2024), but a shift-share decomposition puts
    98.6% of the national decline in *within-group* rate change and essentially none in
    composition — because in 1991 the places women moved *to* had the higher birth rates.
