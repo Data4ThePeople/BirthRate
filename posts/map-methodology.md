@@ -1,6 +1,7 @@
 ---
 title: How this map was built
 subtitle: Every US county, every year from 1982 to 2024, and the sources behind it.
+slug: county-fertility-map-methodology
 date: 2026-08-29
 description: Methodology for the county fertility map: sources, the suppression problem, geographic harmonisation, and where numbers are estimated.
 keywords: methodology, fertility, county data, NCHS, Census, SEER

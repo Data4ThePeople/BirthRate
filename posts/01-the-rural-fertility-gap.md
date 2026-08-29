@@ -1,6 +1,7 @@
 ---
 title: The rural fertility gap ran both ways
 subtitle: In 1982 rural American women had children at a far higher rate than women in big cities. By 1994 the gap had inverted. Then it opened again, the other way round.
+slug: rural-fertility-gap
 date: 2026-08-29
 description: A complete county-level panel of US fertility, 1982-2024, showing the rural-urban gradient reversing twice.
 keywords: fertility, birth rate, rural, metropolitan, counties, demography

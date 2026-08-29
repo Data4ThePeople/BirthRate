@@ -1,6 +1,7 @@
 ---
 title: What broke in rural America in the 1980s
 subtitle: Rural fertility fell 11.7% in five years while metro America did not move at all. The collapse tracks commodity exposure, and mining counties fell harder than farming ones.
+slug: what-broke-rural-america-1980s
 date: 2026-08-29
 description: The 1980s rural fertility collapse tracks commodity exposure: mining counties fell 21.9%, farming 14.8%, other rural counties far less.
 keywords: farm crisis, 1980s, oil bust, rural economy, fertility, birth rate

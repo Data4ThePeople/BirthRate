@@ -429,17 +429,32 @@ def upload_assets(blocks: list[dict], base: Path, cache_path: Path,
                 with Image.open(path) as im:
                     w, h = im.size
                 cache[src] = {"id": body.get("id") or body.get("asset_id"),
-                              "width": w, "height": h}
+                              "width": w, "height": h,
+                              "url": body.get("url") or body.get("secure_url")}
                 print(f"    uploaded {path.name} -> {cache[src]['id']}")
                 cache_path.write_text(json.dumps(cache, indent=2))
 
         asset = cache[src]
+        if not asset.get("url") and not dry_run:
+            # the Asset API has no single-asset GET (405), so page the list and
+            # match on id - only needed for entries cached before urls were kept
+            r = requests.get(ASSET_API, headers=headers(),
+                             params={"limit": 100}, timeout=60)
+            time.sleep(RATE_LIMIT_SECONDS)
+            if r.ok:
+                found = {a["id"]: a.get("url") for a in r.json().get("items", [])}
+                for key, entry in cache.items():
+                    if not entry.get("url") and entry["id"] in found:
+                        entry["url"] = found[entry["id"]]
+                cache_path.write_text(json.dumps(cache, indent=2))
+        block["_url"] = asset.get("url")
         block["id"] = asset["id"]
         block["copyright"] = None
         block["dimensions"] = {"width": asset["width"], "height": asset["height"]}
 
 
-def build_data(blocks: list[dict], meta: dict, title: str) -> dict:
+def build_data(blocks: list[dict], meta: dict, title: str,
+               uid: str = "") -> dict:
     """The document body. blog_post keeps its content in a slice zone, so a
     flat Rich Text field is only used when PRISMIC_FIELD names one."""
     field = os.environ.get("PRISMIC_FIELD", "").strip()
@@ -448,7 +463,8 @@ def build_data(blocks: list[dict], meta: dict, title: str) -> dict:
 
     from prismic_slices import to_slices
 
-    body = [b for b in blocks if b.get("type") != "heading1"]
+    body = [{k: v for k, v in b.items() if k != "_url"}
+            for b in blocks if b.get("type") != "heading1"]
     data = {
         "page_title": meta.get("title", title),
         "page_subtitle": meta.get("subtitle", ""),
@@ -460,6 +476,14 @@ def build_data(blocks: list[dict], meta: dict, title: str) -> dict:
         "make_this_main_post": False,
         "slices": to_slices(body),
     }
+
+    from prismic_schema import build_schema
+
+    hero = next((b.get("_url") for b in blocks
+                 if b.get("type") == "image" and b.get("_url")), None)
+    data["schema"] = build_schema(
+        meta, uid or data["page_title"], data["page_title"],
+        data.get("meta_description", ""), hero)
     return {k: v for k, v in data.items() if v != ""}
 
 
@@ -492,7 +516,7 @@ def create_document(blocks: list[dict], meta: dict, title: str, uid: str,
                     f"  slice zones: {', '.join(zones) or 'none'}\n"
                     f"  For a slice-based type, leave PRISMIC_FIELD blank.")
 
-    data = build_data(blocks, meta, title)
+    data = build_data(blocks, meta, title, uid)
     body = {
         "title": title,
         "type": doc_type,
@@ -564,7 +588,9 @@ def main() -> None:
 
     for path in args.files:
         cache_path = path.parent / ".prismic-assets.json"
+
         meta, markdown = split_frontmatter(path.read_text())
+        uid = meta.get("slug", path.stem)
         blocks = convert(markdown, args.tables)
         title = next((b["text"] for b in blocks if b["type"] == "heading1"), path.stem)
         counts: dict[str, int] = {}
@@ -575,12 +601,25 @@ def main() -> None:
 
         if args.publish:
             upload_assets(blocks, path.parent, cache_path, args.dry_run)
-            create_document(blocks, meta, title, path.stem, args.dry_run,
+            create_document(blocks, meta, title, uid, args.dry_run,
                             path.parent / ".prismic-documents.json")
         else:
-            pending = sum(1 for b in blocks if b.get("type") == "image")
+            # resolve ids and urls from the cache so the preview matches what a
+            # publish would send, without touching the network
+            cached = (json.loads(cache_path.read_text())
+                      if cache_path.exists() else {})
+            for b in blocks:
+                entry = cached.get(b.get("_src", "")) if b.get("type") == "image" else None
+                if entry:
+                    b["id"], b["_url"] = entry["id"], entry.get("url")
+                    b["copyright"] = None
+                    b["dimensions"] = {"width": entry["width"], "height": entry["height"]}
+                b.pop("_src", None)
+            pending = sum(1 for b in blocks
+                          if b.get("type") == "image" and not b.get("id"))
             out = path.with_suffix(".prismic.json")
-            out.write_text(json.dumps(build_data(blocks, meta, title), indent=2))
+            out.write_text(json.dumps(
+                build_data(blocks, meta, title, uid), indent=2))
             note = (f"; {pending} image block(s) still need asset ids, "
                     f"which --publish fills in") if pending else ""
             print(f"    wrote {out.name}{note}")

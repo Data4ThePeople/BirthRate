@@ -72,13 +72,25 @@ empty:
 ---
 title: The headline
 subtitle: One or two sentences that stand under it.
+slug: clean-public-url-segment
 date: YYYY-MM-DD
 description: One sentence for search results and social cards.
 keywords: comma, separated, terms
 ---
 ```
 
-The `# h1` is dropped from the body, because `title` becomes `page_title`.
+The `# h1` is dropped from the body, because `title` becomes `page_title`. The
+`slug` sets the uid and therefore the public URL - without it the filename is
+used, which usually carries an ordering prefix you would not want in a URL.
+
+Optional: `section` (defaults to Analysis), `series` and `position` for a
+CreativeWorkSeries, `updated`, `time`, `author`, `author_url`, `canonical`.
+
+These also feed the `schema` field, which the importer fills with JSON-LD in
+the shape the rest of the site uses: an Article with headline, description,
+hero image (the first figure in the post), dates, keywords, author, publisher
+and canonical URL. Nothing to write by hand - but if a post has no images its
+schema carries no `image`, which is worth mentioning to the author.
 
 ## Images
 

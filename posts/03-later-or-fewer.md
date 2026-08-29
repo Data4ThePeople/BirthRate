@@ -1,6 +1,7 @@
 ---
 title: Later, or fewer?
 subtitle: In 1976 the American birth rate hit 1.73 and set off a decade of alarm. Those women went on to have 2.26 children each. This time is different.
+slug: later-or-fewer
 date: 2026-08-29
 description: Separating postponement from decline: 94% of the fall since 2007 survives tempo adjustment, and the 1990 cohort is not closing the gap.
 keywords: total fertility rate, tempo effect, cohort fertility, birth rate, demography
