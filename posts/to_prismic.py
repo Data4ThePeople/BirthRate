@@ -38,6 +38,31 @@ import sys
 import time
 from pathlib import Path
 
+def load_dotenv() -> None:
+    """Read .env from the project root or beside this script.
+
+    Anything already set in the real environment wins, so an inline
+    PRISMIC_TOKEN=... or an export still overrides the file.
+    """
+    here = Path(__file__).resolve().parent
+    for candidate in (here.parent / ".env", here / ".env"):
+        if not candidate.exists():
+            continue
+        for raw in candidate.read_text().splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("export "):
+                line = line[len("export "):].lstrip()
+            key, sep, value = line.partition("=")
+            if not sep:
+                continue
+            key, value = key.strip(), value.strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+                value = value[1:-1]
+            os.environ.setdefault(key, value)
+
+
 ASSET_API = "https://asset-api.prismic.io/assets"
 MIGRATION_API = "https://migration.prismic.io/documents"
 CUSTOM_TYPES_API = "https://customtypes.prismic.io/customtypes"
@@ -275,6 +300,7 @@ def main() -> None:
     ap.add_argument("--list-types", action="store_true",
                     help="print custom type and field ids from the repository")
     args = ap.parse_args()
+    load_dotenv()
 
     if args.list_types:
         list_types()
