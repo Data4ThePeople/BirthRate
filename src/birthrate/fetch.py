@@ -30,6 +30,13 @@ FILES: dict[str, str] = {
     # SEER county population by age/sex/race, 1969-2024
     "seer/us.1969_2024.20ages.adjusted.txt.gz":
         "https://seer.cancer.gov/popdata/yr1969_2024.20ages/us.1969_2024.20ages.adjusted.txt.gz",
+    # USDA ERS county typology. The 1979 edition classifies county economies on
+    # 1975-79 income shares, before the farm and energy busts, so it is not
+    # itself a product of the downturn it is used to study.
+    "typology/typ1979_1986.xls":
+        "https://www.ers.usda.gov/media/6179/1979-and-1986-county-typology-codes-uses-the-1983-nonmetro-definition.xls?v=89217",
+    "typology/typ1989.xls":
+        "https://www.ers.usda.gov/media/6178/1989-county-typology-codes.xls?v=87292",
     # USDA ERS Rural-Urban Continuum Codes
     "rucc/ruralurbancodes2013.xls":
         "https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/ruralurbancodes2013.xls",
