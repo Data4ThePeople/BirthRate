@@ -250,6 +250,7 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   </div>
 </header>
 
+<!--TILES-HTML-START-->
 <section id="findings" style="padding-top:34px">
   <div class="tiles">
     <div class="tile">
@@ -275,6 +276,7 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   </div>
 </section>
 
+<!--TILES-HTML-END-->
 <section id="map">
   <div class="section-head">
     <h2>Forty-three years, county by county</h2>
@@ -334,6 +336,7 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   </div>
 </section>
 
+<!--ANALYSIS-START-->
 <section id="divergence">
   <div class="section-head">
     <h2>Two crossings</h2>
@@ -560,6 +563,7 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   </div>
 </section>
 
+<!--ANALYSIS-END-->
 <section id="notes">
   <div class="section-head"><h2>How this was built</h2></div>
   <div class="prose">
@@ -831,6 +835,7 @@ function setMode(m){
 btnChg.addEventListener("click", () => setMode("chg"));
 btnLvl.addEventListener("click", () => setMode("lvl"));
 
+/*ANALYSIS-JS-START*/
 /* ---------- line charts ---------- */
 const NS = "http://www.w3.org/2000/svg";
 const el = (n, a) => { const e = document.createElementNS(NS, n);
@@ -1266,6 +1271,8 @@ lineChart(document.getElementById("chart-gap"),
   set("tile-t90", (c90 - c80).toFixed(2));
 })();
 
+/*ANALYSIS-JS-END*/
+/*TILES-START*/
 /* ---------- headline tiles ---------- */
 (function tiles(){
   const gap = D.metro.Nonmetro.gfr.map((v, i) => v - D.metro.Metro.gfr[i]);
@@ -1282,6 +1289,7 @@ lineChart(document.getElementById("chart-gap"),
     (D.rucc.slice(3).reduce((a, x) => a + x.share_end, 0)).toFixed(1) + "%";
 })();
 
+/*TILES-END*/
 /* ---------- boot ---------- */
 buildLegend();
 setYear(NY - 1, true);
