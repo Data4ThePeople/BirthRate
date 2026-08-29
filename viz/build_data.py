@@ -103,11 +103,19 @@ def main() -> None:
     panel_state = panel.assign(st=panel["fips"].str[:2])
     st_year = panel_state.groupby(["st", "year"], as_index=False).agg(
         births=("births", "sum"), women=("women_15_44", "sum"))
-    st_year["gfr"] = 1000 * st_year["births"] / st_year["women"]
+    st_year = st_year.sort_values(["st", "year"])
+    grp = st_year.groupby("st")
+    pooled_b = grp["births"].transform(
+        lambda s: s.rolling(SMOOTH, center=True, min_periods=1).sum())
+    pooled_w = grp["women"].transform(
+        lambda s: s.rolling(SMOOTH, center=True, min_periods=1).sum())
+    st_year["gfr"] = 1000 * pooled_b / pooled_w
     state_series = {
-        st: [round(v, 1) for v in grp.sort_values("year")["gfr"]]
-        for st, grp in st_year.groupby("st")
+        st: [round(v, 1) for v in g.sort_values("year")["gfr"]]
+        for st, g in st_year.groupby("st")
     }
+    st_base = st_year[st_year["year"].isin(BASELINE)].groupby("st").apply(
+        lambda g: 1000 * g["births"].sum() / g["women"].sum(), include_groups=False)
     state_units = (panel_state[panel_state["year"] == years[-1]]
                    .groupby("st")["fips"].nunique().to_dict())
 
@@ -122,7 +130,8 @@ def main() -> None:
 
     states_meta = {
         st: {"name": state_names.get(st, st), "box": [round(v, 1) for v in box],
-             "gfr": state_series.get(st, []), "units": state_units.get(st, 0)}
+             "gfr": state_series.get(st, []), "units": state_units.get(st, 0),
+             "baseline": round(float(st_base.get(st, float("nan"))), 1)}
         for st, box in sorted(bounds.items()) if st in state_names
     }
 

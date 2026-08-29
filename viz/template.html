@@ -134,6 +134,8 @@ input[type=range]{flex:1; accent-color:var(--accent); height:22px; min-width:140
   text-transform:uppercase; color:var(--muted)}
 .statebar dd{margin:0; font-family:"IBM Plex Mono",monospace; font-size:1rem;
   font-variant-numeric:tabular-nums}
+.statebar .unit{font-size:.74rem; color:var(--muted); align-self:center}
+.tooltip .u{font-size:.85em; opacity:.75}
 .county{transition:opacity .18s}
 .county.dim{opacity:.12}
 #usmap{transition:none}
@@ -731,15 +733,19 @@ function stateView(code){
 function renderStateBar(code){
   if (!code){ stateBar.hidden = true; return; }
   const meta = D.stateMeta[code];
-  const now = meta.gfr[yi], base = meta.gfr[0], first = YEARS[0];
+  // Read chronologically: baseline first, then the selected year, then the change
+  // between them. The baseline is the same 1982-84 pooled rate the map colours by.
+  const base = meta.baseline, now = meta.gfr[yi];
   const chg = (now / base - 1) * 100;
   stateBar.hidden = false;
   stateBar.innerHTML =
     `<span class="nm">${meta.name}</span><dl>` +
+    `<div class="st"><dt>Rate ${YEARS[0]}\u201384</dt><dd>${base.toFixed(1)}</dd></div>` +
     `<div class="st"><dt>Rate ${YEARS[yi]}</dt><dd>${now.toFixed(1)}</dd></div>` +
-    `<div class="st"><dt>Rate ${first}</dt><dd>${base.toFixed(1)}</dd></div>` +
-    `<div class="st"><dt>Change</dt><dd>${chg > 0 ? "+" : ""}${chg.toFixed(1)}%</dd></div>` +
-    `<div class="st"><dt>County units</dt><dd>${meta.units}</dd></div></dl>`;
+    `<div class="st"><dt>Change since ${YEARS[0]}</dt>` +
+    `<dd>${chg > 0 ? "+" : ""}${chg.toFixed(1)}%</dd></div>` +
+    `<div class="st"><dt>County units</dt><dd>${meta.units}</dd></div></dl>` +
+    `<span class="unit">births per 1,000 women aged 15\u201344, three-year pooled</span>`;
 }
 
 function setState(code){
@@ -762,7 +768,7 @@ function showTip(i){
   tip.innerHTML =
     `<div class="tt-name">${D.names[unit] || unit}</div><dl>` +
     `<dt>Year</dt><dd>${YEARS[yi]}</dd>` +
-    `<dt>Rate</dt><dd>${fmt1(g)}</dd>` +
+    `<dt>Rate<span class="u"> /1,000</span></dt><dd>${fmt1(g)}</dd>` +
     `<dt>vs 1982</dt><dd>${pct(c)}</dd>` +
     `<dt>Births</dt><dd>${b == null ? "\u2014" : b.toLocaleString()}</dd></dl>`;
   tip.dataset.show = "1";
