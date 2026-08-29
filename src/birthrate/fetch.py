@@ -39,6 +39,18 @@ FILES: dict[str, str] = {
         "https://ers.usda.gov/sites/default/files/_laserfiche/DataFiles/53251/Ruralurbancontinuumcodes2023.csv",
 }
 
+# NCHS natality microdata via NBER. Public files identify every county of
+# residence before 1989; from 1989 only counties of 100,000+. Raw fixed-width
+# zips are ~15x smaller than the parsed CSVs, so they are what we pull.
+NBER_YEARS = range(1982, 1991)
+for _y in NBER_YEARS:
+    FILES[f"nber/Nat{_y}.zip"] = (
+        f"https://data.nber.org/nvss/natality/inputs/raw/{_y}/Nat{_y}.zip"
+    )
+    FILES[f"nber/natality{_y}.dct"] = (
+        f"https://data.nber.org/nvss/natality/programs/dct/natality{_y}.dct"
+    )
+
 # 1990s annual county components of change, one file per state (CO-99-8).
 for _st in STATE_FIPS:
     FILES[f"pep/99c8_{_st}.txt"] = (

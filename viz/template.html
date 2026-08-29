@@ -1,4 +1,4 @@
-<title>The Rural Fertility Reversal</title>
+<title>The Rural Fertility Gap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -117,8 +117,29 @@ input[type=range]{flex:1; accent-color:var(--accent); height:22px; min-width:140
 .yearnote{font-family:"IBM Plex Mono",monospace; font-size:.68rem; color:var(--muted);
   min-width:9ch}
 
+.statepick select{
+  font-family:inherit; font-size:.83rem; color:var(--ink); background:var(--surface);
+  border:1px solid var(--rule-strong); border-radius:3px; padding:7px 10px; cursor:pointer;
+}
+.statepick select:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);
+  white-space:nowrap}
+.statebar[hidden]{display:none}
+.statebar{display:flex; flex-wrap:wrap; gap:26px; align-items:baseline;
+  padding:14px 24px; border-bottom:1px solid var(--rule); background:var(--surface-2)}
+.statebar .nm{font-family:Newsreader,Georgia,serif; font-size:1.3rem; letter-spacing:-.01em}
+.statebar dl{display:flex; gap:24px; margin:0; flex-wrap:wrap}
+.statebar div.st{display:flex; flex-direction:column; gap:1px}
+.statebar dt{font-family:"IBM Plex Mono",monospace; font-size:.64rem; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--muted)}
+.statebar dd{margin:0; font-family:"IBM Plex Mono",monospace; font-size:1rem;
+  font-variant-numeric:tabular-nums}
+.county{transition:opacity .18s}
+.county.dim{opacity:.12}
+#usmap{transition:none}
 .mapbox{position:relative; overflow-x:auto}
-.mapbox svg{display:block; width:100%; height:auto; min-width:620px}
+.mapbox svg{display:block; width:100%; height:auto; min-width:620px;
+  max-height:min(76vh,700px)}
 .county{stroke:var(--surface); stroke-width:.22; vector-effect:non-scaling-stroke}
 .county.hi{stroke:var(--ink); stroke-width:1.4}
 .stateline{fill:none; stroke:var(--rule-strong); stroke-width:.55;
@@ -213,16 +234,17 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
 <div class="wrap">
 
 <header class="masthead">
-  <div class="eyebrow">County fertility &middot; United States &middot; 1991&ndash;2024</div>
+  <div class="eyebrow">County fertility &middot; United States &middot; 1982&ndash;2024</div>
   <div class="rule"></div>
-  <h1>The rural fertility reversal</h1>
-  <p class="standfirst">In 1991 American women in metropolitan counties had children at a
-  <strong>higher</strong> rate than women in rural ones. Thirty-three years later the ranking has
-  flipped and the gap is wide. This is a map of where the birth rate actually fell &mdash; and it
-  fell hardest in the biggest cities.</p>
+  <h1>The rural fertility gap</h1>
+  <p class="standfirst">In 1982 rural American women had children at a far higher rate than
+  women in big cities &mdash; a gap of eight births per thousand. By 1994 it had not just
+  closed but <strong>inverted</strong>. Then it opened again, the other way round, and is now
+  nearly as wide as it was at the start. Over forty-three years the rural&ndash;urban
+  fertility gradient has run in both directions.</p>
   <div class="byline">
-    <span>3,098 county units</span><span>34 years</span>
-    <span>Census PEP &middot; SEER &middot; NCHS</span>
+    <span>3,098 county units</span><span>43 years</span>
+    <span>NCHS microdata &middot; Census PEP &middot; SEER</span>
   </div>
 </header>
 
@@ -231,41 +253,47 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
     <div class="tile">
       <div class="k">National fertility rate</div>
       <div class="v" id="tile-nat">&mdash;</div>
-      <div class="d">Births per 1,000 women aged 15&ndash;44, 1991 &rarr; 2024.</div>
+      <div class="d">Births per 1,000 women aged 15&ndash;44, 1982 &rarr; 2024.</div>
     </div>
     <div class="tile">
-      <div class="k">Large metro counties</div>
-      <div class="v" id="tile-metro">&mdash;</div>
-      <div class="d">Change in fertility rate, counties in metro areas of 1M+.</div>
+      <div class="k">Rural premium, 1982</div>
+      <div class="v" id="tile-gap82">&mdash;</div>
+      <div class="d">How far rural fertility sat above metro, in births per 1,000 women.</div>
     </div>
     <div class="tile">
-      <div class="k">Remote rural counties</div>
-      <div class="v" id="tile-rural">&mdash;</div>
-      <div class="d">Same measure, rural counties not adjacent to any metro area.</div>
+      <div class="k">Rural premium, 1994</div>
+      <div class="v" id="tile-gap94">&mdash;</div>
+      <div class="d">The low point. For eighteen years rural fertility ran below metro.</div>
     </div>
     <div class="tile">
-      <div class="k">Counties that rose</div>
-      <div class="v" id="tile-rose">&mdash;</div>
-      <div class="d">Share of county units where fertility is higher now than in 1991.</div>
+      <div class="k">Rural premium, 2024</div>
+      <div class="v" id="tile-gap24">&mdash;</div>
+      <div class="d">Back to within two points of where the series began.</div>
     </div>
   </div>
 </section>
 
 <section id="map">
   <div class="section-head">
-    <h2>Thirty-four years, county by county</h2>
+    <h2>Forty-three years, county by county</h2>
     <p>Press play to run the series. The default view shows each county against
-    its own 1991&ndash;93 baseline, so colour means change rather than level; switch to
-    <em>Fertility rate</em> to see levels instead. Rates are three-year pooled averages,
-    which keeps small counties from flickering.</p>
+    its own 1982&ndash;84 baseline, so colour means change rather than level; switch to
+    <em>Fertility rate</em> to see levels instead. Pick a state to zoom in. Rates are
+    three-year pooled averages, which keeps small counties from flickering.</p>
   </div>
 
   <div class="panel">
     <div class="controls">
       <div class="segmented" role="group" aria-label="Map measure">
-        <button type="button" id="btn-chg" aria-pressed="true">Change since 1991</button>
+        <button type="button" id="btn-chg" aria-pressed="true">Change since 1982</button>
         <button type="button" id="btn-lvl" aria-pressed="false">Fertility rate</button>
       </div>
+      <label class="statepick">
+        <span class="sr">Zoom to state</span>
+        <select id="statesel" aria-label="Zoom to state">
+          <option value="">All states</option>
+        </select>
+      </label>
       <div class="playbar">
         <button class="play" id="play" type="button" aria-label="Play the animation">
           <svg id="play-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1.5v13l11-6.5z"/></svg>
@@ -277,6 +305,7 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
       </div>
     </div>
 
+    <div class="statebar" id="statebar" hidden></div>
     <div class="mapbox" id="mapbox">
       <svg id="usmap" viewBox="25 54 847 501" role="img"
            aria-label="Choropleth map of United States counties by fertility rate">
@@ -288,7 +317,7 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
 
     <div class="legend">
       <div class="ramp">
-        <div class="cap" id="legend-cap">Change vs 1991&ndash;93 baseline</div>
+        <div class="cap" id="legend-cap">Change vs 1982&ndash;84 baseline</div>
         <div class="swatches" id="legend-sw"></div>
         <div class="ticks" id="legend-tk"></div>
       </div>
@@ -305,12 +334,12 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
 
 <section id="divergence">
   <div class="section-head">
-    <h2>The crossover</h2>
+    <h2>Two crossings</h2>
     <p>Splitting those counties into metropolitan and non-metropolitan gives the clearest
-    view of what happened. The two lines cross in the mid-2000s. The right-hand chart repeats
-    the exercise after standardising for the age structure of each area's female
-    population &mdash; the divergence survives, so it is not an artefact of who is older
-    where.</p>
+    view. The lines cross twice: rural fertility falls below metro in 1987 and climbs back
+    above it in 2005. The right-hand chart repeats the exercise after standardising for the
+    age structure of each area's female population &mdash; both crossings survive, so
+    neither is an artefact of who is older where.</p>
   </div>
   <div class="chartgrid">
     <div class="panel panel-pad chart">
@@ -340,23 +369,23 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   <div class="section-head">
     <h2>Two clocks</h2>
     <p>The national rate and the metro&ndash;rural gap move on completely different
-    schedules. Between 1991 and 2007 the national rate dipped, recovered, and arrived
-    back where it started &mdash; sixteen years of nothing. Almost the entire fall in the
-    level has come since. The gap underneath it did no such thing: it widened at a steady
-    pace right through the flat years, and was already half open before the level moved at
-    all.</p>
+    schedules. For twenty-five years the national rate simply oscillated: 67 in 1982, a
+    peak of 71 in 1990, a trough of 64 in 1998, back to 69 by 2007. No trend at all, and
+    then a cliff. The gap underneath it was never still &mdash; it fell through the whole
+    of the 1980s, bottomed in the mid-1990s, and has climbed ever since. Neither
+    turning point lines up with the other.</p>
   </div>
   <div class="chartgrid">
     <div class="panel panel-pad chart">
       <div class="chart-title">
-        <span class="t">The level: flat, then a cliff</span>
+        <span class="t">The level: two cycles, then a cliff</span>
         <span class="s">National births per 1,000 women aged 15&ndash;44</span>
       </div>
       <div id="chart-national"></div>
     </div>
     <div class="panel panel-pad chart">
       <div class="chart-title">
-        <span class="t">The gap: steady all along</span>
+        <span class="t">The gap: down, then up</span>
         <span class="s">Nonmetro rate minus metro rate, in births per 1,000 women</span>
       </div>
       <div id="chart-gap"></div>
@@ -364,40 +393,46 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   </div>
   <div class="tiles" style="margin-top:24px">
     <div class="tile">
-      <div class="k">1991 &rarr; 2007</div>
+      <div class="k">1982 &rarr; 2007</div>
       <div class="v" id="tile-era1">&mdash;</div>
-      <div class="d">Change in the national rate over the first sixteen years.</div>
+      <div class="d">Change in the national rate over twenty-five years of oscillation.</div>
     </div>
     <div class="tile">
       <div class="k">2007 &rarr; 2024</div>
       <div class="v" id="tile-era2">&mdash;</div>
-      <div class="d">Change over the seventeen years since.</div>
+      <div class="d">Change over the seventeen years since. The whole decline sits here.</div>
     </div>
     <div class="tile">
-      <div class="k">Gap opened before 2007</div>
+      <div class="k">Gap 1982 &rarr; 1994</div>
       <div class="v" id="tile-gap1">&mdash;</div>
-      <div class="d">Points of metro&ndash;rural divergence added while the level was flat.</div>
+      <div class="d">The rural premium collapsing, through the farm-crisis years.</div>
     </div>
     <div class="tile">
-      <div class="k">Gap opened after 2007</div>
+      <div class="k">Gap 1994 &rarr; 2024</div>
       <div class="v" id="tile-gap2">&mdash;</div>
-      <div class="d">Points added since. The divergence never paused.</div>
+      <div class="d">And rebuilding, almost all the way back.</div>
     </div>
   </div>
 </section>
 
 <section id="gradient">
   <div class="section-head">
-    <h2>A gradient, not a divide</h2>
-    <p>The decline is not simply "cities versus countryside". Ranked along the USDA's
-    rural&ndash;urban continuum, the size of the fall tracks settlement density almost
-    monotonically: the denser the county, the further fertility fell.</p>
+    <h2>The gradient ran both ways</h2>
+    <p>Ranked along the USDA's rural&ndash;urban continuum, each era produces a clean
+    monotonic gradient &mdash; pointing in opposite directions, at nearly mirrored
+    magnitudes. Through 1994 the fall got steeper the more rural the county, and the
+    largest metros actually gained. Since 1994 the ordering is exactly inverted: the
+    largest metros have fallen furthest, and the most remote rural counties have gained.
+    Whatever reorganised American fertility did not simply run from city to country. It
+    changed sign.</p>
   </div>
   <div class="panel panel-pad">
     <div class="chart-title">
-      <span class="t">Change in fertility rate, 1991&ndash;2024</span>
-      <span class="s">County units grouped by USDA rural&ndash;urban continuum code, frozen at the 2013 vintage</span>
+      <span class="t">Change in fertility rate, by era</span>
+      <span class="s">County units grouped by USDA rural&ndash;urban continuum code, frozen at the 2013 vintage.
+      Eras split at 1994, where the metro&ndash;rural gap bottoms out.</span>
     </div>
+    <div class="legend-inline" id="lg-rucc"></div>
     <div id="chart-rucc"></div>
     <details class="tabledrop">
       <summary>Show as a table</summary>
@@ -410,7 +445,7 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   <div class="section-head">
     <h2>It is not people moving</h2>
     <p>Women of childbearing age did move to cities: non-metro counties held
-    <span id="share91">&mdash;</span> of American women aged 15&ndash;44 in 1991 and
+    <span id="share91">&mdash;</span> of American women aged 15&ndash;44 in 1982 and
     <span id="share24">&mdash;</span> by 2024. But that redistribution explains almost none
     of the national decline. Splitting the change in the national rate into the part from
     rates falling <em>within</em> groups and the part from women <em>moving between</em>
@@ -419,9 +454,9 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   <div class="panel panel-pad">
     <div class="decomp" id="decomp"></div>
     <p style="margin-top:18px; font-size:.86rem; color:var(--ink-2); max-width:70ch">
-      Migration between rural and urban America is close to irrelevant to the national
-      total, because in 1991 the places women moved <em>to</em> had the higher birth rates.
-      The decline happened inside places &mdash; and most of all inside the largest ones.
+      Migration between rural and urban America accounts for about three percent of the
+      national decline. Fertility fell inside every kind of county; where women lived
+      barely moved the total.
     </p>
   </div>
 </section>
@@ -437,14 +472,17 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
     publishes an annual birth count for <strong>every</strong> county as an input to its
     population estimates. Those counts come from the same vital records but are not
     suppressed. Paired with SEER's county population by age and sex, they give a complete
-    county fertility panel from 1991 to 2024.</p>
+    county fertility panel from 1991 to 2024, which natality microdata extends back to 1982.</p>
   </div>
 
   <div class="notegrid" style="margin-top:32px">
-    <div class="note"><div class="h">Estimate years, not calendar years</div>
-      <p>PEP birth years run July to June. Aligning our series to a July&ndash;June blend of
-      published NCHS calendar-year totals cuts the median discrepancy from 0.63% to 0.28%,
-      confirming the offset is the window and not an error.</p></div>
+    <div class="note"><div class="h">Two sources, one series</div>
+      <p>1982&ndash;1990 comes from NCHS natality microdata, which names every county and
+      reproduces published national totals exactly. 1991&ndash;2024 comes from Census PEP.
+      On 1995, 1998 and 2001, where both name the same 457 large counties, the median
+      county-level ratio is within about 1%, and its sign tracks the direction of the
+      national trend each year &mdash; the signature of PEP's July&ndash;June year rather
+      than a difference in what is counted.</p></div>
     <div class="note"><div class="h">Two interpolated years</div>
       <p>Every PEP vintage reports a partial quarter in its launch year, so no published
       county file covers estimate years 2000 and 2010. Both are linearly interpolated and
@@ -508,6 +546,7 @@ const paths = [], pathUnit = [];
     el.setAttribute("d", D.geo[fips]);
     el.setAttribute("class", "county");
     el.dataset.i = String(paths.length);
+    el.dataset.st = fips.slice(0, 2);
     frag.appendChild(el);
     paths.push(el); pathUnit.push(D.geoUnit[fips]);
   }
@@ -542,6 +581,7 @@ function setYear(i, force){
   slider.setAttribute("aria-valuetext", String(y));
   yearnote.textContent = D.interpolatedYears.includes(y) ? "interpolated" : "";
   paint(force);
+  if (activeState) renderStateBar(activeState);
   if (hoverIdx >= 0) showTip(hoverIdx);
 }
 
@@ -553,7 +593,7 @@ function buildLegend(){
   const ramp = mode === "chg" ? DIV : SEQ;
   const breaks = mode === "chg" ? CHG_BREAKS : LVL_BREAKS;
   cap.textContent = mode === "chg"
-    ? "Change vs 1991\u201393 baseline (%)" : "Births per 1,000 women 15\u201344";
+    ? "Change vs 1982\u201384 baseline (%)" : "Births per 1,000 women 15\u201344";
   ramp.forEach((v, i) => {
     const d = document.createElement("div");
     d.className = "sw"; d.style.background = `var(${v})`;
@@ -567,6 +607,51 @@ function buildLegend(){
   });
 }
 
+/* ---------- state selector ---------- */
+const FULL_VIEW = "25 54 847 501";
+const stateSel = document.getElementById("statesel");
+const stateBar = document.getElementById("statebar");
+const usmap = document.getElementById("usmap");
+let activeState = "";
+
+Object.entries(D.stateMeta)
+  .sort((a, b) => a[1].name.localeCompare(b[1].name))
+  .forEach(([code, meta]) => {
+    const o = document.createElement("option");
+    o.value = code; o.textContent = meta.name; stateSel.appendChild(o);
+  });
+
+function stateView(code){
+  const [x0, y0, x1, y1] = D.stateMeta[code].box;
+  const pad = Math.max((x1 - x0), (y1 - y0)) * 0.06 + 4;
+  return `${(x0 - pad).toFixed(1)} ${(y0 - pad).toFixed(1)} ` +
+         `${(x1 - x0 + pad * 2).toFixed(1)} ${(y1 - y0 + pad * 2).toFixed(1)}`;
+}
+
+function renderStateBar(code){
+  if (!code){ stateBar.hidden = true; return; }
+  const meta = D.stateMeta[code];
+  const now = meta.gfr[yi], base = meta.gfr[0], first = YEARS[0];
+  const chg = (now / base - 1) * 100;
+  stateBar.hidden = false;
+  stateBar.innerHTML =
+    `<span class="nm">${meta.name}</span><dl>` +
+    `<div class="st"><dt>Rate ${YEARS[yi]}</dt><dd>${now.toFixed(1)}</dd></div>` +
+    `<div class="st"><dt>Rate ${first}</dt><dd>${base.toFixed(1)}</dd></div>` +
+    `<div class="st"><dt>Change</dt><dd>${chg > 0 ? "+" : ""}${chg.toFixed(1)}%</dd></div>` +
+    `<div class="st"><dt>County units</dt><dd>${meta.units}</dd></div></dl>`;
+}
+
+function setState(code){
+  activeState = code;
+  usmap.setAttribute("viewBox", code ? stateView(code) : FULL_VIEW);
+  for (const el of paths){
+    el.classList.toggle("dim", Boolean(code) && el.dataset.st !== code);
+  }
+  renderStateBar(code);
+}
+stateSel.addEventListener("change", () => setState(stateSel.value));
+
 /* ---------- tooltip ---------- */
 const tip = document.getElementById("tip"), mapbox = document.getElementById("mapbox");
 let hoverIdx = -1;
@@ -578,7 +663,7 @@ function showTip(i){
     `<div class="tt-name">${D.names[unit] || unit}</div><dl>` +
     `<dt>Year</dt><dd>${YEARS[yi]}</dd>` +
     `<dt>Rate</dt><dd>${fmt1(g)}</dd>` +
-    `<dt>vs 1991</dt><dd>${pct(c)}</dd>` +
+    `<dt>vs 1982</dt><dd>${pct(c)}</dd>` +
     `<dt>Births</dt><dd>${b == null ? "\u2014" : b.toLocaleString()}</dd></dl>`;
   tip.dataset.show = "1";
 }
@@ -764,64 +849,83 @@ inlineLegend(document.getElementById("lg1"), METRO);
 inlineLegend(document.getElementById("lg2"), METRO_C);
 lineChart(document.getElementById("chart-gfr"), METRO,
   { ticks: [50, 55, 60, 65, 70], fmtY: v => String(v), fmtV: v => v.toFixed(1),
-    label: "Fertility rate, metro versus non-metro counties, 1991 to 2024" });
+    label: "Fertility rate, metro versus non-metro counties, 1982 to 2024" });
 lineChart(document.getElementById("chart-cfr"), METRO_C,
   { ticks: [0.95, 1.00, 1.05, 1.10, 1.15], fmtY: v => v.toFixed(2),
     fmtV: v => v.toFixed(3), zero: 1,
-    label: "Age-standardised fertility, metro versus non-metro counties, 1991 to 2024" });
+    label: "Age-standardised fertility, metro versus non-metro counties, 1982 to 2024" });
 
 /* ---------- two clocks: level versus gap ---------- */
-const PIVOT = YEARS.indexOf(2007);
+const FLAT_END = YEARS.indexOf(2007);
+const GAP_LOW = YEARS.indexOf(D.pivotYear);
 const GAP = D.metro.Nonmetro.gfr.map((v, i) => +(v - D.metro.Metro.gfr[i]).toFixed(2));
 
 lineChart(document.getElementById("chart-national"),
   [{ name: "National", color: "--series-1", values: D.national }],
   { ticks: [55, 60, 65, 70], fmtY: v => String(v), fmtV: v => v.toFixed(1),
-    bands: [{ from: 0, to: PIVOT, label: "level flat" }],
-    label: "National fertility rate, 1991 to 2024, flat until 2007 then falling" });
+    bands: [{ from: 0, to: FLAT_END, label: "no trend" }],
+    label: "National fertility rate, 1982 to 2024: no trend until 2007, then falling" });
 
 lineChart(document.getElementById("chart-gap"),
   [{ name: "Nonmetro minus metro", color: "--series-2", values: GAP }],
-  { ticks: [-4, -2, 0, 2, 4, 6], fmtY: v => String(v), fmtV: v => (v > 0 ? "+" : "") + v.toFixed(1),
-    zero: 0, bands: [{ from: 0, to: PIVOT, label: "gap already opening" }],
-    label: "Nonmetro minus metro fertility rate, widening steadily from 1991 to 2024" });
+  { ticks: [-4, -2, 0, 2, 4, 6, 8], fmtY: v => String(v), fmtV: v => (v > 0 ? "+" : "") + v.toFixed(1),
+    zero: 0, bands: [{ from: 0, to: GAP_LOW, label: "rural premium collapsing" }],
+    label: "Nonmetro minus metro fertility rate: falling to 1994, then widening to 2024" });
 
 (function eraTiles(){
   const n = D.national, g = GAP, last = NY - 1;
   const pc = (a, b) => (b / a - 1) * 100;
   const set = (id, txt) => { document.getElementById(id).textContent = txt; };
-  set("tile-era1", pc(n[0], n[PIVOT]).toFixed(1) + "%");
-  set("tile-era2", pc(n[PIVOT], n[last]).toFixed(1) + "%");
-  const d1 = g[PIVOT] - g[0], d2 = g[last] - g[PIVOT];
-  set("tile-gap1", "+" + d1.toFixed(1));
-  set("tile-gap2", "+" + d2.toFixed(1));
+  const sign = v => (v > 0 ? "+" : "") + v.toFixed(1);
+  set("tile-era1", sign(pc(n[0], n[FLAT_END])) + "%");
+  set("tile-era2", sign(pc(n[FLAT_END], n[last])) + "%");
+  set("tile-gap1", sign(g[GAP_LOW] - g[0]));
+  set("tile-gap2", sign(g[last] - g[GAP_LOW]));
 })();
 
 /* ---------- rural-urban gradient bars ---------- */
 (function ruccChart(){
-  const rows = D.rucc, W = 900, rowH = 34, M = { t: 8, r: 60, b: 26, l: 200 };
+  const rows = D.rucc, W = 940, rowH = 38, M = { t: 26, r: 20, b: 30, l: 200 };
   const H = M.t + rows.length * rowH + M.b, iw = W - M.l - M.r;
-  const maxAbs = Math.max(...rows.map(r => Math.abs(r.change)));
-  const X = v => M.l + (Math.abs(v) / maxAbs) * iw;
+  const vals = rows.flatMap(r => [r.change_era1, r.change_era2]);
+  const maxAbs = Math.max(...vals.map(Math.abs)) * 1.12;
+  const zero = M.l + iw / 2;
+  const X = v => zero + (v / maxAbs) * (iw / 2);
+  const SERIES = [
+    { key: "change_era1", name: `1982\u2013${D.pivotYear}`, color: "--series-1" },
+    { key: "change_era2", name: `${D.pivotYear}\u20132024`, color: "--series-2" },
+  ];
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img",
-    "aria-label": "Change in fertility rate by rural-urban continuum class" });
+    "aria-label": "Change in fertility rate by rural-urban class, in two eras" });
+
+  [-20, -10, 0, 10].forEach(v => {
+    if (Math.abs(v) > maxAbs) return;
+    svg.appendChild(el("line", { x1: X(v), x2: X(v), y1: M.t - 6, y2: M.t + rows.length * rowH,
+      stroke: v === 0 ? "var(--rule-strong)" : "var(--rule)", "stroke-width": 1 }));
+    const t = el("text", { x: X(v), y: M.t - 12, class: "barlabel", "text-anchor": "middle" });
+    t.textContent = v + "%"; svg.appendChild(t);
+  });
 
   rows.forEach((r, i) => {
     const y = M.t + i * rowH;
-    const cat = el("text", { x: M.l - 12, y: y + rowH / 2 + 4, "text-anchor": "end", class: "barcat" });
+    const cat = el("text", { x: M.l - 14, y: y + rowH / 2 + 4, "text-anchor": "end",
+                             class: "barcat" });
     cat.textContent = r.cls; svg.appendChild(cat);
-    // ordinal ramp: denser classes darker, mirroring the map's sequential hue
-    const step = SEQ[Math.max(1, SEQ.length - 1 - Math.round(i * (SEQ.length - 2) / (rows.length - 1)))];
-    svg.appendChild(el("rect", { x: M.l, y: y + 7, width: Math.max(1, X(r.change) - M.l),
-      height: rowH - 16, class: "bar", fill: `var(${step})` }));
-    const lab = el("text", { x: X(r.change) + 8, y: y + rowH / 2 + 4, class: "barlabel" });
-    lab.textContent = r.change.toFixed(1) + "%"; svg.appendChild(lab);
+    SERIES.forEach((sr, k) => {
+      const v = r[sr.key];
+      const by = y + 5 + k * 13;
+      const x0 = Math.min(zero, X(v)), w = Math.abs(X(v) - zero);
+      svg.appendChild(el("rect", { x: x0, y: by, width: Math.max(1.5, w), height: 11,
+        class: "bar", fill: `var(${sr.color})` }));
+      const lab = el("text", { y: by + 9, class: "barlabel",
+        x: v < 0 ? x0 - 6 : x0 + w + 6,
+        "text-anchor": v < 0 ? "end" : "start" });
+      lab.textContent = (v > 0 ? "+" : "") + v.toFixed(1);
+      svg.appendChild(lab);
+    });
   });
-  svg.appendChild(el("line", { x1: M.l, x2: M.l, y1: M.t, y2: M.t + rows.length * rowH,
-    stroke: "var(--rule-strong)", "stroke-width": 1 }));
-  const cap = el("text", { x: M.l, y: H - 8, class: "barlabel" });
-  cap.textContent = "\u2190 larger decline"; svg.appendChild(cap);
   document.getElementById("chart-rucc").appendChild(svg);
+  inlineLegend(document.getElementById("lg-rucc"), SERIES);
 })();
 
 /* ---------- decomposition ---------- */
@@ -864,7 +968,7 @@ lineChart(document.getElementById("chart-gap"),
   t.innerHTML = h + "</tbody>";
 
   const r = document.getElementById("tbl-rucc");
-  let rh = `<thead><tr><th>Rural&ndash;urban class</th><th>1991</th><th>2024</th>` +
+  let rh = `<thead><tr><th>Rural&ndash;urban class</th><th>1982</th><th>2024</th>` +
            `<th>Change</th><th>Share of women 1991</th><th>Share 2024</th></tr></thead><tbody>`;
   D.rucc.forEach(x => {
     rh += `<tr><td>${x.cls}</td><td>${x.start.toFixed(1)}</td><td>${x.end.toFixed(1)}</td>` +
@@ -876,15 +980,14 @@ lineChart(document.getElementById("chart-gap"),
 
 /* ---------- headline tiles ---------- */
 (function tiles(){
-  const n0 = D.national[0], n1 = D.national[NY - 1];
-  document.getElementById("tile-nat").textContent = `${n0.toFixed(0)} \u2192 ${n1.toFixed(0)}`;
-  const first = D.rucc[0], last = D.rucc[D.rucc.length - 1];
-  document.getElementById("tile-metro").textContent = first.change.toFixed(1) + "%";
-  document.getElementById("tile-rural").textContent = last.change.toFixed(1) + "%";
-  let rose = 0, n = 0;
-  const lastChg = D.chg[NY - 1];
-  for (const v of lastChg){ if (v != null){ n++; if (v > 0) rose++; } }
-  document.getElementById("tile-rose").textContent = Math.round(rose / n * 100) + "%";
+  const gap = D.metro.Nonmetro.gfr.map((v, i) => v - D.metro.Metro.gfr[i]);
+  const iPivot = YEARS.indexOf(D.pivotYear);
+  const sign = v => (v > 0 ? "+" : "") + v.toFixed(1);
+  document.getElementById("tile-nat").textContent =
+    `${D.national[0].toFixed(0)} \u2192 ${D.national[NY - 1].toFixed(0)}`;
+  document.getElementById("tile-gap82").textContent = sign(gap[0]);
+  document.getElementById("tile-gap94").textContent = sign(gap[iPivot]);
+  document.getElementById("tile-gap24").textContent = sign(gap[NY - 1]);
   document.getElementById("share91").textContent =
     (D.rucc.slice(3).reduce((a, x) => a + x.share_start, 0)).toFixed(1) + "%";
   document.getElementById("share24").textContent =

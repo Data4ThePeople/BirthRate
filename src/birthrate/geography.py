@@ -45,6 +45,13 @@ MERGE_GROUPS: dict[str, tuple[str, set[str]]] = {
     "51019": ("Bedford County + Bedford City, VA", {"51019", "51515", "51917"}),
     # Clifton Forge City reverted to town status in 2001, joining Alleghany.
     "51005": ("Alleghany County + Clifton Forge City, VA", {"51005", "51560"}),
+    # Dade County was renamed Miami-Dade in 1997 (12025 -> 12086).
+    "12086": ("Miami-Dade County, FL", {"12025", "12086"}),
+    # South Boston City reverted to town status in 1995, joining Halifax.
+    "51083": ("Halifax County + South Boston City, VA", {"51083", "51780"}),
+    # Yellowstone National Park was dissolved as a county equivalent; a single
+    # 1987 record still carries its code.
+    "30111": ("Yellowstone County, MT", {"30111", "30113"}),
 }
 
 # Whole-state merges, applied by FIPS prefix.

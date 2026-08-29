@@ -6,15 +6,21 @@ from pathlib import Path
 import pandas as pd
 
 from birthrate import metrics
-from birthrate.geography import HETEROGENEOUS_UNITS, UNIT_LABELS, harmonize
+from birthrate.geography import (HETEROGENEOUS_UNITS, UNIT_LABELS, harmonize,
+                                 to_unit)
 from birthrate.sources.asfr import load_asfr
+from birthrate.sources import nber
 from birthrate.sources.pep import load_births
 from birthrate.sources.rucc import MIXED_METRO_BAND, RUCC_CLASS, unit_rucc
 from birthrate.sources.seer import load_denominators
 
 OUT = Path(__file__).resolve().parents[2] / "data" / "processed"
 
-FIRST_YEAR, LAST_YEAR = 1991, 2024
+FIRST_YEAR, LAST_YEAR = 1982, 2024
+# Natality microdata identifies every county through 1988 and only counties of
+# 100,000+ in 1989-90, where the rest are recovered from exact state totals.
+NBER_LAST_YEAR = 1990
+ALLOCATED_YEARS = [1989, 1990]
 # PEP stubs each vintage's launch year, so no published county file covers the
 # estimate years that straddle a decennial census. 2020 is recovered from the
 # vintage-2020 release; 2000 and 2010 have no source and are interpolated.
@@ -31,20 +37,67 @@ OUTLIER_TOLERANCE = 0.40
 MIN_FOR_OUTLIER = 100
 
 
-def _interpolate_missing_births(df: pd.DataFrame) -> pd.DataFrame:
-    """Fill the decade-boundary gaps by linear interpolation within each unit."""
+def _assemble_births() -> pd.DataFrame:
+    """Splice natality microdata (1982-1990) onto Census PEP (1991-2024).
+
+    The two eras are on slightly different time bases: microdata counts calendar
+    years, PEP counts July-June estimate years. Measured on 1995/1998/2001,
+    where both sources name the same ~457 large counties, the median county
+    ratio is within about 1% and its sign tracks the direction of the national
+    trend in each year - the signature of a half-year offset rather than a
+    difference in what is being counted.
+    """
+    pep = load_births()
+    # The share basis and the allocation both run on stable analysis units, so
+    # a county that changed FIPS between eras (Dade -> Miami-Dade) cannot be
+    # counted once as a named county and again as an unnamed one.
+    basis_88 = harmonize(nber.load_year(1988)[["fips", "year", "births"]],
+                         ["births"]).set_index("fips")["births"]
+    basis_91 = harmonize(pep[pep["year"] == 1991], ["births"]).set_index("fips")["births"]
+    weights = pd.concat([basis_88, basis_91], axis=1).mean(axis=1).dropna()
+
+    frames = []
+    for year in range(FIRST_YEAR, ALLOCATED_YEARS[0]):
+        part = nber.load_year(year)[["fips", "year", "births"]].copy()
+        part["allocated"] = 0
+        frames.append(part)
+    for year in ALLOCATED_YEARS:
+        part = nber.allocate_suppressed(year, weights, mapper=to_unit)
+        part["allocated"] = part["births_allocated"].astype(int)
+        frames.append(part[["fips", "year", "births", "allocated"]])
+    pep = pep.copy()
+    pep["allocated"] = 0
+    frames.append(pep[["fips", "year", "births", "allocated"]])
+    out = pd.concat(frames, ignore_index=True)
+    return out.groupby(["fips", "year"], as_index=False).agg(
+        births=("births", "sum"), allocated=("allocated", "max"))
+
+
+def _complete_grid(df: pd.DataFrame) -> pd.DataFrame:
+    """Reindex onto every unit-year, distinguishing true zeros from gaps.
+
+    In the microdata era a county absent from a year's file simply recorded no
+    births, so those cells are zero. The only genuine gaps are the two PEP
+    decade-boundary years, which are interpolated.
+    """
     full = pd.MultiIndex.from_product(
         [sorted(df["fips"].unique()), range(FIRST_YEAR, LAST_YEAR + 1)],
         names=["fips", "year"],
     )
     out = df.set_index(["fips", "year"]).reindex(full)
-    out["births_interpolated"] = out["births"].isna()
+    years = out.index.get_level_values("year")
+
+    missing = out["births"].isna()
+    out["births_interpolated"] = missing & years.isin(INTERPOLATED_YEARS)
+    out.loc[missing & (years <= NBER_LAST_YEAR), "births"] = 0.0
+
     out["births"] = (
         out.groupby(level="fips")["births"]
         .transform(lambda s: s.interpolate(method="linear", limit_area="inside"))
         .round()
     )
-    return out.reset_index()
+    out["births_allocated"] = out["allocated"].fillna(0).gt(0)
+    return out.drop(columns="allocated").reset_index()
 
 
 def _flag_outliers(df: pd.DataFrame) -> pd.DataFrame:
@@ -61,8 +114,8 @@ def _flag_outliers(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def build() -> pd.DataFrame:
-    births = harmonize(load_births(), ["births"])
-    births = _interpolate_missing_births(births)
+    births = harmonize(_assemble_births(), ["births", "allocated"])
+    births = _complete_grid(births)
 
     pop = harmonize(load_denominators(FIRST_YEAR, LAST_YEAR), POP_COLS)
     panel = births.merge(pop, on=["fips", "year"], how="inner")

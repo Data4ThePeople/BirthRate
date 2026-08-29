@@ -1,101 +1,106 @@
-# County fertility in the United States, 1991–2024
+# County fertility in the United States, 1982–2024
 
-A complete county-level panel of the US fertility decline, built to test whether the
-metro/nonmetro divergence visible in other domains also shows up in birth rates.
+A complete county-level panel of US fertility, built to test whether the metro/nonmetro
+divergence visible in other domains also shows up in birth rates.
 
 ## Headline findings
 
 | | |
 |---|---|
-| National fertility rate (births per 1,000 women 15–44) | **69.7 → 53.5** (−23%) |
-| Large metro counties (1M+) | **−26.9%** |
-| Remote rural counties | **−2.8%** |
-| Counties where fertility *rose* | **27%** |
-| Share of the net decline occurring after 2007 | **96%** |
-| Share of the national decline explained by migration between metro and nonmetro | **≈0%** |
+| National fertility rate (births per 1,000 women 15–44) | **67.3 → 53.5** |
+| Rural premium over metro, 1982 | **+8.2** |
+| Rural premium, 1994 (the low point) | **−3.7** |
+| Rural premium, 2024 | **+6.6** |
+| Share of the net decline occurring after 2007 | **~96%** |
+| Share of the decline explained by migration between metro and nonmetro | **≈3%** |
 
-Four things came out of it:
+1. **The rural–urban gradient ran in both directions.** In 1982 rural counties had far
+   *higher* fertility than large metros (+8.2 births per 1,000 women). That premium
+   collapsed through the 1980s, crossed below zero in 1987, bottomed in 1994, and has
+   climbed back to +6.6 since. It is a U, not a trend — and a panel starting in 1991
+   starts at the bottom of it, which makes the shape look like a simple reversal.
+2. **Each era is a clean monotonic gradient, and they mirror each other.** 1982–94:
+   large metro +4.4%, remote rural −22.3%, ordered all the way down. 1994–2024: large
+   metro −23.2%, remote rural +4.0%, ordered exactly the other way.
+3. **The level and the geography move on different clocks.** The national rate had no
+   trend for twenty-five years (67 in 1982, 71 in 1990, 64 in 1998, 69 in 2007) and then
+   fell off a cliff. The gap was never still. Neither turning point lines up.
+4. **It is not people moving.** Women 15–44 did shift toward metro areas, but a
+   shift-share decomposition puts ~97% of the national decline in *within-group* rate
+   change and ~3% in composition.
 
-1. **The ranking reversed.** In 1991 metro counties had *higher* fertility than nonmetro
-   ones (70.1 vs 67.3). The lines cross around 2005; by 2024 nonmetro leads by 6.6 points.
-2. **It is a gradient, not a divide.** Ranked along the USDA rural–urban continuum, the
-   decline tracks settlement density almost monotonically, from −26.9% in the largest
-   metros to −2.8% in the most remote rural counties.
-3. **The level and the geography move on different clocks.** The national rate was
-   69.7 in 1991, dipped to 63.7 by 1998 and recovered to 69.1 by 2007 - sixteen years
-   of net nothing - then fell to 53.5. **96% of the net decline came after 2007.** The
-   metro-rural gap did the opposite: it widened by 4.7 points before 2007 and 4.7 points
-   after, a steady march straight through the flat era. The 1998-2007 recovery was itself
-   lopsided, with nonmetro up 13.1% against metro's 7.8%.
-4. **It is not people moving.** Women aged 15–44 did shift toward metro areas (nonmetro
-   held 15.1% of them in 1991, 12.1% in 2024), but a shift-share decomposition puts
-   98.6% of the national decline in *within-group* rate change and essentially none in
-   composition — because in 1991 the places women moved *to* had the higher birth rates.
-
-The divergence also survives age standardisation, so it is not an artefact of the female
-age structure of different places.
+The divergence survives age standardisation, so it is not an artefact of the female age
+structure of different places.
 
 ## The data problem, and the way around it
 
-NCHS strips all geography from public natality microdata after 2004, and CDC WONDER
-identifies only counties of 100,000+ population, pooling the rest into an unnamed
-per-state remainder. That leaves most of rural America blank.
+NCHS strips geography from public natality microdata after 2004, and CDC WONDER identifies
+only counties of 100,000+, pooling the rest into an unnamed per-state remainder. Two
+sources cover the gap from either side.
 
-The workaround is the **Census Population Estimates Program**, which publishes an annual
-birth count for every county as an input to its population estimates. Same vital records,
-no suppression.
+| Years | Source | Coverage |
+|---|---|---|
+| 1982–1988 | NCHS natality microdata via NBER | every county; national totals exact |
+| 1989–1990 | same, plus state-constrained allocation | 414 named counties exact; state totals exact |
+| 1991–1999 | Census PEP `99c8_XX.txt` (CO-99-8) | every county |
+| 2001–2009 | `co-est2009-alldata.csv` | every county |
+| 2011–2020 | `co-est2020-alldata.csv` | every county |
+| 2021–2024 | `co-est2024-alldata.csv` | every county |
+| Denominators | SEER county population by age/sex/race, 1969–2024 | |
+| Rate schedule | NCHS `yt7u-eiyg` + DQS `daba-4vfq` | |
+| Classification | USDA ERS Rural–Urban Continuum Codes | 1993 / 2003 / 2013 / 2023 |
 
-| Years | Source |
-|---|---|
-| 1991–1999 | `99c8_XX.txt` — CO-99-8 annual county components of change (blocked fixed-width, per state) |
-| 2001–2009 | `co-est2009-alldata.csv` |
-| 2011–2020 | `co-est2020-alldata.csv` (supersedes vintage 2019; uniquely supplies estimate-year 2020) |
-| 2021–2024 | `co-est2024-alldata.csv` |
-| Denominators | SEER `us.1969_2024.20ages.adjusted.txt.gz` — county × year × age × sex × race |
-| Rate schedule | NCHS `yt7u-eiyg` (1940–2018) + DQS `daba-4vfq` (2016–2024) |
-| Classification | USDA ERS Rural–Urban Continuum Codes, 1993 / 2003 / 2013 / 2023 |
+## Splicing two sources
+
+The eras are on different time bases: microdata counts calendar years, PEP counts
+July–June estimate years. Measured on 1995, 1998 and 2001 — the only years where both
+sources name the same 457 large counties — the median county-level ratio is within about
+1%, and its **sign tracks the direction of the national trend in each year**, which is
+the signature of a half-year offset rather than a difference in what is counted. The
+1990/1991 splice produces a smaller step than the largest ordinary year-to-year step
+nearby; `tests/validate.py` asserts this.
 
 ## Known properties of the panel
 
-- **Estimate years, not calendar years.** PEP birth years run July–June. Aligning to a
-  July–June blend of NCHS calendar-year totals cuts the median discrepancy from 0.63% to
-  0.28%, confirming the offset is the window rather than an error.
-- **2000 and 2010 are interpolated.** Every PEP vintage reports a partial Apr–Jun quarter
-  in its launch year, so no published county file covers those two estimate years. Both
-  are flagged in `births_interpolated`.
-- **3,098 analysis units, not 3,143 counties.** Alaska, Connecticut and Hawaii are held as
-  single statewide units and Broomfield County is merged with the four Colorado counties it
-  was carved from in 2001, because PEP and SEER cannot be reconciled below that level.
-  Alaska is excluded from the metro/nonmetro series (`rucc_reliable`).
-- **27 flagged source anomalies** (0.03% of rows) — Katrina in Orleans and St Bernard
-  Parish, plus a handful of 1990s reporting glitches in small counties. Flagged in
-  `births_outlier`, never silently smoothed.
+- **1982–1990 reproduces published NCHS national totals exactly**, once the pre-1985
+  record weight (a 50% sample in some states) and the foreign-resident filter are applied.
+- **1989–1990 small counties are modelled.** Public files name only counties of 100,000+,
+  but state totals are complete, so each state's residual is spread over its smaller
+  counties on a share basis from 1988 and 1991. State and national totals are exact; only
+  the split among small counties is estimated (~28% of births in those two years).
+  Flagged in `births_allocated`.
+- **2000 and 2010 are interpolated** — every PEP vintage stubs its launch year, so no
+  published county file covers those two estimate years. Flagged in `births_interpolated`.
+- **3,098 analysis units, stable across all 43 years.** Alaska, Connecticut and Hawaii are
+  held as single statewide units, Broomfield is merged with the four Colorado counties it
+  was carved from, and Dade/Miami-Dade, Bedford, Halifax and Yellowstone are reconciled
+  across their renames. Alaska is excluded from the metro/nonmetro series.
+- **36 flagged source anomalies** (0.03% of rows), Katrina among them. Flagged, never
+  silently smoothed.
 
 ## Layout
 
 ```
 src/birthrate/
-  fetch.py          download every raw source (idempotent)
-  sources/pep.py    births; parses the blocked 1990s format and drops stub years
-  sources/seer.py   denominators; single streaming pass over the fixed-width file
+  fetch.py          download every raw source (idempotent, ~1 GB)
+  sources/nber.py   1982-1990 microdata; dictionary-driven fixed-width parse
+  sources/pep.py    1991-2024 births; blocked 1990s format, stub years dropped
+  sources/seer.py   denominators; single streaming pass
   sources/asfr.py   national age-specific rates
-  sources/rucc.py   rural-urban codes, all vintages, with metro-share for merged units
+  sources/rucc.py   rural-urban codes, all vintages
   geography.py      FIPS -> stable analysis unit
   metrics.py        GFR, expected births, comparative fertility ratio
   panel.py          assembles data/processed/county_year_fertility.parquet
   analysis.py       metro/nonmetro series and the shift-share decomposition
-viz/
-  project.py        TopoJSON -> Albers USA SVG paths (no JS dependencies)
-  build_data.py     compiles the panel + geometry into one JSON payload
-  build_page.py     inlines the payload into template.html -> fertility.html
-tests/validate.py   14 end-to-end checks
+viz/                projection, payload build, page build
+tests/validate.py   18 end-to-end checks
 ```
 
 ## Running it
 
 ```bash
 .venv/bin/pip install pandas pyarrow requests numpy xlrd openpyxl
-.venv/bin/python src/birthrate/fetch.py          # ~90 MB of source files
+.venv/bin/python src/birthrate/fetch.py
 PYTHONPATH=src .venv/bin/python src/birthrate/panel.py
 PYTHONPATH=src .venv/bin/python tests/validate.py
 PYTHONPATH=src .venv/bin/python viz/build_data.py && .venv/bin/python viz/build_page.py
@@ -103,6 +108,7 @@ PYTHONPATH=src .venv/bin/python viz/build_data.py && .venv/bin/python viz/build_
 
 ## What this does not answer
 
-The age-standardised measure removes the effect of local female age structure. It does
-not remove differences in *who* lives where — education, income, nativity, marital status.
-Those are the next question, not this one.
+Age standardisation removes the effect of local female age structure. It does not remove
+differences in *who* lives where — education, income, nativity, marital status. Mother's
+age is available in the 1982–1988 microdata (`b15_19` … `b40_44` in `sources/nber.py`) but
+not for the PEP era, so county age-specific rates are not comparable across the period.

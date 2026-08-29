@@ -12,10 +12,20 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from birthrate.panel import FIRST_YEAR, INTERPOLATED_YEARS, LAST_YEAR  # noqa: E402
+from birthrate.panel import (ALLOCATED_YEARS, FIRST_YEAR,  # noqa: E402
+                             INTERPOLATED_YEARS, LAST_YEAR, NBER_LAST_YEAR)
 from birthrate.sources.asfr import BAND_TO_COL, load_asfr  # noqa: E402
 
 PANEL = Path("data/processed/county_year_fertility.parquet")
+
+# NCHS published national live births for the microdata era. These are
+# calendar-year totals published by NCHS, not derived from our files, so
+# reproducing them exactly validates the record weighting and residence filter.
+NCHS_MICRODATA_BIRTHS = {
+    1982: 3_680_537, 1983: 3_638_933, 1984: 3_669_141, 1985: 3_760_561,
+    1986: 3_756_547, 1987: 3_809_394, 1988: 3_909_510, 1989: 4_040_958,
+    1990: 4_158_212,
+}
 
 # NCHS published national live births, calendar year, final data.
 NCHS_BIRTHS = {
@@ -54,6 +64,13 @@ def main() -> int:
           statistics.median(cal.values()) < 1.0 and max(cal.values()) < 4.0,
           f"median {statistics.median(cal.values()):.2f}%, "
           f"max {max(cal.values()):.2f}% ({max(cal, key=cal.get)})")
+
+    # --- 1b. The microdata era must reproduce published totals exactly ----
+    micro = {y: abs(nat.loc[y, "births"] - v) / v * 100
+             for y, v in NCHS_MICRODATA_BIRTHS.items()}
+    check("microdata era reproduces NCHS totals exactly (<0.05%)",
+          max(micro.values()) < 0.05,
+          f"max {max(micro.values()):.4f}% ({max(micro, key=micro.get)})")
 
     # --- 2. The residual is the July-June estimate-year window ------------
     # PEP estimate year t spans Jul t-1 to Jun t, so it should sit closer to
@@ -95,10 +112,25 @@ def main() -> int:
     check("no partial-year stub in the series", low.empty,
           "none" if low.empty else f"years {list(low.index)}")
 
-    # --- 7. Interpolation confined to documented gaps ---------------------
+    # --- 7. Estimated values confined to documented years ------------------
     interp = sorted(int(y) for y in p.loc[p["births_interpolated"], "year"].unique())
     check("interpolation only in documented gap years",
           interp == INTERPOLATED_YEARS, str(interp))
+    alloc = sorted(int(y) for y in p.loc[p["births_allocated"], "year"].unique())
+    check("state-constrained allocation only in 1989-90",
+          alloc == ALLOCATED_YEARS, str(alloc))
+    alloc_share = (p.loc[p["births_allocated"], "births"].sum()
+                   / p.loc[p["year"].isin(ALLOCATED_YEARS), "births"].sum())
+    check("allocated births are a minority of those two years",
+          alloc_share < 0.35, f"{alloc_share*100:.1f}% of 1989-90 births")
+
+    # --- 7b. The 1990/1991 source splice must not show as a step ----------
+    span = nat.loc[1986:1995, "gfr"]
+    steps = span.diff().abs().dropna()
+    splice = abs(nat.loc[1991, "gfr"] - nat.loc[1990, "gfr"])
+    check("no step artefact at the 1990/1991 source splice",
+          splice <= steps.max(),
+          f"splice {splice:.2f} vs largest nearby year-step {steps.max():.2f}")
 
     # --- 8. Discontinuities ------------------------------------------------
     ordered = p.sort_values(["fips", "year"]).copy()
@@ -139,7 +171,7 @@ def main() -> int:
         print(f"  {'PASS' if ok else 'FAIL'}  {msg}")
 
     print("\nnational series:")
-    show = nat.loc[[1991, 1995, 2000, 2005, 2007, 2010, 2015, 2019, 2020, 2024]]
+    show = nat.loc[[1982, 1985, 1988, 1990, 1991, 1995, 2000, 2007, 2010, 2019, 2024]]
     print(show.assign(births=lambda d: d.births.map("{:,.0f}".format),
                       women=lambda d: d.women.map("{:,.0f}".format),
                       gfr=lambda d: d.gfr.round(1)).to_string())

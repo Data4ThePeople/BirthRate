@@ -8,7 +8,7 @@ import pandas as pd
 from birthrate.sources.rucc import RUCC_CLASS
 
 PANEL = Path("data/processed/county_year_fertility.parquet")
-VINTAGE_FOR_YEAR = {1993: range(1991, 1999), 2003: range(1999, 2009),
+VINTAGE_FOR_YEAR = {1993: range(1982, 1999), 2003: range(1999, 2009),
                     2013: range(2009, 2019), 2023: range(2019, 2025)}
 
 
