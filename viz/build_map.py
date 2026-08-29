@@ -24,21 +24,63 @@ MAP_KEYS = ["years", "units", "names", "geo", "geoUnit", "states", "stateMeta",
 
 EMBED_CSS = """
 <style>
-/* embed mode: no page furniture, the host page supplies the heading */
-body{background:var(--surface)}
-.wrap{max-width:none; padding:0}
-.panel{border:0; border-radius:0; box-shadow:none}
-.controls{padding:14px 18px}
-.legend{padding:14px 18px 16px}
-.statebar{padding:12px 18px}
-.embed-foot{display:flex; flex-wrap:wrap; gap:6px 18px; align-items:baseline;
-  padding:12px 18px 16px; border-top:1px solid var(--rule); color:var(--muted);
-  font-size:.76rem; line-height:1.5}
+/* Embed mode. The host frame is a fixed height set by oEmbed, and viewport
+   media queries do not see the frame's width, so all responsive behaviour is
+   driven by container queries on .wrap instead. */
+/* The frame height is fixed by oEmbed, so the page fills it exactly: the
+   controls, legend and footer take what they need and the map absorbs the
+   rest. That keeps one fixed height correct at every width, with no dead
+   space on a phone and no clipping on a desktop. */
+html,body{height:100%}
+body{background:var(--surface); margin:0; overflow:hidden}
+.wrap{max-width:none; padding:0; height:100%; display:flex; flex-direction:column;
+  container-type:inline-size; container-name:embed}
+#map{flex:1 1 auto; min-height:0; display:flex; flex-direction:column}
+.panel{border:0; border-radius:0; box-shadow:none; flex:1 1 auto; min-height:0;
+  display:flex; flex-direction:column; width:100%}
+.controls,.legend,.statebar,.embed-foot{flex:0 0 auto; min-width:0}
+.mapbox{flex:1 1 auto; min-height:0; display:flex; overflow:hidden}
+.mapbox svg{width:100%; height:100%; min-width:0; max-height:none}
+.controls{padding:12px 16px; gap:14px}
+.legend{padding:12px 16px 14px; gap:18px}
+.statebar{padding:10px 16px; gap:18px}
+.mapbox svg{max-height:none}
+.embed-foot{display:flex; flex-wrap:wrap; gap:5px 16px; align-items:baseline;
+  padding:11px 16px 14px; border-top:1px solid var(--rule); color:var(--muted);
+  font-size:.74rem; line-height:1.5}
 .embed-foot a{color:var(--muted); text-decoration:underline}
 .embed-foot b{font-family:"IBM Plex Mono",monospace; font-weight:500;
-  letter-spacing:.04em; text-transform:uppercase; font-size:.68rem; color:var(--ink-2)}
+  letter-spacing:.04em; text-transform:uppercase; font-size:.66rem; color:var(--ink-2)}
+
+@container embed (max-width: 830px){
+  .controls{gap:10px; padding:10px 12px}
+  .segmented button{padding:6px 10px; font-size:.78rem}
+  .statepick select{font-size:.78rem; padding:6px 8px}
+  /* the range input and playbar both carry minimum widths that would
+     otherwise hold the whole panel wider than a phone frame, clipping the map */
+  .playbar{flex:1 1 100%; min-width:0; gap:10px}
+  .playbar input[type=range]{min-width:0}
+  .segmented{flex:0 1 auto; min-width:0}
+  .statepick{flex:0 1 auto; min-width:0}
+  .statepick select{max-width:38vw}
+  .play{width:34px; height:34px}
+  .yearout{font-size:1.15rem; min-width:3.6ch}
+  .yearnote{display:none}
+  .legend{flex-direction:column; align-items:flex-start; gap:10px}
+  /* the coverage note is reassurance, not instruction; on a phone the space is
+     better spent on the map itself */
+  .legend .ramp:nth-of-type(2){display:none}
+  .ramp .sw{width:32px; height:11px}
+  .ramp .ticks span{width:32px; font-size:.6rem}
+  .statebar{gap:12px; padding:9px 12px}
+  .statebar .nm{font-size:1.1rem}
+  .statebar dl{gap:14px}
+  .statebar .unit{display:none}
+  .embed-foot{padding:10px 12px 12px; font-size:.7rem}
+}
 </style>
 """
+
 
 FOOT = """
 <div class="embed-foot">
