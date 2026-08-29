@@ -111,7 +111,7 @@ def main() -> None:
         lambda s: s.rolling(SMOOTH, center=True, min_periods=1).sum())
     st_year["gfr"] = 1000 * pooled_b / pooled_w
     state_series = {
-        st: [round(v, 1) for v in g.sort_values("year")["gfr"]]
+        st: [round(v, 2) for v in g.sort_values("year")["gfr"]]
         for st, g in st_year.groupby("st")
     }
     st_base = st_year[st_year["year"].isin(BASELINE)].groupby("st").apply(
@@ -131,7 +131,7 @@ def main() -> None:
     states_meta = {
         st: {"name": state_names.get(st, st), "box": [round(v, 1) for v in box],
              "gfr": state_series.get(st, []), "units": state_units.get(st, 0),
-             "baseline": round(float(st_base.get(st, float("nan"))), 1)}
+             "baseline": round(float(st_base.get(st, float("nan"))), 2)}
         for st, box in sorted(bounds.items()) if st in state_names
     }
 
