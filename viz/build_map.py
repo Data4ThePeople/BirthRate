@@ -68,9 +68,9 @@ body{background:var(--surface); margin:0; overflow:hidden}
   .yearout{font-size:1.15rem; min-width:3.6ch}
   .yearnote{display:none}
   .legend{flex-direction:column; align-items:flex-start; gap:10px}
-  /* the coverage note is reassurance, not instruction; on a phone the space is
+  /* the notes are reassurance, not instruction; on a phone the space is
      better spent on the map itself */
-  .legend .ramp:nth-of-type(2){display:none}
+  .legend .notes{display:none}
   .ramp .sw{width:32px; height:11px}
   .ramp .ticks span{width:32px; font-size:.6rem}
   .statebar{gap:12px; padding:9px 12px}

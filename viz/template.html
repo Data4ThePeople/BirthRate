@@ -148,9 +148,23 @@ input[type=range]{flex:1; accent-color:var(--accent); height:22px; min-width:140
 .stateline{fill:none; stroke:var(--rule-strong); stroke-width:.55;
   vector-effect:non-scaling-stroke; pointer-events:none}
 
-.legend{display:flex; flex-wrap:wrap; align-items:flex-end; gap:22px;
+/* Three columns that share the row. The notes flex so they use the width
+   beside the scale rather than stacking into a tall block, which cost the map
+   the vertical space it would rather have. */
+.legend{display:flex; flex-wrap:wrap; align-items:flex-start; gap:18px 34px;
   padding:16px 24px 20px; border-top:1px solid var(--rule)}
 .ramp{display:flex; flex-direction:column; gap:5px}
+.legend .scale{flex:0 0 auto}
+/* The notes wrap as a pair. Left as three independent columns, the middle
+   width band dropped one of them onto a second row on its own, which made the
+   legend taller than the stacked version it replaced. */
+.legend .notes{display:flex; flex-wrap:wrap; gap:14px 30px; flex:1 1 430px;
+  min-width:0}
+.legend .note{flex:1 1 190px; min-width:0}
+.legend .note p{margin:0; font-size:.78rem; line-height:1.45; color:var(--ink-2);
+  max-width:52ch}
+.legend .hatchnote{display:flex; align-items:flex-start; gap:9px}
+.legend .hatchnote p{color:var(--muted); font-size:.76rem}
 .ramp .swatches{display:flex; gap:2px}
 .ramp .sw{width:44px; height:13px; border-radius:1px}
 .ramp .ticks{display:flex; gap:2px; font-family:"IBM Plex Mono",monospace;
@@ -174,7 +188,7 @@ input[type=range]{flex:1; accent-color:var(--accent); height:22px; min-width:140
 #hatch{pointer-events:none; stroke:var(--ink); stroke-width:1.1; stroke-opacity:.85;
   vector-effect:non-scaling-stroke}
 .hatchline{stroke:var(--ink); stroke-width:.3; opacity:.75}
-.legend-hatch{width:34px; height:13px; border:1px solid var(--ink);
+.legend-hatch{width:34px; height:13px; margin-top:2px; border:1px solid var(--ink);
   background:repeating-linear-gradient(45deg, transparent 0 2.4px,
     var(--ink) 2.4px 3.5px); opacity:.75; flex:0 0 auto}
 .tooltip .tt-warn{margin-top:8px; padding-top:7px; border-top:1px solid var(--rule);
@@ -359,23 +373,23 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
     </div>
 
     <div class="legend">
-      <div class="ramp">
+      <div class="ramp scale">
         <div class="cap" id="legend-cap">Change vs 1982&ndash;84 baseline</div>
         <div class="swatches" id="legend-sw"></div>
         <div class="ticks" id="legend-tk"></div>
       </div>
-      <div class="ramp">
-        <div class="cap">Coverage</div>
-        <div style="font-size:.8rem; color:var(--ink-2); max-width:30ch; line-height:1.4">
-          Every county carries an observed value in every year shown. Two years with
-          no published source are omitted rather than estimated.
+      <div class="notes">
+        <div class="ramp note">
+          <div class="cap">Coverage</div>
+          <p>Every county carries an observed value in every year shown. Two years
+          with no published source are omitted rather than estimated.</p>
         </div>
-        <div style="display:flex; align-items:center; gap:8px; margin-top:9px">
-          <span class="legend-hatch" aria-hidden="true"></span>
-          <span style="font-size:.76rem; color:var(--muted); max-width:28ch; line-height:1.35">
-            Hatched: the years either side do not support this count. 59 of 127,018
-            county-years, 0.05%.
-          </span>
+        <div class="ramp note">
+          <div class="cap">Anomalies</div>
+          <div class="hatchnote">
+            <span class="legend-hatch" aria-hidden="true"></span>
+            <p id="legend-anom">The years either side do not support this count.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -758,6 +772,13 @@ function paint(force){
 /* What to say about a year the source cannot fully stand behind. A displayed
    rate is a three-year pool, so a modeled year reaches its neighbors too. */
 const FLAGGED = new Set((D.flagged || []).map(([u, y]) => u + ":" + y));
+{
+  const cells = D.units.length * D.years.length, n = FLAGGED.size;
+  const el = document.getElementById("legend-anom");
+  if (el) el.textContent = "The years either side do not support this count. "
+    + `${n} of ${cells.toLocaleString()} county-years, `
+    + `${(100 * n / cells).toFixed(2)}%.`;
+}
 function yearCaveat(y){
   if (D.allocatedYears.includes(y)) return "part modeled";
   if ((D.provisionalYears || []).includes(y)) return "provisional";
