@@ -19,7 +19,7 @@
 
 ## Body
 
-My fascination with demographics started several months back when I put together this visualization showing the divergence in labor force trends in metro and non-metro counties. For those following our work, we keep stumbling upon signs of rising geographic inequality, and we keep worrying that this experiment may not end well. It seems that the path of least resistance is for rural areas to spiral through the cycle of structural decline (see image below) while metro areas outgrow already stressed infrastructure and grapple with the localized inflation that follows.
+My fascination with demographics started several months back when I put together this visualization showing the divergence in labor force trends in metro and non-metro counties. For those following our work, we keep stumbling upon signs of rising geographic inequality, and we keep worrying that this experiment may not end well. It seems that the path of least resistance is for rural areas to spiral through the cycle of structural decline (the same cycle we sketched back in March, below) while metro areas outgrow already stressed infrastructure and grapple with the localized inflation that follows.
 
 > **[IMAGE: The Cycle of Structural Decline]**
 > File: `cycle-of-structural-decline.png` (1400x1400)
@@ -51,4 +51,4 @@ Tomorrow and Friday we will dig deep into this new viz and offer you our diagnos
 - The cycle diagram has been redrawn to match the map's typography and palette, so the two images sit together. `viz/build_cycle.py` regenerates it, and there is an SVG alongside the PNG if you ever need to edit the wording.
 - Light edits from your draft: "out work" to "our work", "t experience" removed, "in the public" to "to the public", "post" to "note" since this is going out by email.
 - The opening paragraph is split into two sentences, and "localized inflation" gets its own verb - with a shared verb, "outgrow" would have distributed across both objects.
-- The old second paragraph is cut; "(see image below)" now carries the image in. Note this drops the fact that the diagram is from March, so it reads as new rather than as a callback.
+- The old second paragraph is cut; the parenthetical carries the image in and keeps the March callback, so the diagram still reads as something you called earlier rather than something new.
