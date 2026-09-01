@@ -92,10 +92,11 @@ def to_slices(blocks: list[dict]) -> list[dict]:
                                  {"image": image, "source_text": caption}))
         elif kind == "embed":
             flush()
+            html = block.get("html", "")
+            content = _rt([{"type": "preformatted", "text": html, "spans": []}]) if html else []
             slices.append(_slice(
                 "html_embed",
-                {"html_content": _rt([{"type": "preformatted",
-                                       "text": block["html"], "spans": []}]),
+                {"html_content": content,
                  "embed_height": block.get("height", "760px")},
                 variation="fullWidth"))
         elif kind == "blurb":

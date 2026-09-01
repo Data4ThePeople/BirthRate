@@ -187,6 +187,15 @@ def convert(markdown: str, tables: str = "preformatted") -> list[dict]:
                            "blocks": convert("\n".join(inner), tables)})
             continue
 
+        # ::: embed 760px   -> an html_embed slice left empty, for the author
+        # to paste the iframe into from the Prismic editor
+        blank = re.match(r"^:::\s*embed\s*(?P<height>\S+)?\s*$", line)
+        if blank:
+            blocks.append({"type": "embed", "html": "",
+                           "height": blank["height"] or "760px"})
+            i += 1
+            continue
+
         if line.lstrip().startswith("<iframe"):
             html = [line]
             while i + 1 < len(lines) and "</iframe>" not in html[-1]:
@@ -477,13 +486,27 @@ def build_data(blocks: list[dict], meta: dict, title: str,
         "slices": to_slices(body),
     }
 
-    from prismic_schema import build_schema
+    from prismic_schema import build_dataset_graph, build_schema
+
+    faqs: list[tuple[str, str]] = []
+    question = None
+    for b in body:
+        if b.get("type") == "heading3" and b.get("text", "").endswith("?"):
+            question = b["text"]
+        elif question and b.get("type") == "paragraph":
+            faqs.append((question, b["text"]))
+            question = None
 
     hero = next((b.get("_url") for b in blocks
                  if b.get("type") == "image" and b.get("_url")), None)
-    data["schema"] = build_schema(
-        meta, uid or data["page_title"], data["page_title"],
-        data.get("meta_description", ""), hero)
+    if meta.get("schema_type", "article").lower() == "dataset":
+        data["schema"] = build_dataset_graph(
+            meta, uid or data["page_title"], data["page_title"],
+            data.get("meta_description", ""), hero, faqs)
+    else:
+        data["schema"] = build_schema(
+            meta, uid or data["page_title"], data["page_title"],
+            data.get("meta_description", ""), hero)
     return {k: v for k, v in data.items() if v != ""}
 
 

@@ -77,3 +77,94 @@ def build_schema(meta: dict, uid: str, title: str, description: str,
         "@id": meta.get("canonical", f"{site}{POST_PATH}{uid}"),
     }
     return json.dumps(schema, indent=2, ensure_ascii=False)
+
+
+def build_dataset_graph(meta: dict, uid: str, title: str, description: str,
+                        image_url: str | None, faqs: list[tuple[str, str]]) -> str:
+    """A @graph for a data page: Dataset, WebPage, FAQPage, Breadcrumb.
+
+    An interactive data page is a poor Article and an excellent Dataset. The
+    Dataset type is what Google Dataset Search indexes, and it is the one
+    structured-data lever a page like this has that a news article does not.
+    Any FAQ section in the post becomes FAQPage entries.
+    """
+    site = _setting("SITE", SITE)
+    url = meta.get("canonical", f"{site}{POST_PATH}{uid}")
+    date = meta.get("date", "")
+    stamp = f"{date}T{meta.get('time', DEFAULT_TIME)}" if date else ""
+    keywords = [k.strip() for k in meta.get("keywords", "").split(",") if k.strip()]
+
+    publisher = {"@type": "Organization", "name": _setting("PUBLISHER", PUBLISHER),
+                 "url": _setting("PUBLISHER_URL", PUBLISHER_URL)}
+    author = {"@type": "Person",
+              "name": meta.get("author", _setting("AUTHOR", AUTHOR)),
+              "url": meta.get("author_url", site + AUTHOR_PATH)}
+
+    dataset = {
+        "@type": "Dataset",
+        "@id": f"{url}#dataset",
+        "name": meta.get("dataset_name", title),
+        "description": meta.get("dataset_description", description),
+        "url": url,
+        "license": meta.get("license", "https://creativecommons.org/licenses/by/4.0/"),
+        "isAccessibleForFree": True,
+        "creator": author,
+        "publisher": publisher,
+        "inLanguage": LANG,
+    }
+    if keywords:
+        dataset["keywords"] = keywords
+    if stamp:
+        dataset["datePublished"] = stamp
+        dataset["dateModified"] = stamp
+    if meta.get("temporal"):
+        dataset["temporalCoverage"] = meta["temporal"]
+    if meta.get("spatial"):
+        dataset["spatialCoverage"] = {"@type": "Place", "name": meta["spatial"]}
+    if meta.get("measured"):
+        name, _, unit = meta["measured"].partition("|")
+        dataset["variableMeasured"] = {
+            "@type": "PropertyValue", "name": name.strip(),
+            "unitText": unit.strip() or None}
+        dataset["variableMeasured"] = {
+            k: v for k, v in dataset["variableMeasured"].items() if v}
+    if meta.get("sources"):
+        dataset["isBasedOn"] = [s.strip() for s in meta["sources"].split("|") if s.strip()]
+
+    webpage = {
+        "@type": "WebPage",
+        "@id": url,
+        "url": url,
+        "name": meta.get("meta_title", title),
+        "description": description,
+        "isPartOf": {"@type": "WebSite", "name": _setting("PUBLISHER", PUBLISHER),
+                     "url": site},
+        "about": {"@id": f"{url}#dataset"},
+        "inLanguage": LANG,
+    }
+    if image_url:
+        webpage["primaryImageOfPage"] = {"@type": "ImageObject", "url": image_url}
+        dataset["image"] = image_url
+    if stamp:
+        webpage["datePublished"] = stamp
+        webpage["dateModified"] = stamp
+
+    graph = [dataset, webpage]
+    if faqs:
+        graph.append({
+            "@type": "FAQPage",
+            "@id": f"{url}#faq",
+            "mainEntity": [
+                {"@type": "Question", "name": q,
+                 "acceptedAnswer": {"@type": "Answer", "text": a}}
+                for q, a in faqs],
+        })
+    graph.append({
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": site},
+            {"@type": "ListItem", "position": 2, "name": title, "item": url},
+        ],
+    })
+    return json.dumps({"@context": "https://schema.org", "@graph": graph},
+                      indent=2, ensure_ascii=False)
