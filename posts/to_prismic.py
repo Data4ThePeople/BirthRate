@@ -6,7 +6,9 @@ Three steps, so nothing has to be laid out by hand:
      and links are character offsets into the plain text, so the markers are
      stripped while their positions are recorded.
   2. Upload each referenced image to the media library through the Asset API,
-     caching the returned ids so re-runs do not create duplicates.
+     caching the returned ids so re-runs do not create duplicates. The cache
+     records a hash of each file, so a regenerated image is re-uploaded rather
+     than quietly leaving Prismic on the previous one.
   3. Create the page through the Migration API, which lands it as a draft in
      the Migration Release for review.
 
@@ -31,6 +33,7 @@ Both APIs allow one request per second, which the script paces itself to.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -407,9 +410,29 @@ def list_types() -> None:
                         print(f"      {n}")
 
 
+def file_digest(path: Path) -> str:
+    """Short content hash, so a regenerated chart is recognised as new."""
+    h = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()[:16]
+
+
 def upload_assets(blocks: list[dict], base: Path, cache_path: Path,
                   dry_run: bool, extra: list[str] | None = None) -> None:
-    """Upload each image once and swap the local path for its Prismic asset id."""
+    """Upload each image once and swap the local path for its Prismic asset id.
+
+    The cache is keyed on the file path but validated against a hash of the
+    file's contents. Keying on path alone meant a regenerated chart kept its
+    old asset id, so Prismic went on serving the previous image while the
+    local one had changed - silently, since nothing in the run mentioned it.
+
+    Entries cached before hashes were recorded have no digest to compare
+    against. Those are backfilled and trusted rather than re-uploaded: a blind
+    re-upload would duplicate every asset in the library and orphan the ones
+    already referenced by published pages.
+    """
     import requests
 
     cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
@@ -421,6 +444,17 @@ def upload_assets(blocks: list[dict], base: Path, cache_path: Path,
         path = (base / src).resolve()
         if not path.exists():
             sys.exit(f"image not found: {path}")
+
+        digest = file_digest(path)
+        cached = cache.get(src)
+        if cached and cached.get("id") != "DRYRUN":
+            if "sha" not in cached:
+                cached["sha"] = digest        # legacy entry: adopt, do not re-upload
+                if not dry_run:
+                    cache_path.write_text(json.dumps(cache, indent=2))
+            elif cached["sha"] != digest:
+                print(f"    {path.name} changed since it was uploaded; re-uploading")
+                cache.pop(src)
 
         if src not in cache:
             if dry_run:
@@ -450,7 +484,8 @@ def upload_assets(blocks: list[dict], base: Path, cache_path: Path,
                     w, h = im.size
                 cache[src] = {"id": body.get("id") or body.get("asset_id"),
                               "width": w, "height": h,
-                              "url": body.get("url") or body.get("secure_url")}
+                              "url": body.get("url") or body.get("secure_url"),
+                              "sha": digest}
                 print(f"    uploaded {path.name} -> {cache[src]['id']}")
                 cache_path.write_text(json.dumps(cache, indent=2))
 
