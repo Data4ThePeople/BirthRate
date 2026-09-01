@@ -24,7 +24,7 @@ The American **fertility rate** has fallen from 67.3 births per 1,000 women aged
 
 This map shows the **birth rate** in every US county, every year from 1982 to 2024. Press play to run the series, switch between the level and the change since 1982, or zoom to a single state.
 
-::: embed 780px
+<iframe src="https://data4thepeople.github.io/BirthRate/map.html" width="100%" height="780" style="border:0" loading="lazy" title="Interactive map of US fertility rate by county, 1982-2024"></iframe>
 
 ## What the map shows
 
