@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1400"
+     viewBox="0 0 1400 1400" font-family="'IBM Plex Sans',system-ui,sans-serif">
+  <defs>
+    <marker id="head" markerWidth="5" markerHeight="5" refX="3.6" refY="2.5"
+            orient="auto"><path d="M0,0 L5,2.5 L0,5 z" fill="#b9b6ae"/></marker>
+    <marker id="head-accent" markerWidth="5" markerHeight="5" refX="3.6" refY="2.5"
+            orient="auto"><path d="M0,0 L5,2.5 L0,5 z" fill="#b0062d"/></marker>
+  </defs>
+  <rect width="1400" height="1400" fill="#fcfcfb"/>
+  <text x="700.0" y="96" text-anchor="middle" fill="#14140f" font-size="62"
+        font-weight="600" letter-spacing="-0.015em">The Cycle of Structural Decline</text>
+  <text x="700.0" y="152" text-anchor="middle" fill="#52514e" font-size="30">
+    Each stage makes the next more likely, and the loop closes
+  </text>
+  <path d="M847.8,362.6 A424,424 0 0 1 970.2,433.3" fill="none" stroke="#b9b6ae" stroke-width="12" marker-end="url(#head)"/><path d="M1118.1,689.3 A424,424 0 0 1 1118.1,830.7" fill="none" stroke="#b9b6ae" stroke-width="12" marker-end="url(#head)"/><path d="M970.2,1086.7 A424,424 0 0 1 847.8,1157.4" fill="none" stroke="#b9b6ae" stroke-width="12" marker-end="url(#head)"/><path d="M552.2,1157.4 A424,424 0 0 1 429.8,1086.7" fill="none" stroke="#b9b6ae" stroke-width="12" marker-end="url(#head)"/><path d="M281.9,830.7 A424,424 0 0 1 281.9,689.3" fill="none" stroke="#b9b6ae" stroke-width="12" marker-end="url(#head)"/><path d="M429.8,433.3 A424,424 0 0 1 552.2,362.6" fill="none" stroke="#b9b6ae" stroke-width="12" marker-end="url(#head)"/><line x1="490.8" y1="548.0" x2="901.2" y2="548.0" stroke="#b0062d" stroke-width="13" marker-end="url(#head-accent)"/><text x="700.0" y="522.0" text-anchor="middle" fill="#b0062d" font-size="27" font-weight="600" letter-spacing="0.05em">AND DIRECTLY</text>
+  <circle cx="700.0" cy="336.0" r="136" fill="#1e3050" stroke="#dfe3ea" stroke-width="5"/><text x="700.0" text-anchor="middle" fill="#ffffff" font-size="33" font-weight="500"><tspan x="700.0" y="315.5">Aging population,</tspan><tspan x="700.0" y="356.5">falling birth rate</tspan></text><circle cx="1067.2" cy="548.0" r="136" fill="#1e3050" stroke="#dfe3ea" stroke-width="5"/><text x="1067.2" text-anchor="middle" fill="#ffffff" font-size="33" font-weight="500"><tspan x="1067.2" y="527.5">Labor force</tspan><tspan x="1067.2" y="568.5">declines</tspan></text><circle cx="1067.2" cy="972.0" r="136" fill="#1e3050" stroke="#dfe3ea" stroke-width="5"/><text x="1067.2" text-anchor="middle" fill="#ffffff" font-size="33" font-weight="500"><tspan x="1067.2" y="951.5">Industrial</tspan><tspan x="1067.2" y="992.5">exit</tspan></text><circle cx="700.0" cy="1184.0" r="136" fill="#1e3050" stroke="#dfe3ea" stroke-width="5"/><text x="700.0" text-anchor="middle" fill="#ffffff" font-size="33" font-weight="500"><tspan x="700.0" y="1143.1">Decline in city</tspan><tspan x="700.0" y="1184.0">revenue &</tspan><tspan x="700.0" y="1224.9">property taxes</tspan></text><circle cx="332.8" cy="972.0" r="136" fill="#1e3050" stroke="#dfe3ea" stroke-width="5"/><text x="332.8" text-anchor="middle" fill="#ffffff" font-size="33" font-weight="500"><tspan x="332.8" y="951.5">Services</tspan><tspan x="332.8" y="992.5">decline</tspan></text><circle cx="332.8" cy="548.0" r="136" fill="#1e3050" stroke="#dfe3ea" stroke-width="5"/><text x="332.8" text-anchor="middle" fill="#ffffff" font-size="33" font-weight="500"><tspan x="332.8" y="507.1">Working age</tspan><tspan x="332.8" y="548.0">population</tspan><tspan x="332.8" y="588.9">leaves</tspan></text>
+  <text x="700.0" y="1366" text-anchor="middle" fill="#88867e" font-size="25">
+    Data 4 The People
+  </text>
+</svg>
