@@ -19,7 +19,7 @@
 
 ## Body
 
-My fascination with demographics started several months back when I put together this visualization showing the divergence in labor force trends in metro and non-metro counties. For those following our work, we keep stumbling upon signs of rising geographic inequality, and we keep worrying that this experiment may not end well as rural areas spiral through the cycle of structural decline while metro areas outgrow already stressed infrastructure.
+My fascination with demographics started several months back when I put together this visualization showing the divergence in labor force trends in metro and non-metro counties. For those following our work, we keep stumbling upon signs of rising geographic inequality, and we keep worrying that this experiment may not end well. Rural areas spiral through the cycle of structural decline while metro areas outgrow already stressed infrastructure and grapple with the localized inflation that follows.
 
 As a reminder, here is the illustration we offered back in March to explain the risk we saw forming across much of rural and non-metro America right now.
 
@@ -51,4 +51,5 @@ Tomorrow and Friday we will dig deep into this new viz and offer you our diagnos
 - **"Tomorrow and Friday"** means Wednesday 2nd and Friday 4th. You mentioned Thursday and Friday earlier in the week; if that is still the plan, this line should read *"Thursday and Friday."*
 - The map image is 1680x1080 and the cycle diagram 1400x1400. Mailchimp will scale both to the template width; no need to resize.
 - The cycle diagram has been redrawn to match the map's typography and palette, so the two images sit together. `viz/build_cycle.py` regenerates it, and there is an SVG alongside the PNG if you ever need to edit the wording.
-- Light edits from your draft: "out work" to "our work", "t experience" removed, "in the public" to "to the public", "post" to "note" since this is going out by email. Nothing else touched.
+- Light edits from your draft: "out work" to "our work", "t experience" removed, "in the public" to "to the public", "post" to "note" since this is going out by email.
+- The opening paragraph is split into two sentences, and "localized inflation" gets its own verb - with a shared verb, "outgrow" would have distributed across both objects.
