@@ -132,6 +132,32 @@ def main() -> int:
           splice <= steps.max(),
           f"splice {splice:.2f} vs largest nearby year-step {steps.max():.2f}")
 
+    # --- 7c. The splice must not bias one kind of county against another ---
+    # Small counties genuinely move differently from large ones - through the
+    # 1980s they were shedding births far faster - so comparing the two groups
+    # in the splice year alone finds a gap that has nothing to do with the
+    # sources. The test is whether the splice year's gap is unusual for its era.
+    import numpy as np
+
+    seq = p.sort_values(["fips", "year"]).copy()
+    seq["prev"] = seq.groupby("fips")["births"].shift()
+    seq["prev_year"] = seq.groupby("fips")["year"].shift()
+    seq = seq[(seq["prev"] >= 100) & (seq["year"] == seq["prev_year"] + 1)].copy()
+    seq["chg"] = np.log(seq["births"] / seq["prev"]) * 100
+    modelled = set(p.loc[p["births_allocated"], "fips"].unique())
+
+    gaps = {}
+    for year in range(1985, 2000):
+        s = seq[seq["year"] == year]
+        a = s[s["fips"].isin(modelled)]["chg"]
+        b = s[~s["fips"].isin(modelled)]["chg"]
+        if len(a) >= 50 and len(b) >= 50:
+            gaps[year] = a.mean() - b.mean()
+    ordinary = [g for y, g in gaps.items() if y not in (1989, 1990, 1991)]
+    z = (gaps[1991] - np.mean(ordinary)) / np.std(ordinary)
+    check("splice year is unremarkable for its era", abs(z) < 2,
+          f"small-vs-large gap {gaps[1991]:+.2f} pts, {z:+.1f} sd from normal")
+
     # --- 8. Discontinuities ------------------------------------------------
     ordered = p.sort_values(["fips", "year"]).copy()
     prev = ordered.groupby("fips")["births"].shift()
