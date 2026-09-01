@@ -9,6 +9,7 @@ arrows always meet the node edges.
 """
 from __future__ import annotations
 
+import html
 import math
 import subprocess
 from pathlib import Path
@@ -65,10 +66,13 @@ def arc(i: int, j: int, gap: float = 15.0) -> str:
 def node(i: int) -> str:
     x, y = polar(i)
     lines = STAGES[i]
-    size = 33
+    # 30px is the largest uniform size at which every line clears the circle:
+    # "Aging population," is the constraint, needing 249px at 31px of type
+    # against the 243px of chord available on its row
+    size = 30
     start = y - (len(lines) - 1) * size * 0.62
     text = "".join(
-        f'<tspan x="{x:.1f}" y="{start + n * size * 1.24:.1f}">{ln}</tspan>'
+        f'<tspan x="{x:.1f}" y="{start + n * size * 1.24:.1f}">{html.escape(ln)}</tspan>'
         for n, ln in enumerate(lines))
     return (f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{NODE}" fill="{NAVY}" '
             f'stroke="{NAVY_EDGE}" stroke-width="5"/>'
