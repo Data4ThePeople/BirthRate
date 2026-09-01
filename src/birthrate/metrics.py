@@ -1,8 +1,8 @@
 """Fertility measures for the county-year panel.
 
-GFR is the intuitive headline but confounds fertility behaviour with the age
+GFR is the intuitive headline but confounds fertility behavior with the age
 structure of the local female population: a county whose women skew older
-within 15-44 posts a lower GFR even if nobody's behaviour changed. That is
+within 15-44 posts a lower GFR even if nobody's behavior changed. That is
 exactly the confound a migration story turns on, so the panel also carries an
 indirectly standardized measure.
 

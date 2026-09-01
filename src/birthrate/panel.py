@@ -10,7 +10,7 @@ from birthrate.geography import (HETEROGENEOUS_UNITS, UNIT_LABELS, harmonize,
                                  to_unit)
 from birthrate.sources.asfr import load_asfr
 from birthrate.sources import nber
-from birthrate.sources.pep import load_births
+from birthrate.sources.pep import CSV_VINTAGES, load_births
 from birthrate.sources.rucc import MIXED_METRO_BAND, RUCC_CLASS, unit_rucc
 from birthrate.sources.seer import load_denominators
 
@@ -23,25 +23,40 @@ NBER_LAST_YEAR = 1990
 ALLOCATED_YEARS = [1989, 1990]
 # PEP stubs each vintage's launch year, so no published county file covers the
 # estimate years that straddle a decennial census. 2020 is recovered from the
-# vintage-2020 release; 2000 and 2010 have no source and are interpolated.
-# No published county file covers these two estimate years. A linear
-# interpolation between the neighbours is unbiased at national level but
-# carries no information: it is a deterministic function of the years either
-# side, so plotting it adds nothing and invites it to be read as data. They
-# are dropped. 1989-90 are different - 72% of their births are observed
-# exactly and every state total is exact - so those are kept and flagged.
+# vintage-2020 release; 2000 and 2010 have no source at all. A linear
+# interpolation between the neighbors would be unbiased at national level but
+# carries no information - it is a deterministic function of the years either
+# side - so plotting it adds nothing and invites it to be read as data. Those
+# two years are dropped, not estimated. 1989-90 are different: 73% of their
+# births are observed exactly and every state total is exact, so they are kept
+# and flagged.
 INTERPOLATED_YEARS: list[int] = []
 DROPPED_YEARS = [2000, 2010]
+# A vintage's final estimate year is built before NCHS natality for that year
+# is final, so its county births are carried forward or projected rather than
+# counted. It shows: in vintage 2024, 263 counties repeat their 2023 figure
+# exactly and 41% move by under 1%, against roughly 10% in a settled year,
+# while a handful swing implausibly far. The year is kept - it is the current
+# reading and its national total is sound - but every cell is flagged so the
+# map can say so.
+PROVISIONAL_YEARS = [CSV_VINTAGES[-1][2]]
 
 POP_COLS = ["pop_total", "women_15_44", "w15_19", "w20_24", "w25_29",
             "w30_34", "w35_39", "w40_44"]
 
-# A unit-year whose births differ from the mean of its two neighbouring years
+# A unit-year whose births differ from the mean of its two neighboring years
 # by more than this is flagged. Small counties swing this much naturally, so
 # the flag only applies to units that normally record at least MIN_FOR_OUTLIER
 # births. Flagged values are kept, never silently smoothed.
 OUTLIER_TOLERANCE = 0.40
 MIN_FOR_OUTLIER = 100
+# The first and last year of the series, and the years either side of a
+# dropped one, have only a single neighbor to be judged against. They fall
+# back to that one under the same tolerance: a lone neighbor cannot separate
+# an isolated spike from the start of a real level shift, but a flag is
+# advisory rather than a correction, and a two-sided-only rule leaves 1982,
+# 2024 and the four gap-adjacent years permanently unexaminable - which is
+# exactly where the newest and least settled vintage sits.
 
 
 def _assemble_births() -> pd.DataFrame:
@@ -102,12 +117,24 @@ def _complete_grid(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _flag_outliers(df: pd.DataFrame) -> pd.DataFrame:
-    """Mark isolated birth counts that neither neighbouring year supports."""
+    """Mark birth counts that the surrounding years do not support.
+
+    Where both neighbors exist the reference is their mean, which isolates a
+    one-year spike. At the ends of the series and either side of a dropped
+    year only one neighbor exists; those cells fall back to it rather than
+    going unchecked, since a two-sided-only rule leaves 1982, 2024 and the
+    four gap-adjacent years permanently unexaminable.
+    """
     out = df.sort_values(["fips", "year"]).copy()
     grp = out.groupby("fips")["births"]
-    neighbours = (grp.shift(1) + grp.shift(-1)) / 2.0
-    deviation = (out["births"] - neighbours).abs() / neighbours.where(neighbours > 0)
-    typical = out.groupby("fips")["births"].transform("median")
+    prev, nxt = grp.shift(1), grp.shift(-1)
+
+    both = (prev + nxt) / 2.0
+    lone = prev.where(prev.notna(), nxt)          # whichever single one exists
+    reference = both.where(both.notna(), lone)
+
+    deviation = (out["births"] - reference).abs() / reference.where(reference > 0)
+    typical = grp.transform("median")
     out["births_outlier"] = (
         (deviation > OUTLIER_TOLERANCE) & (typical >= MIN_FOR_OUTLIER)
     ).fillna(False)
@@ -135,6 +162,7 @@ def build() -> pd.DataFrame:
     mixed = panel["metro_share_2013"].between(lo, hi, inclusive="neither")
     panel["rucc_reliable"] = ~(mixed | panel["fips"].isin(HETEROGENEOUS_UNITS))
     panel["merged_unit"] = panel["fips"].map(UNIT_LABELS)
+    panel["births_provisional"] = panel["year"].isin(PROVISIONAL_YEARS)
     panel = _flag_outliers(panel)
     panel = panel[~panel["year"].isin(DROPPED_YEARS)]
 

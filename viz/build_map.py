@@ -20,12 +20,13 @@ HERE = Path(__file__).resolve().parent
 
 # Only these keys are read by the map, its tooltip and the state selector.
 MAP_KEYS = ["years", "units", "names", "geo", "geoUnit", "states", "stateMeta",
-            "gfr", "chg", "births", "baseline", "allocatedYears"]
+            "gfr", "chg", "births", "baseline", "allocatedYears",
+            "pooledWithModeled", "provisionalYears", "flagged"]
 
 EMBED_CSS = """
 <style>
 /* Embed mode. The host frame is a fixed height set by oEmbed, and viewport
-   media queries do not see the frame's width, so all responsive behaviour is
+   media queries do not see the frame's width, so all responsive behavior is
    driven by container queries on .wrap instead. */
 /* The frame height is fixed by oEmbed, so the page fills it exactly: the
    controls, legend and footer take what they need and the map absorbs the
@@ -86,7 +87,8 @@ FOOT = """
 <div class="embed-foot">
   <b>Fertility rate</b>
   <span>Births per 1,000 women aged 15&ndash;44, three-year pooled. 3,098 county
-  units held stable across all 43 years.</span>
+  units held stable across all 43 years. 2024 is provisional; 1989&ndash;90 are
+  part modeled.</span>
   <span>Census Population Estimates &middot; NCHS natality microdata &middot; SEER</span>
 </div>
 """

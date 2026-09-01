@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from birthrate.analysis import (by_county_type, by_metro, load,  # noqa: E402
                                 shift_share)
+from birthrate.panel import ALLOCATED_YEARS, PROVISIONAL_YEARS  # noqa: E402
 from birthrate.geography import UNIT_LABELS, to_unit  # noqa: E402
 from birthrate.tempo import (bongaarts_feeney, cohort_completed_fertility,  # noqa: E402
                              cumulative_by_age, national_asfr)
@@ -20,7 +21,7 @@ from project import geometry_paths, state_paths  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = [1982, 1983, 1984]
-SMOOTH = 3  # centred rolling window, pooled births over pooled women
+SMOOTH = 3  # centered rolling window, pooled births over pooled women
 
 
 def county_names() -> dict[str, str]:
@@ -41,7 +42,7 @@ def county_names() -> dict[str, str]:
 
 
 def rolling_rate(panel: pd.DataFrame) -> pd.DataFrame:
-    """Centred 3-year pooled GFR, which damps small-county sampling noise.
+    """Centered 3-year pooled GFR, which damps small-county sampling noise.
 
     Two years carry no published source and are absent from the panel. The
     window is taken over a complete year index so a gap is spanned rather
@@ -205,6 +206,21 @@ def main() -> None:
         "cohorts": COHORTS,
     }
 
+    pooled_with_modeled = sorted(
+        y for y in years
+        if y not in ALLOCATED_YEARS
+        and any(n in ALLOCATED_YEARS for n in (y - 1, y + 1))
+    )
+    short_window = sorted(
+        y for y in years
+        if sum(1 for n in (y - 1, y, y + 1) if n in set(years)) < SMOOTH
+    )
+    flagged = sorted(
+        [idx[r.fips], years.index(int(r.year))]
+        for r in panel[panel["births_outlier"]].itertuples()
+        if r.fips in idx and int(r.year) in years
+    )
+
     national = panel.groupby("year").apply(
         lambda g: 1000 * g["births"].sum() / g["women_15_44"].sum(),
         include_groups=False,
@@ -233,8 +249,22 @@ def main() -> None:
             "interaction": round(ss["interaction"].sum(), 2),
         },
         "pivotYear": PIVOT_YEAR,
-        "allocatedYears": [1989, 1990],
+        "allocatedYears": ALLOCATED_YEARS,
+        # A displayed rate is a three-year pool, so the years either side of a
+        # modeled one carry modeled births too - a third of their window
+        # against two thirds for 1989-90. Flagging only the modeled years
+        # themselves would understate how far the estimate reaches.
+        "pooledWithModeled": pooled_with_modeled,
+        "provisionalYears": [y for y in PROVISIONAL_YEARS if y in years],
+        # Years whose pooling window is short a year, because they sit at the
+        # end of the series or beside a dropped one. Their rate is pooled over
+        # two years rather than three, so it carries more sampling noise.
+        "shortWindowYears": short_window,
         "outliers": int(panel["births_outlier"].sum()),
+        # [unit index, year index] for every cell the surrounding years do not
+        # support, so the tooltip can say so rather than presenting the value
+        # as though nothing were wrong with it.
+        "flagged": flagged,
     }
 
     out = ROOT / "viz" / "fertility_data.json"

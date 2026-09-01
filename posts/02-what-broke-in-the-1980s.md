@@ -13,7 +13,7 @@ Between 1982 and 1987, the fertility rate in non-metropolitan American counties 
 
 A shock that size, that fast, confined that precisely to one kind of place, should have a cause you can find. It does. But it is not quite the cause you would guess.
 
-## The setup: a debt-fuelled boom
+## The setup: a debt-fueled boom
 
 In 1972 the Soviet Union quietly bought roughly a quarter of the American wheat crop, in what became known as the Great Grain Robbery. Prices spiked, and what followed was the best decade American farming had seen since the First World War.
 
@@ -47,15 +47,15 @@ Grouping rural counties that way, and measuring the fall in the fertility rate f
 
 - **Mining** — down 21.9%
 - **Farming** — down 14.8%
-- Unspecialised rural — down 12.7%
 - Persistent poverty — down 12.3%
+- Other rural — down 10.0%
 - Government — down 9.1%
 - Manufacturing — down 8.6%
 - Retirement destination — down 8.3%
-- *All non-metro* — down 11.7%
+- *All non-metro* — down 11.6%
 - *All metro* — down 0.2%
 
-Farming-dependent counties do fall harder, and it holds up under scrutiny. They fell further than other rural counties in all four rural–urban classes at equal rurality. County by county, unweighted, the median farming county fell 13.2% against 8.0% for other rural counties — a difference of 3.4 points with a t-statistic of −6.6.
+Farming-dependent counties do fall harder, and it holds up under scrutiny. They fell further than other rural counties in all four rural–urban classes at equal rurality. County by county, unweighted, the median farming county fell 15.5% against 10.9% for other rural counties, and the means differ by 3.5 points with a t-statistic of −4.5.
 
 ## But mining fell harder
 
@@ -67,7 +67,7 @@ The farm crisis is real in these numbers. It is not the largest effect in them.
 
 Mining counties fell half again as much as farming counties, and the two groups barely overlap — seven counties out of roughly 750. The mining counties are exactly where you would expect: Texas, Kentucky, Wyoming, West Virginia, Colorado, Utah. Oil patch and Appalachian coal.
 
-Which points at the real organising principle. Oil went from about $35 a barrel in 1981 to roughly $10 by 1986, on the same schedule as grain, driven by the same soaring dollar and the same twenty percent interest rates. The farm crisis and the energy bust were not two events. They were one macroeconomic shock arriving in two industries.
+Which points at the real organizing principle. Oil went from about $35 a barrel in 1981 to roughly $10 by 1986, on the same schedule as grain, driven by the same soaring dollar and the same twenty percent interest rates. The farm crisis and the energy bust were not two events. They were one macroeconomic shock arriving in two industries.
 
 **The 1980s rural fertility collapse tracks commodity exposure.** Rural counties that ran on manufacturing, government or retirement fell about as much as the country as a whole. Rural counties that ran on things dug out of the ground or grown on it fell off a cliff.
 
@@ -83,11 +83,11 @@ There is a second way to see it. Ranked along the USDA's rural–urban continuum
 
 **1994 to 2024:** large metro −23.2%, small metro −13.2%, small town −3.0%, remote rural +4.0%. Exactly inverted.
 
-Whatever reorganised American fertility did not simply run from city to countryside. It changed sign, and it changed sign around 1994.
+Whatever reorganized American fertility did not simply run from city to countryside. It changed sign, and it changed sign around 1994.
 
 ## Two honest limits
 
-Even unspecialised rural counties fell 12.7%, so roughly two-thirds of the rural decline happens regardless of sector. Some of that is likely rural fertility converging toward metro norms as education, labour-force participation and marriage timing shifted — a national trend that happened to have further to travel in rural places.
+Rural counties in none of the named categories still fell 10.0%, against 11.6% for non-metro as a whole, so most of the rural decline happens regardless of sector. ("Other rural" is a residual, not a control group: it excludes mining and farming counties but still contains the persistent-poverty, government, manufacturing and retirement ones.) Some of that is likely rural fertility converging toward metro norms as education, labor-force participation and marriage timing shifted — a national trend that happened to have further to travel in rural places.
 
 And this remains descriptive. Using a pre-crisis classification removes the worst endogeneity problem, but nothing here controls for everything else that correlates with commodity dependence.
 

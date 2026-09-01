@@ -137,14 +137,14 @@ So we modeled the ceiling: what the country looks like if the format most expose
 Alt text:
 
 ```
-Dot map of the lower 48. Faint grey marks the 19,074 ZIP codes that would still have a SNAP retailer; pink marks the 2,782 that would have none, scattered across the interior, the Plains and the rural East while cities stay grey.
+Dot map of the lower 48. Faint gray marks the 19,074 ZIP codes that would still have a SNAP retailer; pink marks the 2,782 that would have none, scattered across the interior, the Plains and the rural East while cities stay gray.
 ```
 
 Then this **as live text underneath**, because the chart's own key will not be
 legible at phone width:
 
 ```
-Grey: ZIP codes that keep a SNAP retailer. Pink: ZIP codes that would have none. The cities barely register.
+Gray: ZIP codes that keep a SNAP retailer. Pink: ZIP codes that would have none. The cities barely register.
 ```
 
 ### 9 — Who it lands on

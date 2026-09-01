@@ -29,8 +29,9 @@ divergence visible in other domains also shows up in birth rates.
    shift-share decomposition puts ~97% of the national decline in *within-group* rate
    change and ~3% in composition.
 
-The divergence survives age standardisation, so it is not an artefact of the female age
-structure of different places.
+The divergence survives age standardization, so it is not an artifact of the female age
+structure of different places — though both crossings arrive earlier on the standardized
+measure (1989 and 1998, against 1987 and 2005 on the raw rate).
 
 ## The data problem, and the way around it
 
@@ -64,10 +65,17 @@ nearby; `tests/validate.py` asserts this.
 
 - **1982–1990 reproduces published NCHS national totals exactly**, once the pre-1985
   record weight (a 50% sample in some states) and the foreign-resident filter are applied.
-- **1989–1990 small counties are modelled.** Public files name only counties of 100,000+,
+- **1989–1990 small counties are modeled.** Public files name only counties of 100,000+,
   but state totals are complete, so each state's residual is spread over its smaller
   counties on a share basis from 1988 and 1991. State and national totals are exact; only
   the split among small counties is estimated (~28% of births in those two years).
+  Backtested on 1986, the median small county lands within 5% and nine in ten within 16%,
+  with no directional tilt — but the error runs from ~3% for counties of 1,000+ births to
+  ~18% for those under 50. See `tests/backtest_allocation.py`.
+- **2024 is provisional.** A Census vintage's final estimate year precedes final NCHS
+  natality, so county births are partly carried forward: 263 counties repeat 2023 exactly
+  and 41% move under 1%, against ~10% in a settled year. The national total is sound
+  (within 0.3% of SEER × NCHS rates); the county split will change on revision.
   Flagged in `births_allocated`.
 - **2000 and 2010 are interpolated** — every PEP vintage stubs its launch year, so no
   published county file covers those two estimate years. Flagged in `births_interpolated`.
@@ -156,7 +164,9 @@ in their twenties and thirties is genuinely not yet knowable — only their traj
 
 ## What this does not answer
 
-Age standardisation removes the effect of local female age structure. It does not remove
-differences in *who* lives where — education, income, nativity, marital status. Mother's
+Age standardization removes the effect of local female age structure. It does not remove
+differences in *who* lives where — education, income, nativity, marital status — nor a
+denominator that counts resident but unsettled women: college counties carry students in
+the 15–44 count who bear few children there, so they read implausibly low. Mother's
 age is available in the 1982–1988 microdata (`b15_19` … `b40_44` in `sources/nber.py`) but
 not for the PEP era, so county age-specific rates are not comparable across the period.

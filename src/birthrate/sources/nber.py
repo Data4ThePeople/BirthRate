@@ -156,7 +156,7 @@ def allocate_suppressed(year: int, weights: pd.Series,
     quantity known exactly, because state totals are complete - are spread over
     that state's unnamed counties in proportion to `weights`, a share basis
     taken from the fully observed years on either side. State and national
-    totals are therefore exact; only the split among small counties is modelled.
+    totals are therefore exact; only the split among small counties is modeled.
 
     `mapper` folds raw county FIPS onto the caller's stable analysis units
     before anything is counted, so a county that changed code between eras

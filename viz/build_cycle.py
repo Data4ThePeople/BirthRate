@@ -1,7 +1,7 @@
 """Redraw the cycle-of-decline diagram to match the rest of the work.
 
 Six stages on a ring, each feeding the next, plus the shortcut that makes the
-loop vicious: when working-age people leave, the labour force falls directly,
+loop vicious: when working-age people leave, the labor force falls directly,
 without waiting for the slower demographic path around the circle.
 
 Geometry is computed rather than hand-placed, so the ring stays even and the

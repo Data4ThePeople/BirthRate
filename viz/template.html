@@ -168,6 +168,17 @@ input[type=range]{flex:1; accent-color:var(--accent); height:22px; min-width:140
   font-size:.8rem; font-variant-numeric:tabular-nums}
 .tooltip dt{color:var(--muted)}
 .tooltip dd{margin:0; text-align:right; font-family:"IBM Plex Mono",monospace}
+/* The hatch alone disappears at national zoom, where a county is a few pixels,
+   so the flagged shape is outlined too: the outline finds it, the hatch says
+   what it means once you are close enough to read it. */
+#hatch{pointer-events:none; stroke:var(--ink); stroke-width:1.1; stroke-opacity:.85;
+  vector-effect:non-scaling-stroke}
+.hatchline{stroke:var(--ink); stroke-width:.3; opacity:.75}
+.legend-hatch{width:34px; height:13px; border:1px solid var(--ink);
+  background:repeating-linear-gradient(45deg, transparent 0 2.4px,
+    var(--ink) 2.4px 3.5px); opacity:.75; flex:0 0 auto}
+.tooltip .tt-warn{margin-top:8px; padding-top:7px; border-top:1px solid var(--rule);
+  font-size:.72rem; line-height:1.4; color:var(--muted); max-width:22em}
 
 .chartgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(400px,1fr)); gap:24px}
 .chart-title{display:flex; flex-direction:column; gap:3px; margin-bottom:4px}
@@ -297,17 +308,18 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
   <div class="section-head">
     <h2>Forty-three years, county by county</h2>
     <p>Press play to run the series. The default view shows each county against
-    its own 1982&ndash;84 baseline, so colour means change rather than level; switch to
+    its own 1982&ndash;84 baseline, so color means change rather than level; switch to
     <em>Fertility rate</em> to see levels instead. Pick a state to zoom in. Rates are
     three-year pooled averages, which keeps small counties from flickering. Two years,
     2000 and 2010, have no published county source and are left out rather than
-    estimated.</p>
+    estimated; the years beside them, like the first and last in the series, pool over
+    two years instead of three and so carry a little more noise.</p>
   </div>
 
   <div class="panel">
     <div class="controls">
       <div class="segmented" role="group" aria-label="Map measure">
-        <button type="button" id="btn-chg" aria-pressed="true">Change since 1982</button>
+        <button type="button" id="btn-chg" aria-pressed="true">Change since 1982&ndash;84</button>
         <button type="button" id="btn-lvl" aria-pressed="false">Fertility rate</button>
       </div>
       <label class="statepick">
@@ -331,7 +343,16 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
     <div class="mapbox" id="mapbox">
       <svg id="usmap" viewBox="25 54 847 501" role="img"
            aria-label="Choropleth map of United States counties by fertility rate">
+        <defs>
+          <!-- The median county is about 8 user units across, so the tile has to
+               be well under that or a county catches only one line. -->
+          <pattern id="anomaly" width="1.7" height="1.7" patternUnits="userSpaceOnUse"
+                   patternTransform="rotate(45)">
+            <line x1="0.85" y1="0" x2="0.85" y2="1.7" class="hatchline"></line>
+          </pattern>
+        </defs>
         <g id="counties"></g>
+        <path id="hatch" fill="url(#anomaly)"></path>
         <path id="states" class="stateline"></path>
       </svg>
       <div class="tooltip" id="tip" role="status" aria-live="polite"></div>
@@ -349,6 +370,13 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
           Every county carries an observed value in every year shown. Two years with
           no published source are omitted rather than estimated.
         </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-top:9px">
+          <span class="legend-hatch" aria-hidden="true"></span>
+          <span style="font-size:.76rem; color:var(--muted); max-width:28ch; line-height:1.35">
+            Hatched: the years either side do not support this count. 59 of 127,018
+            county-years, 0.05%.
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -360,9 +388,12 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
     <h2>Two crossings</h2>
     <p>Splitting those counties into metropolitan and non-metropolitan gives the clearest
     view. The lines cross twice: rural fertility falls below metro in 1987 and climbs back
-    above it in 2005. The right-hand chart repeats the exercise after standardising for the
-    age structure of each area's female population &mdash; both crossings survive, so
-    neither is an artefact of who is older where.</p>
+    above it in 2005. The right-hand chart repeats the exercise after standardizing for the
+    age structure of each area's female population. Both crossings survive, so neither is
+    an artifact of who is older where &mdash; though both arrive earlier once age structure
+    is removed, in 1989 and 1998. Rural counties were already turning back toward the
+    nation seven years before the raw rate showed it; an aging rural female population
+    was holding the crossing off.</p>
   </div>
   <div class="chartgrid">
     <div class="panel panel-pad chart">
@@ -375,7 +406,7 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
     </div>
     <div class="panel panel-pad chart">
       <div class="chart-title">
-        <span class="t">Age-standardised fertility</span>
+        <span class="t">Age-standardized fertility</span>
         <span class="s">Observed &divide; expected births, national average = 1.00</span>
       </div>
       <div class="legend-inline" id="lg2"></div>
@@ -446,7 +477,7 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
     magnitudes. Through 1994 the fall got steeper the more rural the county, and the
     largest metros actually gained. Since 1994 the ordering is exactly inverted: the
     largest metros have fallen furthest, and the most remote rural counties have gained.
-    Whatever reorganised American fertility did not simply run from city to country. It
+    Whatever reorganized American fertility did not simply run from city to country. It
     changed sign.</p>
   </div>
   <div class="panel panel-pad">
@@ -604,22 +635,43 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
       county-level ratio is within about 1%, and its sign tracks the direction of the
       national trend each year &mdash; the signature of PEP's July&ndash;June year rather
       than a difference in what is counted.</p></div>
-    <div class="note"><div class="h">Where numbers are modelled</div>
+    <div class="note"><div class="h">Where numbers are modeled</div>
       <p>Public microdata names only counties of 100,000+ in 1989 and 1990. State
       totals are complete, so each state's remaining births are spread across its
       smaller counties on a share basis from 1988 and 1991: state and national totals
-      stay exact, only the split among small counties is estimated. Separately, no PEP
-      file covers estimate years 2000 and 2010, which are interpolated. Every such cell
-      is flagged in the data.</p></div>
+      stay exact, only the split among small counties is estimated. Backtested on 1986,
+      where every county is named, half of those counties land within 5% and nine in
+      ten within 16%, with no directional tilt &mdash; but the error scales with size,
+      from about 3% for counties of 1,000+ births to 18% for those under 50. No PEP
+      file covers estimate years 2000 and 2010; rather than interpolate, both are left
+      out. Every modeled cell is flagged, and the year readout says so.</p></div>
+    <div class="note"><div class="h">The newest year is provisional</div>
+      <p>A vintage's final estimate year is built before NCHS natality for that year is
+      final, so many counties carry their previous figure forward: in vintage 2024, 263
+      repeat 2023 exactly and 41% move by under 1%, against roughly 10% in a settled
+      year, while a handful swing implausibly far. The national total holds &mdash; it
+      lands within 0.3% of what SEER's age structure and the NCHS rate schedule imply
+      &mdash; but the split between counties will move when the year is revised. 2024 is
+      labeled provisional throughout.</p></div>
+    <div class="note"><div class="h">Against published rates</div>
+      <p>These rates use SEER's intercensal populations, revised after each census.
+      Rates published during the 1990s used postcensal estimates that the 2000 census
+      showed to be about 2% low, so this series reads 2&ndash;3% under a contemporaneous
+      1990s figure &mdash; the denominator, not the births. Against current publications
+      they align: for 2023 NCHS puts the lowest state at 42.1 and the highest at 65.6,
+      and this panel gives 42.3 and 65.6 for the same two states.</p></div>
     <div class="note"><div class="h">Merged geographies</div>
       <p>Alaska, Connecticut and Hawaii are held as single statewide units, and Broomfield
       County is merged with the four Colorado counties it was carved from in 2001, because
       the sources cannot be reconciled below that level. Alaska is excluded from the
       metro/non-metro series, where a single code would be misleading.</p></div>
-    <div class="note"><div class="h">What standardisation does and does not remove</div>
-      <p>The age-standardised measure removes the effect of the local female age structure.
+    <div class="note"><div class="h">What standardization does and does not remove</div>
+      <p>The age-standardized measure removes the effect of the local female age structure.
       It does not remove differences in who lives where &mdash; education, income, nativity,
-      marital status. Those remain open questions, not answered here.</p></div>
+      marital status. Nor does it fix a denominator that counts women who are resident but
+      not settled: a college county carries thousands of students in the 15&ndash;44 count
+      who bear few children there, which is why Tompkins NY, Hampshire MA and Watauga NC
+      read far below any plausible rate. Those remain open questions, not answered here.</p></div>
   </div>
 
   <h3 style="margin-top:38px; margin-bottom:14px">Sources</h3>
@@ -662,7 +714,14 @@ const BIN = { chg: precompute(D.chg, CHG_BREAKS), lvl: precompute(D.gfr, LVL_BRE
 
 /* ---------- map ---------- */
 const gCounties = document.getElementById("counties");
-const paths = [], pathUnit = [];
+const paths = [], pathUnit = [], unitGeo = {};
+/* Cells the surrounding years do not support are hatched rather than dropped:
+   the value is real source data and stays on the map, but the map says so. */
+const ANOMALY = (() => {
+  const byYear = Array.from({ length: NY }, () => []);
+  for (const [u, y] of (D.flagged || [])) byYear[y].push(u);
+  return byYear;
+})();
 {
   const frag = document.createDocumentFragment();
   for (const fips in D.geo){
@@ -673,11 +732,14 @@ const paths = [], pathUnit = [];
     el.dataset.st = fips.slice(0, 2);
     frag.appendChild(el);
     paths.push(el); pathUnit.push(D.geoUnit[fips]);
+    const u = D.geoUnit[fips];
+    unitGeo[u] = (unitGeo[u] || "") + D.geo[fips];
   }
   gCounties.appendChild(frag);
   document.getElementById("states").setAttribute("d", Object.values(D.states).join(""));
 }
 
+const hatch = document.getElementById("hatch");
 let mode = "chg", yi = NY - 1;
 const drawn = new Int8Array(paths.length).fill(-99);
 
@@ -690,6 +752,17 @@ function paint(force){
     drawn[i] = b;
     paths[i].style.fill = b < 0 ? "var(--dnull)" : `var(${ramp[b]})`;
   }
+  hatch.setAttribute("d", ANOMALY[yi].map(u => unitGeo[u] || "").join(""));
+}
+
+/* What to say about a year the source cannot fully stand behind. A displayed
+   rate is a three-year pool, so a modeled year reaches its neighbors too. */
+const FLAGGED = new Set((D.flagged || []).map(([u, y]) => u + ":" + y));
+function yearCaveat(y){
+  if (D.allocatedYears.includes(y)) return "part modeled";
+  if ((D.provisionalYears || []).includes(y)) return "provisional";
+  if ((D.pooledWithModeled || []).includes(y)) return "pooled with modeled";
+  return "";
 }
 
 const yearout = document.getElementById("yearout");
@@ -703,7 +776,7 @@ function setYear(i, force){
   const y = YEARS[yi];
   yearout.textContent = y;
   slider.setAttribute("aria-valuetext", String(y));
-  yearnote.textContent = D.allocatedYears.includes(y) ? "part modelled" : "";
+  yearnote.textContent = yearCaveat(y);
   paint(force);
   if (activeState) renderStateBar(activeState);
   if (hoverIdx >= 0) showTip(hoverIdx);
@@ -756,7 +829,7 @@ function renderStateBar(code){
   if (!code){ stateBar.hidden = true; return; }
   const meta = D.stateMeta[code];
   // Read chronologically: baseline first, then the selected year, then the change
-  // between them. The baseline is the same 1982-84 pooled rate the map colours by.
+  // between them. The baseline is the same 1982-84 pooled rate the map colors by.
   const base = meta.baseline, now = meta.gfr[yi];
   const chg = (now / base - 1) * 100;
   stateBar.hidden = false;
@@ -764,7 +837,7 @@ function renderStateBar(code){
     `<span class="nm">${meta.name}</span><dl>` +
     `<div class="st"><dt>Rate ${YEARS[0]}\u201384</dt><dd>${base.toFixed(1)}</dd></div>` +
     `<div class="st"><dt>Rate ${YEARS[yi]}</dt><dd>${now.toFixed(1)}</dd></div>` +
-    `<div class="st"><dt>Change since ${YEARS[0]}</dt>` +
+    `<div class="st"><dt>Change since ${YEARS[0]}\u201384</dt>` +
     `<dd>${chg > 0 ? "+" : ""}${chg.toFixed(1)}%</dd></div>` +
     `<div class="st"><dt>County units</dt><dd>${meta.units}</dd></div></dl>` +
     `<span class="unit">births per 1,000 women aged 15\u201344, three-year pooled</span>`;
@@ -791,8 +864,14 @@ function showTip(i){
     `<div class="tt-name">${D.names[unit] || unit}</div><dl>` +
     `<dt>Year</dt><dd>${YEARS[yi]}</dd>` +
     `<dt>Rate<span class="u"> /1,000</span></dt><dd>${fmt1(g)}</dd>` +
-    `<dt>vs 1982</dt><dd>${pct(c)}</dd>` +
-    `<dt>Births</dt><dd>${b == null ? "\u2014" : b.toLocaleString()}</dd></dl>`;
+    `<dt>vs 1982\u201384</dt><dd>${pct(c)}</dd>` +
+    `<dt>Births</dt><dd>${b == null ? "\u2014" : b.toLocaleString()}</dd></dl>` +
+    (FLAGGED.has(u + ":" + yi)
+      ? `<div class="tt-warn">The years either side do not support this count.</div>`
+      : "") +
+    (yearCaveat(YEARS[yi])
+      ? `<div class="tt-warn">${YEARS[yi]} is ${yearCaveat(YEARS[yi])}.</div>`
+      : "");
   tip.dataset.show = "1";
 }
 function moveTip(ev){
@@ -1017,7 +1096,7 @@ lineChart(document.getElementById("chart-gfr"), METRO,
 lineChart(document.getElementById("chart-cfr"), METRO_C,
   { ticks: [0.95, 1.00, 1.05, 1.10, 1.15], fmtY: v => v.toFixed(2),
     fmtV: v => v.toFixed(3), zero: 1,
-    label: "Age-standardised fertility, metro versus non-metro counties, 1982 to 2024" });
+    label: "Age-standardized fertility, metro versus non-metro counties, 1982 to 2024" });
 
 /* ---------- two clocks: level versus gap ---------- */
 const FLAT_END = YEARS.indexOf(2007);

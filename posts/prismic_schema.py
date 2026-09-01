@@ -1,6 +1,6 @@
 """Build the JSON-LD that goes in a blog_post's `schema` field.
 
-Modelled on what the existing posts carry, so search engines see the same
+Modeled on what the existing posts carry, so search engines see the same
 shape across the site: an Article with headline, description, hero image,
 dates, keywords, author, publisher and a canonical URL.
 

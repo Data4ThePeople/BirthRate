@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from birthrate.panel import (ALLOCATED_YEARS, DROPPED_YEARS,  # noqa: E402
                              FIRST_YEAR, INTERPOLATED_YEARS, LAST_YEAR,
-                             NBER_LAST_YEAR)
+                             NBER_LAST_YEAR, PROVISIONAL_YEARS)
 from birthrate.sources.asfr import BAND_TO_COL, load_asfr  # noqa: E402
 
 PANEL = Path("data/processed/county_year_fertility.parquet")
@@ -100,6 +100,17 @@ def main() -> int:
           max(dev.values()) < 1.0,
           f"median {statistics.median(dev.values()):.2f}%, max {max(dev.values()):.2f}%")
 
+    # --- 3b. Every year, including the ones NCHS_BIRTHS does not reach ------
+    # The table above stops where NCHS final natality stops, which would leave
+    # the newest year - the one the map opens on - with no external check at
+    # all. SEER denominators and the NCHS rate schedule are both independent
+    # of PEP, so their product is a check the latest year can also be held to.
+    own = (100 * (nat["births"] / expected - 1)).dropna()
+    check("panel births reconcile with SEER x NCHS rates in every year",
+          own.abs().max() < 5.0 and own.abs().median() < 1.5,
+          f"median |dev| {own.abs().median():.2f}%, max {own.abs().max():.2f}% "
+          f"({own.abs().idxmax()}), {LAST_YEAR} {own[LAST_YEAR]:+.2f}%")
+
     # --- 4-5. Boundary integrity ------------------------------------------
     per_year = p.groupby("year")["fips"].apply(frozenset)
     check("unit set identical across all years", per_year.nunique() == 1,
@@ -130,11 +141,38 @@ def main() -> int:
     check("allocated births are a minority of those two years",
           alloc_share < 0.35, f"{alloc_share*100:.1f}% of 1989-90 births")
 
+    prov = sorted(int(y) for y in p.loc[p["births_provisional"], "year"].unique())
+    check("provisional flag marks the newest vintage's final year",
+          prov == PROVISIONAL_YEARS, str(prov))
+
+    # --- 7d. The carried-forward signature must stay inside that flag ------
+    # A vintage's last estimate year is produced before NCHS natality for it is
+    # final, so many counties simply repeat the prior year. That is tolerable
+    # once it is labeled; what must not happen is a later year quietly
+    # acquiring the same signature while PROVISIONAL_YEARS still points at an
+    # older one. Repeated-to-the-birth is rare in a settled year (under 4%,
+    # and under 2.5% outside the pandemic) and common in a provisional one.
+    wide = p.pivot(index="fips", columns="year", values="births")
+    span = list(wide.columns)
+    repeat = {}
+    for a, b in zip(span, span[1:]):
+        if b - a != 1:
+            continue
+        big = wide[a] >= 50
+        repeat[int(b)] = 100 * (wide[b][big] == wide[a][big]).mean()
+    settled = {y: v for y, v in repeat.items() if y not in PROVISIONAL_YEARS}
+    worst = max(settled, key=settled.get)
+    check("carried-forward births confined to the provisional year",
+          max(settled.values()) < 5.0,
+          f"settled max {settled[worst]:.1f}% ({worst}), "
+          + ", ".join(f"{y} {repeat[y]:.1f}%" for y in PROVISIONAL_YEARS
+                      if y in repeat))
+
     # --- 7b. The 1990/1991 source splice must not show as a step ----------
     span = nat.loc[1986:1995, "gfr"]
     steps = span.diff().abs().dropna()
     splice = abs(nat.loc[1991, "gfr"] - nat.loc[1990, "gfr"])
-    check("no step artefact at the 1990/1991 source splice",
+    check("no step artifact at the 1990/1991 source splice",
           splice <= steps.max(),
           f"splice {splice:.2f} vs largest nearby year-step {steps.max():.2f}")
 
@@ -150,13 +188,13 @@ def main() -> int:
     seq["prev_year"] = seq.groupby("fips")["year"].shift()
     seq = seq[(seq["prev"] >= 100) & (seq["year"] == seq["prev_year"] + 1)].copy()
     seq["chg"] = np.log(seq["births"] / seq["prev"]) * 100
-    modelled = set(p.loc[p["births_allocated"], "fips"].unique())
+    modeled = set(p.loc[p["births_allocated"], "fips"].unique())
 
     gaps = {}
     for year in range(1985, 2000):
         s = seq[seq["year"] == year]
-        a = s[s["fips"].isin(modelled)]["chg"]
-        b = s[~s["fips"].isin(modelled)]["chg"]
+        a = s[s["fips"].isin(modeled)]["chg"]
+        b = s[~s["fips"].isin(modeled)]["chg"]
         if len(a) >= 50 and len(b) >= 50:
             gaps[year] = a.mean() - b.mean()
     ordinary = [g for y, g in gaps.items() if y not in (1989, 1990, 1991)]
@@ -182,6 +220,15 @@ def main() -> int:
     flagged = int(p["births_outlier"].sum())
     check("isolated source anomalies stay rare (<0.1% of rows)",
           flagged / len(p) < 0.001, f"{flagged} of {len(p):,} rows")
+
+    # A rule that needs both neighbors can never judge the first or last year,
+    # or either side of a dropped one - six years, and the newest of them is
+    # the least settled. Those years must remain reachable.
+    one_sided = [FIRST_YEAR, LAST_YEAR]
+    one_sided += [y for d in DROPPED_YEARS for y in (d - 1, d + 1)]
+    reach = sorted(set(p.loc[p["births_outlier"], "year"]) & set(one_sided))
+    check("the outlier rule reaches the ends of the series and the gaps",
+          bool(reach), f"flags in {reach or 'none'} of {sorted(one_sided)}")
 
     # --- 9-10. Metric integrity -------------------------------------------
     nat_cfr = p.groupby("year").apply(

@@ -25,7 +25,7 @@ CHARTS = [
     # own 1.69, so the projection letterboxes slightly rather than cropping
     ("__map__", "hero-fertility-map-1680x1080", (1680, 1080)),
     ("chart-gfr", "01-metro-vs-nonmetro-rate", (720, 400)),
-    ("chart-cfr", "01-age-standardised", (720, 400)),
+    ("chart-cfr", "01-age-standardized", (720, 400)),
     ("chart-national", "01-national-level", (720, 400)),
     ("chart-gap", "01-the-gap", (720, 400)),
     ("chart-sector", "02-fall-by-county-type", (720, 430)),
@@ -34,7 +34,13 @@ CHARTS = [
     ("chart-cohort", "03-children-by-age", (720, 430)),
     ("chart-tempo", "03-period-vs-adjusted", (720, 400)),
     ("__table__", "03-cohort-table", (760, 300)),
+    ("__alloctable__", "map-allocation-error", (760, 380)),
 ]
+
+# Accuracy of the 1989-90 small-county allocation, from the 1986 backtest.
+# Produced by tests/backtest_allocation.py; read here rather than retyped so
+# the image and the methodology text cannot drift apart.
+BACKTEST = ROOT / "data" / "processed" / "_allocation_backtest.json"
 
 BOOTSTRAP = """
 <script>
@@ -74,6 +80,31 @@ BOOTSTRAP = """
           `<td${strong ? ' style="font-weight:600"' : ""}>${v}</td>`).join("")}</tr>`;
       }).join("") + "</tbody>";
     node.style.fontSize = "15px";
+  } else if (want === "__alloctable__"){
+    const B = window.__BACKTEST__;
+    node = document.createElement("table");
+    node.innerHTML =
+      "<thead><tr><th>Births in the county</th>"
+      + "<th>Counties</th><th>Median absolute error</th></tr></thead><tbody>"
+      + B.bands.map(b =>
+          `<tr><td>${b.band}</td><td>${b.n.toLocaleString()}</td>`
+          + `<td>${b.median_abs.toFixed(1)}%</td></tr>`).join("")
+      + "</tbody>";
+    node.style.fontSize = "15px";
+    const cap = document.createElement("div");
+    cap.style.cssText = "font-size:12.5px;line-height:1.5;color:var(--muted);"
+      + "margin-top:12px;max-width:64ch";
+    cap.innerHTML = "Reconstructing 1986 &mdash; a year in which every county is "
+      + "named &mdash; by the method used for 1989 and 1990, over "
+      + B.counties.toLocaleString() + " small counties. Mean signed error "
+      + (B.mean_signed > 0 ? "+" : "") + B.mean_signed.toFixed(1)
+      + "%, so no directional tilt; " + B.within_5.toFixed(0) + "% of counties land "
+      + "within 5% and " + B.within_10.toFixed(0) + "% within 10%.";
+    frame.appendChild(node); frame.appendChild(cap);
+    document.body.innerHTML = "";
+    document.body.style.cssText = "margin:0;background:var(--surface)";
+    document.body.appendChild(frame);
+    return;
   } else {
     node = document.getElementById(want);
     const legend = node.previousElementSibling;
@@ -94,9 +125,12 @@ def main() -> None:
     if not PAGE.exists():
         sys.exit(f"{PAGE} missing; run build_page.py first")
     OUT.mkdir(parents=True, exist_ok=True)
+    if not BACKTEST.exists():
+        sys.exit(f"{BACKTEST} missing; run tests/backtest_allocation.py first")
     src = PAGE.read_text()
     export_page = ROOT / "viz" / "_export.html"
-    export_page.write_text(src + BOOTSTRAP)
+    inject = (f"<script>window.__BACKTEST__ = {BACKTEST.read_text()};</script>")
+    export_page.write_text(src + inject + BOOTSTRAP)
 
     for chart_id, name, (w, h) in CHARTS:
         dest = OUT / f"{name}.png"

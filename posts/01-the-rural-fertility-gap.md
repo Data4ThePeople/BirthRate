@@ -29,11 +29,11 @@ Start with the number everyone quotes. The national rate was 67.3 in 1982. It ro
 
 Two full cycles and no trend for twenty-five years, then a collapse. **Ninety-six percent of the net decline has come since 2007.**
 
-That is worth sitting with, because it means most of what people describe as a long slow decline is actually a recent, sharp break. But it also conceals something. While the national rate was going nowhere between 1982 and 2007, the geography underneath it was being completely reorganised.
+That is worth sitting with, because it means most of what people describe as a long slow decline is actually a recent, sharp break. But it also conceals something. While the national rate was going nowhere between 1982 and 2007, the geography underneath it was being completely reorganized.
 
 ## Two crossings
 
-Split those 3,098 counties into metropolitan and non-metropolitan and the reorganisation is obvious.
+Split those 3,098 counties into metropolitan and non-metropolitan and the reorganization is obvious.
 
 ![Fertility rate, metro against non-metro counties, 1982-2024. Births per 1,000 women aged 15-44.](images/01-metro-vs-nonmetro-rate.png)
 
@@ -51,13 +51,15 @@ This is the trap in choosing a start date. A panel beginning in 1991 — which i
 
 ## It is not age structure
 
-An obvious objection: rural populations are older, and an older female population produces fewer births even if nobody's behaviour changed. Since young adults have been leaving rural counties throughout this period, that could generate the whole pattern artificially.
+An obvious objection: rural populations are older, and an older female population produces fewer births even if nobody's behavior changed. Since young adults have been leaving rural counties throughout this period, that could generate the whole pattern artificially.
 
-![The same comparison after standardising for each area's female age structure. Both crossings survive.](images/01-age-standardised.png)
+![The same comparison after standardizing for each area's female age structure. Both crossings survive.](images/01-age-standardized.png)
 
-*The same comparison after standardising for each area's female age structure. Both crossings survive.*
+*The same comparison after standardizing for each area's female age structure. Both crossings survive.*
 
-It doesn't. Applying the national age-specific fertility schedule to each area's own female age distribution — indirect standardisation, which asks how many births you would expect given who actually lives there — the same two crossings survive, in the same years. The divergence is in behaviour, not in the age pyramid.
+It doesn't. Applying the national age-specific fertility schedule to each area's own female age distribution — indirect standardization, which asks how many births you would expect given who actually lives there — both crossings survive. The divergence is in behavior, not in the age pyramid.
+
+They do not survive in the same years, though, and the difference is itself informative. On the raw rate the lines cross in 1987 and again in 2005; once age structure is removed they cross in 1989 and 1998. The second crossing arrives seven years earlier. Rural fertility had already turned back toward the national norm by the late 1990s; what kept the raw rate below metro until 2005 was that rural women of childbearing age were themselves getting older, and an older 15–44 population posts a lower rate at identical behavior.
 
 ## It is not people moving either
 

@@ -30,7 +30,7 @@ This map shows the **birth rate** in every US county, every year from 1982 to 20
 
 The measure is the **general fertility rate**: live births per 1,000 women aged 15 to 44 living in the county. It already accounts for how many women of childbearing age live in a place, which is what makes a county of 3,000 people comparable with Los Angeles.
 
-Two views are available. **Change since 1982** compares each county with its own 1982-84 baseline, so colour means how far that place has moved rather than where it stands - red is decline, blue is increase. **Fertility rate** shows the level instead, on one scale, so counties can be compared with each other.
+Two views are available. **Change since 1982** compares each county with its own 1982-84 baseline, so color means how far that place has moved rather than where it stands - red is decline, blue is increase. **Fertility rate** shows the level instead, on one scale, so counties can be compared with each other.
 
 Rates are three-year pooled averages. Without that, a county with forty births a year swings wildly on chance alone and the map flickers rather than showing a trend.
 
@@ -82,7 +82,7 @@ Where both birth sources overlap - 1995, 1998 and 2001, the years where each nam
 
 ## Geography held constant
 
-Counties change. Broomfield County, Colorado was created in 2001 out of four others; Dade County became Miami-Dade in 1997; Connecticut replaced its counties with planning regions; Alaska reorganises boroughs continually.
+Counties change. Broomfield County, Colorado was created in 2001 out of four others; Dade County became Miami-Dade in 1997; Connecticut replaced its counties with planning regions; Alaska reorganizes boroughs continually.
 
 A map that ignores this shows boundary changes as fertility changes. So every county is mapped to a **stable analysis unit**, identical in all 43 years - 3,098 of them. Alaska, Connecticut and Hawaii are held as single statewide units, and Broomfield is merged with the four counties it came from, because the sources cannot be reconciled below that level. The same set of units appears in every year of the series.
 
@@ -90,15 +90,33 @@ A map that ignores this shows boundary changes as fertility changes. So every co
 
 Two places, both flagged in the underlying data.
 
-**1989 and 1990 are partly modelled.** Public microdata for these years names only counties of 100,000 or more - about 72% of births, recorded exactly. State totals are complete, so each state's remaining births are distributed across its smaller counties in proportion to what they recorded in 1988 and 1991. State and national totals come out exact; only the split among small counties is estimated, and those cells are flagged in the data. Tested against 1986, where every county is known, the method places small counties within about 5% - roughly one year of ordinary variation - with no systematic tilt.
+**1989 and 1990 are partly modeled.** Public microdata for these years names only counties of 100,000 or more - about 73% of births, recorded exactly. State totals are complete, so each state's remaining births are distributed across its smaller counties in proportion to what they recorded in 1988 and 1991. State and national totals come out exact; only the split among small counties is estimated, and those cells are flagged in the data.
 
-**2000 and 2010 are absent.** Every vintage of the Census estimates reports a partial quarter in its launch year, so no published county file covers these two estimate years. They were originally interpolated from the years either side, but an interpolated year carries no information - it is a deterministic function of its neighbours - so it is left out instead. The series runs 1982 to 2024 with those two years missing.
+Backtested against 1986, where every county is known, the method has no directional tilt - the mean signed error is +0.8% - but its accuracy depends heavily on county size. Half of small counties land within 5%, three quarters within 10%, nine in ten within 16%, and the error scales cleanly with how many births there are to place:
 
-A further 36 county-years - 0.03% of the panel - are flagged as isolated anomalies in the source data, Hurricane Katrina in Orleans and St Bernard Parish among them. These are flagged rather than smoothed away, because they are real events.
+![Reconstructing 1986 - a year in which every county is named - by the method used for 1989 and 1990, over 2,685 small counties. The error scales with how many births there are to place.](images/map-allocation-error.png)
+
+*Reconstructing 1986 - a year in which every county is named - by the method used for 1989 and 1990, over 2,685 small counties. The error scales with how many births there are to place.*
+
+So a modeled 1989 value is reliable for a mid-sized county and only indicative for a very small one. Because the map shows a three-year pooled rate, 1988 and 1991 also draw a third of their window from modeled years, and the year readout says so. The backtest is reproducible: `PYTHONPATH=src .venv/bin/python tests/backtest_allocation.py`.
+
+**2024 is provisional.** A Census vintage's final estimate year is produced before NCHS natality for that year is final, so its county births are partly carried forward rather than counted: in vintage 2024, 263 counties repeat their 2023 figure exactly and 41% move by less than 1%, against roughly 10% in a settled year. A handful move implausibly far in the other direction - Houston County, Minnesota falls 80%, Dewey County, South Dakota doubles. The national total is sound, landing within 0.3% of what SEER's age structure and the NCHS rate schedule imply, but the split between counties will change when the year is revised. Every 2024 cell is labeled provisional.
+
+**2000 and 2010 are absent.** Every vintage of the Census estimates reports a partial quarter in its launch year, so no published county file covers these two estimate years. They were originally interpolated from the years either side, but an interpolated year carries no information - it is a deterministic function of its neighbors - so it is left out instead. The series runs 1982 to 2024 with those two years missing. The years on either side of a gap, and the first and last in the series, pool over two years rather than three, so they carry slightly more sampling noise than the rest.
+
+A further 59 county-years - 0.05% of the panel - are flagged as isolated anomalies in the source data, Hurricane Katrina in Orleans and St Bernard Parish among them. These are flagged rather than smoothed away, because they are real events; hovering a flagged county says so.
+
+## Comparing these rates with published ones
+
+The rates here are built on SEER's *intercensal* county populations, which were revised after each decennial census. Rates published during the 1990s used postcensal estimates made before the 2000 census revealed how far they had drifted: for 1999 the contemporaneous denominator was about 2.3% below the revised one. So this series reads roughly 2 to 3% lower than a 1990s publication for the same year, and the gap is the denominator revision rather than a disagreement about births.
+
+Against current publications the two line up closely. For 2023, NCHS puts the lowest state at 42.1 (Vermont) and the highest at 65.6 (South Dakota); this panel gives 42.3 and 65.6, and names the same two states. Across twelve states in 2024 the median difference from the NCHS figures is 0.7%, the largest 2.1%, with the residual mostly the July-June estimate year. In the microdata era the national rate matches the published one to the decimal in every year from 1985 to 1990.
 
 ## What this measure does not capture
 
-The general fertility rate accounts for how many women of childbearing age live in a county, but not their **age distribution within** 15 to 44 - a county whose women skew older posts a lower rate with identical behaviour.
+The general fertility rate accounts for how many women of childbearing age live in a county, but not their **age distribution within** 15 to 44 - a county whose women skew older posts a lower rate with identical behavior.
+
+Nor does it know which resident women are settled there. A county built around a university carries thousands of students in its 15-44 denominator who bear few children while enrolled, so its rate reads far below any plausible level: Tompkins County, New York, Hampshire County, Massachusetts and Watauga County, North Carolina all sit under 25 births per 1,000 for this reason. Age standardization does not fix it, because the distortion is in who is counted rather than how old they are.
 
 It is also a **period** measure. It counts births in a calendar year, so it cannot by itself distinguish between people having fewer children and people having them later.
 
