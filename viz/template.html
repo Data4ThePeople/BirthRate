@@ -299,7 +299,9 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
     <p>Press play to run the series. The default view shows each county against
     its own 1982&ndash;84 baseline, so colour means change rather than level; switch to
     <em>Fertility rate</em> to see levels instead. Pick a state to zoom in. Rates are
-    three-year pooled averages, which keeps small counties from flickering.</p>
+    three-year pooled averages, which keeps small counties from flickering. Two years,
+    2000 and 2010, have no published county source and are left out rather than
+    estimated.</p>
   </div>
 
   <div class="panel">
@@ -344,8 +346,8 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
       <div class="ramp">
         <div class="cap">Coverage</div>
         <div style="font-size:.8rem; color:var(--ink-2); max-width:30ch; line-height:1.4">
-          Every county unit carries a value in every year &mdash; nothing on this map is
-          suppressed or missing.
+          Every county carries an observed value in every year shown. Two years with
+          no published source are omitted rather than estimated.
         </div>
       </div>
     </div>
@@ -701,7 +703,7 @@ function setYear(i, force){
   const y = YEARS[yi];
   yearout.textContent = y;
   slider.setAttribute("aria-valuetext", String(y));
-  yearnote.textContent = D.interpolatedYears.includes(y) ? "interpolated" : "";
+  yearnote.textContent = D.allocatedYears.includes(y) ? "part modelled" : "";
   paint(force);
   if (activeState) renderStateBar(activeState);
   if (hoverIdx >= 0) showTip(hoverIdx);

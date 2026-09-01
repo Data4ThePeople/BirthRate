@@ -41,13 +41,22 @@ def county_names() -> dict[str, str]:
 
 
 def rolling_rate(panel: pd.DataFrame) -> pd.DataFrame:
-    """Centred 3-year pooled GFR, which damps small-county sampling noise."""
-    p = panel.sort_values(["fips", "year"]).copy()
+    """Centred 3-year pooled GFR, which damps small-county sampling noise.
+
+    Two years carry no published source and are absent from the panel. The
+    window is taken over a complete year index so a gap is spanned rather
+    than silently pulling in a year further away, then the gaps are dropped
+    again.
+    """
+    years = range(int(panel["year"].min()), int(panel["year"].max()) + 1)
+    full = pd.MultiIndex.from_product(
+        [sorted(panel["fips"].unique()), years], names=["fips", "year"])
+    p = panel.set_index(["fips", "year"]).reindex(full).reset_index()
     g = p.groupby("fips")
     b = g["births"].transform(lambda s: s.rolling(SMOOTH, center=True, min_periods=1).sum())
     w = g["women_15_44"].transform(lambda s: s.rolling(SMOOTH, center=True, min_periods=1).sum())
     p["gfr_smooth"] = 1000 * b / w
-    return p
+    return p[p["births"].notna()]
 
 
 def main() -> None:
@@ -224,7 +233,6 @@ def main() -> None:
             "interaction": round(ss["interaction"].sum(), 2),
         },
         "pivotYear": PIVOT_YEAR,
-        "interpolatedYears": [2000, 2010],
         "allocatedYears": [1989, 1990],
         "outliers": int(panel["births_outlier"].sum()),
     }

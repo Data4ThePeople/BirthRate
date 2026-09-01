@@ -90,9 +90,9 @@ A map that ignores this shows boundary changes as fertility changes. So every co
 
 Two places, both flagged in the underlying data.
 
-**1989 and 1990.** Public microdata for these years names only counties of 100,000 or more. State totals are complete, so each state's remaining births are distributed across its smaller counties in proportion to what they recorded in 1988 and 1991. State and national totals come out exact; only the split among small counties is modelled.
+**1989 and 1990 are partly modelled.** Public microdata for these years names only counties of 100,000 or more - about 72% of births, recorded exactly. State totals are complete, so each state's remaining births are distributed across its smaller counties in proportion to what they recorded in 1988 and 1991. State and national totals come out exact; only the split among small counties is estimated, and those cells are flagged in the data. Tested against 1986, where every county is known, the method places small counties within about 5% - roughly one year of ordinary variation - with no systematic tilt.
 
-**2000 and 2010.** Every vintage of the Census estimates reports a partial quarter in its launch year, so no published county file covers these two years. Both are linearly interpolated.
+**2000 and 2010 are absent.** Every vintage of the Census estimates reports a partial quarter in its launch year, so no published county file covers these two estimate years. They were originally interpolated from the years either side, but an interpolated year carries no information - it is a deterministic function of its neighbours - so it is left out instead. The series runs 1982 to 2024 with those two years missing.
 
 A further 36 county-years - 0.03% of the panel - are flagged as isolated anomalies in the source data, Hurricane Katrina in Orleans and St Bernard Parish among them. These are flagged rather than smoothed away, because they are real events.
 

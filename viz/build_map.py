@@ -20,7 +20,7 @@ HERE = Path(__file__).resolve().parent
 
 # Only these keys are read by the map, its tooltip and the state selector.
 MAP_KEYS = ["years", "units", "names", "geo", "geoUnit", "states", "stateMeta",
-            "gfr", "chg", "births", "baseline", "interpolatedYears"]
+            "gfr", "chg", "births", "baseline", "allocatedYears"]
 
 EMBED_CSS = """
 <style>

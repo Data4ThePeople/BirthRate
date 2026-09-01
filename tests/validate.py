@@ -12,8 +12,9 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from birthrate.panel import (ALLOCATED_YEARS, FIRST_YEAR,  # noqa: E402
-                             INTERPOLATED_YEARS, LAST_YEAR, NBER_LAST_YEAR)
+from birthrate.panel import (ALLOCATED_YEARS, DROPPED_YEARS,  # noqa: E402
+                             FIRST_YEAR, INTERPOLATED_YEARS, LAST_YEAR,
+                             NBER_LAST_YEAR)
 from birthrate.sources.asfr import BAND_TO_COL, load_asfr  # noqa: E402
 
 PANEL = Path("data/processed/county_year_fertility.parquet")
@@ -58,8 +59,9 @@ def main() -> int:
     nat["gfr"] = 1000 * nat["births"] / nat["women"]
 
     # --- 1. National births track published NCHS totals -------------------
+    present = set(nat.index)
     cal = {y: abs(nat.loc[y, "births"] - v) / v * 100
-           for y, v in NCHS_BIRTHS.items()}
+           for y, v in NCHS_BIRTHS.items() if y in present}
     check("national births track NCHS (median <1%, max <4%)",
           statistics.median(cal.values()) < 1.0 and max(cal.values()) < 4.0,
           f"median {statistics.median(cal.values()):.2f}%, "
@@ -67,7 +69,7 @@ def main() -> int:
 
     # --- 1b. The microdata era must reproduce published totals exactly ----
     micro = {y: abs(nat.loc[y, "births"] - v) / v * 100
-             for y, v in NCHS_MICRODATA_BIRTHS.items()}
+             for y, v in NCHS_MICRODATA_BIRTHS.items() if y in set(nat.index)}
     check("microdata era reproduces NCHS totals exactly (<0.05%)",
           max(micro.values()) < 0.05,
           f"max {max(micro.values()):.4f}% ({max(micro, key=micro.get)})")
@@ -77,7 +79,7 @@ def main() -> int:
     # the mean of calendar years t-1 and t than to calendar year t alone.
     blend = {}
     for y in NCHS_BIRTHS:
-        if y - 1 in NCHS_BIRTHS:
+        if y - 1 in NCHS_BIRTHS and y in present:
             mid = (NCHS_BIRTHS[y - 1] + NCHS_BIRTHS[y]) / 2
             blend[y] = abs(nat.loc[y, "births"] - mid) / mid * 100
     shared = [y for y in blend if y in cal]
@@ -93,7 +95,7 @@ def main() -> int:
     asfr = load_asfr(FIRST_YEAR, LAST_YEAR).set_index("year")
     expected = (p.groupby("year")[band_cols].sum() * asfr / 1000.0).sum(axis=1)
     dev = {y: abs(expected[y] - v) / v * 100
-           for y, v in NCHS_BIRTHS.items()}
+           for y, v in NCHS_BIRTHS.items() if y in present}
     check("SEER age structure x NCHS rates reproduces NCHS births (<1%)",
           max(dev.values()) < 1.0,
           f"median {statistics.median(dev.values()):.2f}%, max {max(dev.values()):.2f}%")
@@ -102,7 +104,7 @@ def main() -> int:
     per_year = p.groupby("year")["fips"].apply(frozenset)
     check("unit set identical across all years", per_year.nunique() == 1,
           f"{p.fips.nunique():,} units")
-    n_years = LAST_YEAR - FIRST_YEAR + 1
+    n_years = LAST_YEAR - FIRST_YEAR + 1 - len(DROPPED_YEARS)
     counts = p.groupby("fips")["year"].count()
     check("every unit has every year", bool((counts == n_years).all()),
           f"{n_years} years each")
@@ -114,8 +116,12 @@ def main() -> int:
 
     # --- 7. Estimated values confined to documented years ------------------
     interp = sorted(int(y) for y in p.loc[p["births_interpolated"], "year"].unique())
-    check("interpolation only in documented gap years",
-          interp == INTERPOLATED_YEARS, str(interp))
+    check("no interpolated values anywhere in the panel",
+          interp == INTERPOLATED_YEARS, str(interp) or "none")
+    present = sorted(int(y) for y in p["year"].unique())
+    check("years with no published source are absent, not estimated",
+          all(y not in present for y in DROPPED_YEARS),
+          f"{DROPPED_YEARS} dropped, {len(present)} years kept")
     alloc = sorted(int(y) for y in p.loc[p["births_allocated"], "year"].unique())
     check("state-constrained allocation only in 1989-90",
           alloc == ALLOCATED_YEARS, str(alloc))
@@ -162,11 +168,12 @@ def main() -> int:
     ordered = p.sort_values(["fips", "year"]).copy()
     prev = ordered.groupby("fips")["births"].shift()
     jump = (ordered["births"] - prev).abs() / prev.where(prev > 0)
+    ordered["prev_year"] = ordered.groupby("fips")["year"].shift()
     material = ordered.loc[
         (jump > 0.5)
         & (prev > 1000)
+        & (ordered["year"] == ordered["prev_year"] + 1)   # skip across the gaps
         & ~ordered["fips"].isin(KATRINA_UNITS)
-        & ~ordered["year"].isin(INTERPOLATED_YEARS)
     ]
     check("no unexplained jumps in units with >1,000 births", material.empty,
           "none" if material.empty
@@ -197,7 +204,7 @@ def main() -> int:
         print(f"  {'PASS' if ok else 'FAIL'}  {msg}")
 
     print("\nnational series:")
-    show = nat.loc[[1982, 1985, 1988, 1990, 1991, 1995, 2000, 2007, 2010, 2019, 2024]]
+    show = nat.loc[[1982, 1985, 1988, 1990, 1991, 1995, 1999, 2007, 2019, 2024]]
     print(show.assign(births=lambda d: d.births.map("{:,.0f}".format),
                       women=lambda d: d.women.map("{:,.0f}".format),
                       gfr=lambda d: d.gfr.round(1)).to_string())

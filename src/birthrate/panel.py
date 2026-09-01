@@ -24,7 +24,14 @@ ALLOCATED_YEARS = [1989, 1990]
 # PEP stubs each vintage's launch year, so no published county file covers the
 # estimate years that straddle a decennial census. 2020 is recovered from the
 # vintage-2020 release; 2000 and 2010 have no source and are interpolated.
-INTERPOLATED_YEARS = [2000, 2010]
+# No published county file covers these two estimate years. A linear
+# interpolation between the neighbours is unbiased at national level but
+# carries no information: it is a deterministic function of the years either
+# side, so plotting it adds nothing and invites it to be read as data. They
+# are dropped. 1989-90 are different - 72% of their births are observed
+# exactly and every state total is exact - so those are kept and flagged.
+INTERPOLATED_YEARS: list[int] = []
+DROPPED_YEARS = [2000, 2010]
 
 POP_COLS = ["pop_total", "women_15_44", "w15_19", "w20_24", "w25_29",
             "w30_34", "w35_39", "w40_44"]
@@ -88,14 +95,8 @@ def _complete_grid(df: pd.DataFrame) -> pd.DataFrame:
     years = out.index.get_level_values("year")
 
     missing = out["births"].isna()
-    out["births_interpolated"] = missing & years.isin(INTERPOLATED_YEARS)
+    out["births_interpolated"] = False
     out.loc[missing & (years <= NBER_LAST_YEAR), "births"] = 0.0
-
-    out["births"] = (
-        out.groupby(level="fips")["births"]
-        .transform(lambda s: s.interpolate(method="linear", limit_area="inside"))
-        .round()
-    )
     out["births_allocated"] = out["allocated"].fillna(0).gt(0)
     return out.drop(columns="allocated").reset_index()
 
@@ -135,6 +136,7 @@ def build() -> pd.DataFrame:
     panel["rucc_reliable"] = ~(mixed | panel["fips"].isin(HETEROGENEOUS_UNITS))
     panel["merged_unit"] = panel["fips"].map(UNIT_LABELS)
     panel = _flag_outliers(panel)
+    panel = panel[~panel["year"].isin(DROPPED_YEARS)]
 
     return panel.sort_values(["fips", "year"]).reset_index(drop=True)
 
