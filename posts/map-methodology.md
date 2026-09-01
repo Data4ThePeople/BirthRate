@@ -6,6 +6,8 @@ date: 2026-09-01
 description: Interactive map of the US fertility rate by county, 1982-2024. Birth rate trends for all 3,098 county units, with the data sources and method behind them.
 keywords: fertility rate, birth rate, birth rate trends, US fertility rate by county, fertility rate map, county birth rates, general fertility rate, declining birth rate, NCHS natality, demography
 meta_title: US Fertility Rate by County, 1982-2024 | Interactive Map
+hero: images/hero-fertility-map-1680x1080.png
+hero_alt: Map of the United States showing the change in fertility rate by county between 1982 and 2024, with deep red across the Mountain West and blue clusters in the rural Great Plains.
 schema_type: dataset
 temporal: 1982/2024
 spatial: United States

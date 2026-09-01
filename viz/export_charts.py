@@ -21,6 +21,9 @@ SCALE = 2  # retina; halves cleanly for a 1x asset
 # id, output name, frame size, and whether to strip the map's controls
 CHARTS = [
     ("__map__", "01-map-change-since-1982", (1180, 760)),
+    # hero / social card: 1680x1080 is 1.56, a little squarer than the map's
+    # own 1.69, so the projection letterboxes slightly rather than cropping
+    ("__map__", "hero-fertility-map-1680x1080", (1680, 1080)),
     ("chart-gfr", "01-metro-vs-nonmetro-rate", (720, 400)),
     ("chart-cfr", "01-age-standardised", (720, 400)),
     ("chart-national", "01-national-level", (720, 400)),

@@ -398,12 +398,13 @@ def list_types() -> None:
 
 
 def upload_assets(blocks: list[dict], base: Path, cache_path: Path,
-                  dry_run: bool) -> None:
+                  dry_run: bool, extra: list[str] | None = None) -> None:
     """Upload each image once and swap the local path for its Prismic asset id."""
     import requests
 
     cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
-    for block in blocks:
+    queue = list(blocks) + [{"type": "image", "_src": e, "alt": ""} for e in (extra or [])]
+    for block in queue:
         if block.get("type") != "image":
             continue
         src = block.pop("_src")
@@ -497,8 +498,12 @@ def build_data(blocks: list[dict], meta: dict, title: str,
             faqs.append((question, b["text"]))
             question = None
 
-    hero = next((b.get("_url") for b in blocks
-                 if b.get("type") == "image" and b.get("_url")), None)
+    hero = meta.get("_hero_url") or next(
+        (b.get("_url") for b in blocks
+         if b.get("type") == "image" and b.get("_url")), None)
+    if meta.get("_hero_image"):
+        data["featured_image"] = meta["_hero_image"]
+        data["meta_image"] = meta["_hero_image"]
     if meta.get("schema_type", "article").lower() == "dataset":
         data["schema"] = build_dataset_graph(
             meta, uid or data["page_title"], data["page_title"],
@@ -623,7 +628,18 @@ def main() -> None:
               f"{', '.join(f'{k} {v}' for k, v in sorted(counts.items()))}")
 
         if args.publish:
-            upload_assets(blocks, path.parent, cache_path, args.dry_run)
+            hero_src = meta.get("hero")
+            upload_assets(blocks, path.parent, cache_path, args.dry_run,
+                          [hero_src] if hero_src else None)
+            if hero_src and not args.dry_run:
+                entry = json.loads(cache_path.read_text()).get(hero_src, {})
+                if entry:
+                    meta["_hero_url"] = entry.get("url")
+                    meta["_hero_image"] = {
+                        "id": entry["id"], "alt": meta.get("hero_alt", ""),
+                        "copyright": None,
+                        "dimensions": {"width": entry["width"],
+                                       "height": entry["height"]}}
             create_document(blocks, meta, title, uid, args.dry_run,
                             path.parent / ".prismic-documents.json")
         else:
@@ -631,6 +647,14 @@ def main() -> None:
             # publish would send, without touching the network
             cached = (json.loads(cache_path.read_text())
                       if cache_path.exists() else {})
+            hero_entry = cached.get(meta.get("hero", ""), {})
+            if hero_entry:
+                meta["_hero_url"] = hero_entry.get("url")
+                meta["_hero_image"] = {
+                    "id": hero_entry["id"], "alt": meta.get("hero_alt", ""),
+                    "copyright": None,
+                    "dimensions": {"width": hero_entry["width"],
+                                   "height": hero_entry["height"]}}
             for b in blocks:
                 entry = cached.get(b.get("_src", "")) if b.get("type") == "image" else None
                 if entry:
