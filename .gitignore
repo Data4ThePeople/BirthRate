@@ -7,6 +7,7 @@ __pycache__/
 viz/fertility_data.json
 posts/*.prismic.json
 viz/dist/
+# docs/ holds the published copies, which are committed
 posts/.prismic-assets.json
 .env
 posts/.prismic-documents.json
