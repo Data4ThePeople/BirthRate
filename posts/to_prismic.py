@@ -77,7 +77,8 @@ CUSTOM_TYPES_API = "https://customtypes.prismic.io/customtypes"
 RATE_LIMIT_SECONDS = 1.1  # both APIs allow one request per second
 
 INLINE = re.compile(
-    r"\*\*(?P<strong>[^*]+)\*\*"
+    r"\*\*\[(?P<bltext>[^\]]+)\]\((?P<blurl>[^)]+)\)\*\*"
+    r"|\*\*(?P<strong>[^*]+)\*\*"
     r"|(?<!\*)\*(?P<em>[^*]+)\*(?!\*)"
     r"|\[(?P<ltext>[^\]]+)\]\((?P<lurl>[^)]+)\)"
     r"|`(?P<code>[^`]+)`"
@@ -91,6 +92,15 @@ def parse_inline(text: str) -> tuple[str, list[dict]]:
     for m in INLINE.finditer(text):
         out.append(text[cursor:m.start()])
         pos += m.start() - cursor
+        if m["bltext"] is not None:
+            body = m["bltext"]
+            spans.append({"start": pos, "end": pos + len(body), "type": "strong"})
+            spans.append({"start": pos, "end": pos + len(body), "type": "hyperlink",
+                          "data": {"link_type": "Web", "url": m["blurl"]}})
+            out.append(body)
+            pos += len(body)
+            cursor = m.end()
+            continue
         if m["strong"] is not None:
             body, kind = m["strong"], "strong"
         elif m["em"] is not None:

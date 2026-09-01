@@ -102,6 +102,20 @@ The general fertility rate accounts for how many women of childbearing age live 
 
 It is also a **period** measure. It counts births in a calendar year, so it cannot by itself distinguish between people having fewer children and people having them later.
 
+## The code behind this map
+
+Everything used to build this - the data pipeline, the validation suite, the map itself - is open and on GitHub:
+
+**[github.com/Data4ThePeople/BirthRate](https://github.com/Data4ThePeople/BirthRate)**
+
+The repository holds the full pipeline: the readers that parse NCHS natality microdata and Census components of change, the crosswalk that holds 3,098 county units stable across 43 years, the fertility measures, and the code that renders this map.
+
+The raw source files run to about 1.4GB and are not committed, but `src/birthrate/fetch.py` downloads every one of them from the original government sources, so the whole analysis rebuilds from scratch with four commands. The `README` covers the method in more detail than this page does.
+
+There is also a test suite, `tests/validate.py`, that runs 18 checks on the finished panel: national totals against published NCHS figures, geographic stability across every year, the two source series against each other where they overlap, and the places where numbers are estimated rather than observed. It passes, and if it ever stops passing the map is wrong.
+
+If you find a mistake, [open an issue](https://github.com/Data4ThePeople/BirthRate/issues). Numbers this specific should be checkable, and that is the point of publishing the code alongside them.
+
 ## Sources
 
 - US Census Bureau, Population Estimates Program - county components of change, vintages 1999, 2009, 2020 and 2024
