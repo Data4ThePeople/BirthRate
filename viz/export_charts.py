@@ -31,7 +31,7 @@ CHARTS = [
     # bare chart does not read as a card at thumbnail size, so it carries a
     # headline the way a magazine opener would.
     ("chart-gfr", "01-hero-metro-vs-rural-1680x1080", (1680, 1080),
-     {"title": "US fertility rate: metro vs rural",
+     {"title": "US fertility rate: metro vs nonmetro",
       "sub": "Births per 1,000 women aged 15\u201344, 1982\u20132024"}),
     ("chart-cfr", "01-age-standardized", (720, 400)),
     ("chart-national", "01-national-level", (720, 400)),
