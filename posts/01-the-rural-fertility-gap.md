@@ -1,6 +1,6 @@
 ---
 title: The fertility decline is real, recent, and everywhere
-subtitle: Split the birth rate metro versus nonmetro and go back to 1982, and two things show up that the national number hides completely.
+subtitle: Non-metro fertility fell 17% by 1996 while the national rate barely moved. The decline we are in now dates from the financial crisis, and it reaches 84% of counties.
 slug: rural-fertility-gap
 date: 2026-09-02
 description: A complete county-level panel of US fertility, 1982-2024, showing a rural decline the national rate concealed and a break that starts in 2008.
