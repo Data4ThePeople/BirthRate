@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from urllib.parse import quote
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,8 +27,12 @@ CHARTS = [
     ("__map__", "hero-fertility-map-1680x1080", (1680, 1080)),
     ("chart-gfr", "01-metro-vs-nonmetro-rate", (720, 400)),
     # hero for the analysis post: its own central chart, so it does not share
-    # a hero with the data page and show up identically in every listing
-    ("chart-gfr", "01-hero-metro-vs-rural-1680x1080", (1680, 1080)),
+    # a hero with the data page and show up identically in every listing. A
+    # bare chart does not read as a card at thumbnail size, so it carries a
+    # headline the way a magazine opener would.
+    ("chart-gfr", "01-hero-metro-vs-rural-1680x1080", (1680, 1080),
+     {"title": "US fertility rate: metro vs rural",
+      "sub": "Births per 1,000 women aged 15\u201344, 1982\u20132024"}),
     ("chart-cfr", "01-age-standardized", (720, 400)),
     ("chart-national", "01-national-level", (720, 400)),
     ("chart-gap", "01-the-gap", (720, 400)),
@@ -64,6 +69,22 @@ BOOTSTRAP = """
     `position:fixed;inset:0;width:${W}px;height:${H}px;background:var(--surface);`
     + "display:flex;flex-direction:column;justify-content:center;"
     + "padding:18px 22px;box-sizing:border-box;overflow:hidden;z-index:9999";
+
+  // A hero needs to say what it is. Rendered from the page's own type scale so
+  // it matches the site rather than looking like a separate asset.
+  const heroTitle = params.get("title"), heroSub = params.get("sub");
+  if (heroTitle){
+    const head = document.createElement("div");
+    head.style.cssText = "margin:0 0 26px 0";
+    head.innerHTML =
+      `<div style="font-family:Newsreader,Georgia,serif;font-size:${Math.round(W/22)}px;`
+      + `line-height:1.08;letter-spacing:-.02em;color:var(--ink)">${heroTitle}</div>`
+      + (heroSub ? `<div style="font-size:${Math.round(W/58)}px;color:var(--ink-2);`
+                 + `margin-top:${Math.round(W/120)}px">${heroSub}</div>` : "");
+    frame.appendChild(head);
+    frame.style.justifyContent = "flex-start";
+    frame.style.padding = `${Math.round(W/26)}px ${Math.round(W/26)}px ${Math.round(W/34)}px`;
+  }
 
   let node;
   if (want === "__map__"){
@@ -127,6 +148,20 @@ BOOTSTRAP = """
     }
   }
   frame.appendChild(node);
+  if (heroTitle){
+    // the headline takes real vertical space, so the chart has to give some
+    // back rather than run off the bottom of a fixed-size frame
+    node.style.flex = "1 1 auto";
+    node.style.minHeight = "0";
+    const svg = node.querySelector("svg");
+    if (svg){
+      svg.removeAttribute("height");
+      svg.style.width = "100%";
+      svg.style.height = "100%";
+      svg.style.maxHeight = "none";
+      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    }
+  }
   document.body.innerHTML = "";
   document.body.style.cssText = "margin:0;background:var(--surface)";
   document.body.appendChild(frame);
@@ -146,9 +181,11 @@ def main() -> None:
     inject = (f"<script>window.__BACKTEST__ = {BACKTEST.read_text()};</script>")
     export_page.write_text(src + inject + BOOTSTRAP)
 
-    for chart_id, name, (w, h) in CHARTS:
+    for chart_id, name, (w, h), *rest in CHARTS:
         dest = OUT / f"{name}.png"
         url = f"file://{export_page}?chart={chart_id}&w={w}&h={h}"
+        if rest:
+            url += "".join(f"&{k}={quote(v)}" for k, v in rest[0].items())
         subprocess.run(
             [CHROME, "--headless", "--disable-gpu", "--no-sandbox", "--hide-scrollbars",
              # belt and braces with the data-theme above: this settles the
