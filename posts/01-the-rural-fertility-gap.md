@@ -1,100 +1,114 @@
 ---
-title: The rural fertility gap ran both ways
-subtitle: In 1982 rural American women had children at a far higher rate than women in big cities. By 1994 the gap had inverted. Then it opened again, the other way round.
+title: The fertility decline is real, recent, and everywhere
+subtitle: Split the birth rate metro versus nonmetro and go back to 1982, and two things show up that the national number hides completely.
 slug: rural-fertility-gap
-date: 2026-08-29
-description: A complete county-level panel of US fertility, 1982-2024, showing the rural-urban gradient reversing twice.
+date: 2026-09-02
+description: A complete county-level panel of US fertility, 1982-2024, showing a rural decline the national rate concealed and a break that starts in 2008.
 keywords: fertility, birth rate, rural, metropolitan, counties, demography
+hero: images/hero-fertility-map-1680x1080.png
+hero_alt: Map of the United States showing the change in fertility rate by county between 1982 and 2024, with deep red across the Mountain West and blue clusters in the rural Great Plains.
 ---
 
-# The rural fertility gap ran both ways
+# The fertility decline is real, recent, and everywhere
 
-In 1982, rural American women had children at a far higher rate than women in big cities. The gap was eight births per thousand — not a rounding difference, a chasm. By 1994 it had not merely closed but inverted. Then it opened again, the other way round, and today it is nearly as wide as it was at the start.
+It's probably not a surprise that the fertility rate is in structural decline. There's been all sorts of media coverage on this.
 
-Almost everything written about American fertility treats "rural" and "urban" as fixed positions. Over the past forty-three years they have traded places twice.
+But the point of consulting the data is to fill in the blanks around the simple narrative that the media feeds us. It's not their fault. They have word limits (we don't — although we're trying harder to rein in our verbosity) and they compete with social media for your attention and the resulting advertising dollars (we don't — no qualifiers needed).
 
-## What this is built from
+So today we'll analyze the data in [this dashboard](https://data4thepeople.github.io/BirthRate/map.html) to get a more complete understanding of what's going on with the fertility rate.
 
-Public US birth data has a hard geographic floor. NCHS strips all geography from natality microdata after 2004, and CDC WONDER identifies only counties of 100,000 people or more, pooling everything smaller into an unnamed remainder for each state. A county map built the obvious way leaves most of rural America blank — fatal if rural America is the question.
+## Why fertility rate matters
 
-There are two ways around it. Before 1989, NCHS microdata named every county of residence. And the Census Bureau's Population Estimates Program publishes an annual birth count for *every* county as an input to its population estimates — the same vital records, not suppressed, because they are being used as an ingredient rather than published as a statistic.
+Fertility rate is essential, if we care about the future of this country. No matter what you are told, people are at the heart of this economy and society. We can't out-smart needing people for this country to thrive.
 
-Splicing those gives a complete county panel: **3,098 stable county units, every year from 1982 to 2024**. Denominators are SEER county population by age and sex, so the measure throughout is the general fertility rate — births per 1,000 women aged 15 to 44.
+And why would we want to? Isn't the purpose of a functioning society to provide the structure for its people to be better off than if we were all just on our own — picking berries, bartering, and so on?
 
-Nothing on the map is missing or suppressed.
+So if our society's greatest asset, and its entire reason for existence, is its own people and not its technology, well then: Houston, we have a problem. There are tectonic shifts happening that tilt the people we have toward those at the end of their lives and out of work, while stagnating those in their prime working years. [The Census Bureau expects](https://www.census.gov/library/stories/2018/03/graying-america.html) older adults to outnumber children by 2034, and the number of working-age adults per retiree to fall from about 3.5 today to 2.5 by 2060. That's a bad thing for a society designed to have the workers support the retirees.
 
-## The national picture hides the story
+And then to make matters worse, we keep setting record lows in the fertility rate — in four of the last five years, and 2024 the lowest since national records began in 1909 — making fewer babies to replace our aging population. That's arguably the most concerning part, because it's today's babies who have the potential to pull us out of whatever economic fate we're now facing. Fewer babies, and personally I have less hope. [Ask Japan](https://crr.bc.edu/the-shrinking-of-japan-a-harbinger-of-what-will-happen-to-the-u-s/).
 
-Start with the number everyone quotes. The national rate was 67.3 in 1982. It rose to 71 by 1990, fell to 64 by 1998, climbed back to 69 by 2007 — and then fell off a cliff to 53.5.
+So this topic is of critical importance for all of us.
 
-Two full cycles and no trend for twenty-five years, then a collapse. **Ninety-six percent of the net decline has come since 2007.**
+## Split it metro versus rural
 
-That is worth sitting with, because it means most of what people describe as a long slow decline is actually a recent, sharp break. But it also conceals something. While the national rate was going nowhere between 1982 and 2007, the geography underneath it was being completely reorganized.
+But as shown below, the narrative is not as simple as we are told. Look what happens to the fertility rate trends when you split them metro versus nonmetro and go back to 1982.
 
-## Two crossings
+![Fertility rate for metropolitan and non-metropolitan counties, 1982 to 2024. Rural fertility starts far above metro, falls below it by 1987, recovers through the 2000s, and both fall together after 2008.](images/01-metro-vs-nonmetro-rate.png)
 
-Split those 3,098 counties into metropolitan and non-metropolitan and the reorganization is obvious.
+*Births per 1,000 women aged 15–44, metro versus non-metro counties. Counties are held on a fixed 2013 classification, so a county does not change groups when a city grows into it.*
 
-![Fertility rate, metro against non-metro counties, 1982-2024. Births per 1,000 women aged 15-44.](images/01-metro-vs-nonmetro-rate.png)
+I was not shocked to see metro fertility rates much lower than nonmetro. I was also not shocked to see them both in decline in recent years.
 
-*Fertility rate, metro against non-metro counties, 1982-2024. Births per 1,000 women aged 15-44.*
+What was new to me were two things.
 
-- **1982** — metro 66.0, nonmetro 74.2. Rural fertility runs 8.2 points higher.
-- **1987** — they cross. Rural falls below metro for the first time.
-- **1994** — the low point. Rural now runs 3.7 points *below* metro.
-- **2005** — they cross back.
-- **2024** — metro 52.7, nonmetro 59.3. Rural runs 6.6 points higher again.
+## Rural America already had its fertility crisis
 
-The gap lost 11.9 points and then regained 10.3. It has been in continuous motion for the entire period, and it never once paused at the moments when the national rate turned.
+Nonmetro America has already been through a fertility crisis in this period — declining from **74.2 in 1982 to a trough of 61.4 in 1996**, a fall of 17%, before rebounding all the way back to 71.2 by 2009.
 
-This is the trap in choosing a start date. A panel beginning in 1991 — which is where most readily available county data starts — begins near the bottom of that U, and produces a tidy story about rural fertility overtaking urban. Extend it back nine years and the same data says something quite different: rural America is recovering a position it used to hold and lost.
+I had no idea. And you don't see it in the overall data, because the metro rate spent those same years going nowhere in particular — up about 10% from 1984 to 1990, then giving all of it back by 1996, ending the stretch 2% below where it started. The national rate is a weighted average, and in 1982 five in six women aged 15–44 lived in metro counties. Flat on the side holding most of the women, and a 17% collapse on the side that isn't, come out to a national decline of 5%. A rural crisis showed up in the headline number as a wobble.
 
-## It is not age structure
+This topic is so interesting to me that it will be the focus of tomorrow's post.
 
-An obvious objection: rural populations are older, and an older female population produces fewer births even if nobody's behavior changed. Since young adults have been leaving rural counties throughout this period, that could generate the whole pattern artificially.
+## The break starts at the financial crisis
 
-![The same comparison after standardizing for each area's female age structure. Both crossings survive.](images/01-age-standardized.png)
+The second thing: this steep falloff in the birth rate is a more recent phenomenon than I thought. There's a clear break in the data at the Great Financial Crisis. Metro fertility peaks in 2007, nonmetro in 2009, and neither has had a good year since. Metro is down 24% from its peak, nonmetro 17%.
 
-*The same comparison after standardizing for each area's female age structure. Both crossings survive.*
+The decline dates from that shock, and it turns up in every kind of county — though not evenly. Large metro counties are down 24% since 2007; remote rural counties, 9%. Everywhere, but hardest in the biggest cities. That's also fascinating. I did a few checks of the most likely culprits in the data — notably, women's labor force participation rate since 2008 — and there's no obvious cause-and-effect explanation for this dynamic, at least none we can write about in the next few days. But we'll dig deeper and return to this topic when we have something to share.
 
-It doesn't. Applying the national age-specific fertility schedule to each area's own female age distribution — indirect standardization, which asks how many births you would expect given who actually lives there — both crossings survive. The divergence is in behavior, not in the age pyramid.
+## Before drawing conclusions, some sanity checks
 
-They do not survive in the same years, though, and the difference is itself informative. On the raw rate the lines cross in 1987 and again in 2005; once age structure is removed they cross in 1989 and 1998. The second crossing arrives seven years earlier. Rural fertility had already turned back toward the national norm by the late 1990s; what kept the raw rate below metro until 2005 was that rural women of childbearing age were themselves getting older, and an older 15–44 population posts a lower rate at identical behavior.
+There are a few more details to check. Two things could be faking this result: the ages of the women we are counting, and where those women live.
 
-## It is not people moving either
+Age has to be asked twice — once of the gap between metro and rural, and once of the national decline itself. Mobility only once. So three questions in all.
 
-The other obvious objection is compositional. Young women have moved to cities in large numbers; non-metro counties held 16.5% of American women aged 15–44 in 1982 and 12.1% by 2024. If cities suppress fertility, that migration alone would drag the national rate down.
+The answer comes back no every time. And in the case of age, correcting for it makes the recent decline look worse, not better.
 
-The arithmetic says no. A shift-share decomposition splits the change in the national rate into the part from rates falling *within* groups and the part from women redistributing *between* them:
+### Q1: Is it just that women are getting older?
 
-- Rates falling within groups: **−13.49** points, 97.5% of the total
-- Women moving between groups: **−0.43** points
-- Interaction: **+0.08**
+Start with why this could matter. A woman of 25 is far more likely to have a baby than a woman of 43. Both count as 15 to 44. So the mix of ages inside that bracket moves the birth rate all on its own.
 
-Migration between rural and urban America accounts for roughly three percent of the national decline. Fertility fell inside every kind of county. Where women live barely moved the total.
+Picture two counties with the same number of women aged 15 to 44. In one, most of them are 27. In the other, most are 41. The first county should record more births. This makes sense, but wouldn't be captured in our analysis so far.
 
-That is a genuinely useful negative result, because "everyone moved to cities and cities are where people don't have children" is the most common informal explanation on offer, and at the metro/rural level it is simply not what happened.
+And that is exactly the worry here. Metro women are slightly older than rural women, and have been in every year since 1982. It is a small difference, but it pushes the wrong way: it would hold the metro rate down and make the rural advantage look bigger than it really is. We have to rule that out.
 
-## What the map shows
+Here's how we adjust for this. Take one group of women. Ask a simple question: how many babies would they have if they had the national birth rate for their exact ages? Call that the expected number. Then count the babies they actually had.
 
-The county map runs all forty-three years. Two things stand out that the aggregates cannot show.
+Divide the actual by the expected, and you get one number:
 
-![Change in the fertility rate by county, 1982-84 baseline to 2024. Red is decline, blue is increase.](images/01-map-change-since-1982.png)
+- **1.00** means the group had exactly as many babies as expected. Dead average.
+- **Above 1.00** means more babies than expected.
+- **Below 1.00** means fewer.
 
-*Change in the fertility rate by county, 1982-84 baseline to 2024. Red is decline, blue is increase.*
+That number is what the chart below shows. It is a ratio, not a rate, so the scale sits near 1 instead of climbing to 70 like the earlier chart.
 
-The **Mountain West** is the deepest red on the map — Utah, Idaho, Nevada, Arizona. These were the highest-fertility counties in the country in 1982 and they gave up the most. The steepest declines are not in the places with the lowest fertility; they are in the places that had the furthest to fall.
+![Metro and non-metro fertility after adjusting for the age structure of each area's female population. The two lines still cross twice.](images/01-age-standardized.png)
 
-And a substantial minority of counties, mostly in the **Great Plains and the rural South**, are *higher* now than they were in the early 1980s. The national decline is not universal. It is concentrated, and it is concentrated in populous places — which is why the population-weighted national figure falls so much faster than the typical county does.
+*Births actually recorded, divided by the births expected from each group's own age mix. 1.00 is the national average for that year.*
 
-## Where this goes next
+Rural counties finish at 1.14. That means rural America had 14% more babies than its own age mix predicts. Metro finishes at 0.98, a shade below average. The two lines still cross twice, in the same order as before.
 
-Two questions come straight out of this, and each needs its own treatment.
+So the metro and rural gap is real. It is not one side simply being older.
 
-The first is what happened in the 1980s. Rural fertility fell 12% in five years while metro fertility did not move at all. That is a large, fast, regionally specific shock, and it turns out to have a clean signature in the data.
+### Q2: Does aging explain the national decline?
 
-The second is whether any of this is what it appears to be. A birth rate measured in calendar years cannot distinguish between people having fewer children and people having them later — and the last time America panicked about a falling birth rate, the panic was wrong.
+One catch, and it matters. This chart measures each group against the national average of that same year. It can tell you who is above or below average. It cannot tell you whether the average itself is falling. That takes a different test.
 
----
+So here is that test. Take the ages of American women as they stood in 1982 and freeze them. Then let only the birth rates move. If aging were driving the decline, holding the ages still should make the decline go away.
 
-*Method and sources: Census Population Estimates components of change (1991–2024), NCHS natality microdata via NBER (1982–1990), SEER county population by age and sex, USDA ERS Rural–Urban Continuum Codes. County units are held stable across all 43 years; Alaska, Connecticut and Hawaii are treated as single statewide units because the sources cannot be reconciled below that level. Two years, 2000 and 2010, have no published county source and are interpolated; small-county figures for 1989 and 1990 are allocated from exact state totals. All estimated cells are flagged in the underlying data.*
+It does not. The rate still falls, from 67.1 to 55.8. That is a drop of 17%, against the 21% we actually saw. So aging inside the 15 to 44 bracket explains about a sixth of the long decline. Real, but not the story.
+
+And for the drop since 2007, it explains none of it. With the ages held still, the fall from the peak is 27% rather than 23%. The age mix has been working in our favor these past fifteen years. Take that help away and the collapse looks worse, not better.
+
+### Q3: Is it just that women moved to the cities?
+
+They genuinely did move. Non-metro counties held 16.5% of American women aged 15–44 in 1982, and 12.1% by 2024.
+
+But that does not answer the question. Knowing women moved does not tell us whether the moving is what pushed the birth rate down. To find that out, we freeze everyone in place. Nobody moves between 1982 and 2024. We let only the birth rates change, and see how much of the decline still happens.
+
+Almost all of it. The national rate really fell 13.8 points. With everyone frozen in place it still falls 13.5 — **97% of the real decline**. Where women lived accounts for the other 0.4.
+
+## What we're left with
+
+A real finding. Women are having fewer babies just about everywhere in this country — in 84% of counties, and in every one of the nine county types from big-city to remote rural.
+
+Tomorrow: what happened to nonmetro fertility rates in the 1980s and 1990s? And what can we learn from it about what to expect going forward?
