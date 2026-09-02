@@ -45,6 +45,10 @@ BACKTEST = ROOT / "data" / "processed" / "_allocation_backtest.json"
 BOOTSTRAP = """
 <script>
 (function(){
+  // The page follows prefers-color-scheme, so an export run on a machine set
+  // to dark produced dark charts for a light post - silently, since the run
+  // reports only file sizes. The template's own escape hatch pins it.
+  document.documentElement.dataset.theme = "light";
   const params = new URLSearchParams(location.search);
   const want = params.get("chart");
   const W = +params.get("w"), H = +params.get("h");
@@ -137,6 +141,10 @@ def main() -> None:
         url = f"file://{export_page}?chart={chart_id}&w={w}&h={h}"
         subprocess.run(
             [CHROME, "--headless", "--disable-gpu", "--no-sandbox", "--hide-scrollbars",
+             # belt and braces with the data-theme above: this settles the
+             # colour scheme before first paint, so nothing renders dark even
+             # for the instant before the bootstrap script runs
+             "--blink-settings=preferredColorScheme=1",
              "--force-color-profile=srgb", f"--force-device-scale-factor={SCALE}",
              f"--window-size={w},{h}", "--virtual-time-budget=25000",
              f"--screenshot={dest}", url],
