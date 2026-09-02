@@ -33,6 +33,11 @@ CHARTS = [
     ("chart-gfr", "01-hero-metro-vs-rural-1680x1080", (1680, 1080),
      {"title": "US fertility rate: metro vs nonmetro",
       "sub": "Births per 1,000 women aged 15\u201344, 1982\u20132024"}),
+    # email hero: 600px frame at 2x lands on the 1200px retina asset Mailchimp
+    # wants, rather than shipping the 3360px page hero to an inbox
+    ("chart-gfr", "01-email-hero-1200x772", (600, 386),
+     {"title": "US fertility rate: metro vs nonmetro",
+      "sub": "Births per 1,000 women aged 15\u201344, 1982\u20132024"}),
     ("chart-cfr", "01-age-standardized", (720, 400)),
     ("chart-national", "01-national-level", (720, 400)),
     ("chart-gap", "01-the-gap", (720, 400)),

@@ -55,7 +55,7 @@ This topic is so interesting to me that it will be the focus of tomorrow's post.
 
 ## The break starts at the financial crisis
 
-The second thing: this steep falloff in the birth rate is a more recent phenomenon than I thought. There's a clear break in the data at the Great Financial Crisis. Metro fertility peaks in 2007, nonmetro in 2009, and neither has had a good year since. Metro is down 24% from its peak, nonmetro 17%.
+The second thing: this steep falloff in the birth rate is a more recent phenomenon than I thought. There's a clear break in the data at the Great Financial Crisis. Metro fertility tops out in 2007, nonmetro in 2009, and neither has had a good year since. Metro is down 24% from that 2007 high, nonmetro 17% from its 2009 one. Neither has been near its all-time best since the early 1990s.
 
 The decline dates from that shock, and it turns up in every kind of county — though not evenly. Large metro counties are down 24% since 2007; remote rural counties, 9%. Everywhere, but hardest in the biggest cities. That's also fascinating. I did a few checks of the most likely culprits in the data — notably, women's labor force participation rate since 2008 — and there's no obvious cause-and-effect explanation for this dynamic, at least none we can write about in the next few days. But we'll dig deeper and return to this topic when we have something to share.
 
@@ -63,11 +63,9 @@ The decline dates from that shock, and it turns up in every kind of county — t
 
 There are a few more details to check. Two things could be faking this result: the ages of the women we are counting, and where those women live.
 
-Age has to be asked twice — once of the gap between metro and rural, and once of the national decline itself. Mobility only once. So three questions in all.
-
 The answer comes back no every time. And in the case of age, correcting for it makes the recent decline look worse, not better.
 
-### Q1: Is it just that women are getting older?
+### Q1: Is the gap between metro and rural just an age gap?
 
 Start with why this could matter. A woman of 25 is far more likely to have a baby than a woman of 43. Both count as 15 to 44. So the mix of ages inside that bracket moves the birth rate all on its own.
 
@@ -93,7 +91,7 @@ Rural counties finish at 1.14. That means rural America had 14% more babies than
 
 So the metro and rural gap is real. It is not one side simply being older.
 
-### Q2: Does aging explain the national decline?
+### Q2: Is the national decline just women getting older?
 
 One catch, and it matters. This chart measures each group against the national average of that same year. It can tell you who is above or below average. It cannot tell you whether the average itself is falling. That takes a different test.
 
@@ -101,9 +99,9 @@ So here is that test. Take the ages of American women as they stood in 1982 and 
 
 It does not. The rate still falls, from 67.1 to 55.8. That is a drop of 17%, against the 21% we actually saw. So aging inside the 15 to 44 bracket explains about a sixth of the long decline. Real, but not the story.
 
-And for the drop since 2007, it explains none of it. With the ages held still, the fall from the peak is 27% rather than 23%. The age mix has been working in our favor these past fifteen years. Take that help away and the collapse looks worse, not better.
+And for the drop since 2007, it explains none of it. With the ages held still, the fall since 2007 is 27% rather than 23%. The age mix has been working in our favor these past fifteen years. Take that help away and the collapse looks worse, not better.
 
-### Q3: Is it just that women moved to the cities?
+### Q3: Is the national decline just women moving to the cities?
 
 They genuinely did move. Non-metro counties held 16.5% of American women aged 15–44 in 1982, and 12.1% by 2024.
 
