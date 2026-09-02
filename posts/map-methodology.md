@@ -16,6 +16,8 @@ dataset_name: US county fertility rates, 1982-2024
 dataset_description: Annual general fertility rate for 3,098 stable US county units from 1982 to 2024, built from NCHS natality microdata, Census Population Estimates births and SEER county population by age and sex.
 sources: https://www.census.gov/programs-surveys/popest.html | https://www.nber.org/research/data/vital-statistics-natality-birth-data | https://seer.cancer.gov/popdata/
 section: Data
+series: The American Fertility Decline
+position: 1
 ---
 
 # US fertility rate by county, 1982-2024

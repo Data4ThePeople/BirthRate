@@ -4,7 +4,11 @@ subtitle: Split the birth rate metro versus nonmetro and go back to 1982, and tw
 slug: rural-fertility-gap
 date: 2026-09-02
 description: A complete county-level panel of US fertility, 1982-2024, showing a rural decline the national rate concealed and a break that starts in 2008.
-keywords: fertility, birth rate, rural, metropolitan, counties, demography
+keywords: rural fertility decline, metro versus rural birth rate, why is the birth rate falling, fertility decline since 2008, age-standardized fertility
+series: The American Fertility Decline
+position: 2
+based_on: us-fertility-rate-by-county
+based_on_name: US county fertility rates, 1982-2024
 hero: images/hero-fertility-map-1680x1080.png
 hero_alt: Map of the United States showing the change in fertility rate by county between 1982 and 2024, with deep red across the Mountain West and blue clusters in the rural Great Plains.
 ---

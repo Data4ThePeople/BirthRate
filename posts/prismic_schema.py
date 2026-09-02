@@ -54,6 +54,20 @@ def build_schema(meta: dict, uid: str, title: str, description: str,
         if meta.get("position"):
             schema["position"] = int(meta["position"])
 
+    # An analysis post and the data page it draws on target overlapping
+    # queries, so say which is which rather than leaving a search engine to
+    # guess. isBasedOn points the article at the dataset it is built from,
+    # which is the precise relation and keeps the data page as the canonical
+    # answer for "fertility rate by county".
+    site_for_ref = _setting("SITE", SITE)
+    if meta.get("based_on"):
+        ref = meta["based_on"].strip()
+        url = ref if ref.startswith("http") else f"{site_for_ref}{POST_PATH}{ref}"
+        based = {"@type": "Dataset", "@id": f"{url}#dataset", "url": url}
+        if meta.get("based_on_name"):
+            based["name"] = meta["based_on_name"]
+        schema["isBasedOn"] = based
+
     schema["inLanguage"] = LANG
     schema["isAccessibleForFree"] = True
 
@@ -131,14 +145,18 @@ def build_dataset_graph(meta: dict, uid: str, title: str, description: str,
     if meta.get("sources"):
         dataset["isBasedOn"] = [s.strip() for s in meta["sources"].split("|") if s.strip()]
 
+    part_of = [{"@type": "WebSite", "name": _setting("PUBLISHER", PUBLISHER),
+                "url": site}]
+    if meta.get("series"):
+        part_of.append({"@type": "CreativeWorkSeries", "name": meta["series"]})
+
     webpage = {
         "@type": "WebPage",
         "@id": url,
         "url": url,
         "name": meta.get("meta_title", title),
         "description": description,
-        "isPartOf": {"@type": "WebSite", "name": _setting("PUBLISHER", PUBLISHER),
-                     "url": site},
+        "isPartOf": part_of if len(part_of) > 1 else part_of[0],
         "about": {"@id": f"{url}#dataset"},
         "inLanguage": LANG,
     }
