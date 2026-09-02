@@ -148,7 +148,13 @@ def build_dataset_graph(meta: dict, uid: str, title: str, description: str,
     part_of = [{"@type": "WebSite", "name": _setting("PUBLISHER", PUBLISHER),
                 "url": site}]
     if meta.get("series"):
-        part_of.append({"@type": "CreativeWorkSeries", "name": meta["series"]})
+        series = {"@type": "CreativeWorkSeries", "name": meta["series"]}
+        # build_schema honours position on the Article; a data page in the same
+        # series has to declare its place the same way, or the front matter
+        # silently does nothing here.
+        if meta.get("position"):
+            series["position"] = int(meta["position"])
+        part_of.append(series)
 
     webpage = {
         "@type": "WebPage",
