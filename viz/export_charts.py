@@ -25,6 +25,9 @@ CHARTS = [
     # own 1.69, so the projection letterboxes slightly rather than cropping
     ("__map__", "hero-fertility-map-1680x1080", (1680, 1080)),
     ("chart-gfr", "01-metro-vs-nonmetro-rate", (720, 400)),
+    # hero for the analysis post: its own central chart, so it does not share
+    # a hero with the data page and show up identically in every listing
+    ("chart-gfr", "01-hero-metro-vs-rural-1680x1080", (1680, 1080)),
     ("chart-cfr", "01-age-standardized", (720, 400)),
     ("chart-national", "01-national-level", (720, 400)),
     ("chart-gap", "01-the-gap", (720, 400)),
@@ -113,6 +116,13 @@ BOOTSTRAP = """
     node = document.getElementById(want);
     const legend = node.previousElementSibling;
     if (legend && legend.classList.contains("legend-inline")){
+      // the chart is an SVG and scales with the frame; the legend is HTML at a
+      // fixed size, so at hero dimensions it renders too small to read
+      if (W >= 1200){
+        legend.style.fontSize = "19px";
+        legend.style.gap = "22px";
+        legend.style.marginBottom = "10px";
+      }
       frame.appendChild(legend);
     }
   }
