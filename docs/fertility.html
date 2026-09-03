@@ -424,6 +424,12 @@ ul.sources b{font-family:"IBM Plex Mono",monospace; font-size:.74rem; font-weigh
       <div class="legend-inline" id="lg1"></div>
       <div id="chart-gfr"></div>
     </div>
+    <!-- Export only. The non-metro line on its own with its 1982-96 collapse
+         shaded, for the opener of the post about that collapse. Hidden here;
+         the exporter lifts the inner div out, which unhides it. -->
+    <div hidden aria-hidden="true">
+      <div id="chart-rural-collapse"></div>
+    </div>
     <div class="panel panel-pad chart">
       <div class="chart-title">
         <span class="t">Age-standardized fertility</span>
@@ -1120,6 +1126,11 @@ inlineLegend(document.getElementById("lg2"), METRO_C);
 lineChart(document.getElementById("chart-gfr"), METRO,
   { ticks: [50, 55, 60, 65, 70], fmtY: v => String(v), fmtV: v => v.toFixed(1),
     label: "Fertility rate, metro versus non-metro counties, 1982 to 2024" });
+lineChart(document.getElementById("chart-rural-collapse"),
+  [{ name: "Nonmetro", color: "--series-2", values: D.metro.Nonmetro.gfr }],
+  { ticks: [60, 65, 70, 75], fmtY: v => String(v), fmtV: v => v.toFixed(1),
+    bands: [{ from: 0, to: YEARS.indexOf(1996), label: "1982\u201396: down 17%" }],
+    label: "Non-metro fertility rate, 1982 to 2024, with the 1982 to 1996 collapse shaded" });
 lineChart(document.getElementById("chart-cfr"), METRO_C,
   { ticks: [0.95, 1.00, 1.05, 1.10, 1.15], fmtY: v => v.toFixed(2),
     fmtV: v => v.toFixed(3), zero: 1,

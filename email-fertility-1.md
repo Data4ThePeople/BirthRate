@@ -125,13 +125,15 @@ The pivot, and the reason to click. The post's own three checks, in its order,
 posed and left hanging.
 
 ```
-Which leaves the obvious questions.
+This chart got us curious about a few things:
 
 Is the gap between metro and rural just an age gap?
 
 Is the national decline just women getting older?
 
 Or is it just women moving out of the countryside and into the cities?
+
+We answer these questions in today's Data 4 Thought. 📊💭
 ```
 
 All three are answered on the page, so this block promises nothing the post
