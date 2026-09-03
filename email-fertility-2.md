@@ -20,34 +20,53 @@ Fill one placeholder before sending: `[[POST URL]]`.
 ## Subject line
 
 ```
-The last time farm country broke
+Could rural America's 1980s happen again?
 ```
 
-32 characters. "Last time" is the whole promise — it says there is a this
-time, without claiming what it looks like.
+41 characters, survives the mobile cut. A question rather than a claim: the
+post is careful not to forecast, and a question is the honest form of "read
+this and decide." "Again" carries the whole promise.
 
 Alternates if you want to A/B:
 
 ```
-Some of the 1980s setup is back
+What can 1981 tell us about 2026?
 ```
 ```
-What a commodity bust did to births
+What broke rural America — and is it back?
+```
+```
+What can the 1980s farm bust prepare us for?
 ```
 
-The first is the most direct about the hook and the most likely to be read as a
-forecast, which the post is careful not to be. The second matches the hero
-headline and is the safest.
+The first is the sharpest at 33 characters, but "1981" lands cold on a reader
+who does not already know the reference. The second echoes the post's old
+title and pairs the history with the present in one breath. The third is
+closest to the brief and three characters over the safe line.
 
 ## Preview text (preheader)
 
 ```
-Mining counties lost a fifth of their births in five years. Parts of that setup are back.
+We went looking for what broke rural births in the 1980s. The setup we found is partly back.
 ```
 
-88 characters. Set it in Mailchimp's preview-text field, **not** as the first
-line of body copy. "A fifth" is mining's 21.9%; farming fell 14.8%, so do not
-widen it to "mining and farming."
+92 characters. Set it in Mailchimp's preview-text field, **not** as the first
+line of body copy. It is the same turn the hook makes in block 8 — went looking
+for one thing, found a bigger one — so the reader who opens on it arrives
+already primed for that beat. It does not repeat the subject.
+
+Alternates:
+
+```
+A boom borrowed against, a lost export market, a rate shock. Three of the four are visible today.
+```
+```
+Rural fertility fell 17% in the 1980s. We traced why, and the parallels reach well past births.
+```
+
+The first names the parallels outright and is the most concrete. The second
+leads with the number and is the safest if the subject line you pick is
+already about the present.
 
 ---
 
@@ -153,10 +172,10 @@ data4thepeople.com — the collapse of the fertility rate in rural America in th
 ### 10 — Sign-off
 
 ```
-Tomorrow: is the decline real, or are women just having children later? The one question that changes what all of this means.
+We'll be taking Monday off in observance of Labor Day. But brace yourself for Tuesday morning's email, where we will share a new viz that has been in the works for some time — one that will help you really see what's underneath our nation's labor data (which was just updated this morning!).
 ```
 
-That is post 3, "Later, or fewer?" Adjust if the order changes.
+Post 3, "Later, or fewer?", moves to whenever the labor viz has run.
 
 ---
 

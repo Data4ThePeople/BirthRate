@@ -182,5 +182,17 @@ def by_county_type(df: pd.DataFrame | None = None) -> dict:
 
     out["Other rural"] = {"units": len(other),
                           "gfr": series(nonmetro[nonmetro.fips.isin(other)])}
+    # The reference the sub-groups sit inside: every non-metro county, typed
+    # or not, so the chart can show the parts against their whole.
+    all_nonmetro = df[df["rucc_2013"].between(4, 9)]
+    out["All non-metro"] = {"units": all_nonmetro["fips"].nunique(),
+                            "gfr": series(all_nonmetro)}
+    # And the same group with the two commodity types taken out, so the
+    # trend chart can hold mining and farming against the rural counties that
+    # did not live on a commodity. Unlike "Other rural" above it starts from
+    # every non-metro county, not only the typed ones.
+    commodity = set(types.index[(types["MINTP79R"] == 1) | (types["AGTP79R"] == 1)])
+    rest = all_nonmetro[~all_nonmetro["fips"].isin(commodity)]
+    out["All other non-metro"] = {"units": rest["fips"].nunique(), "gfr": series(rest)}
     out["Metro"] = {"units": metro["fips"].nunique(), "gfr": series(metro)}
     return out

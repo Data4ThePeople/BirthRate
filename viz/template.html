@@ -1206,35 +1206,63 @@ lineChart(document.getElementById("chart-gap"),
 /* ---------- commodity exposure ---------- */
 (function sectorChart(){
   const T = D.countyTypes;
-  const order = ["Mining", "Farming", "Persistent poverty", "Other rural",
-                 "Government", "Manufacturing", "Retirement destination", "Metro"];
-  const rows = order.filter(k => T[k]).map(k => ({ k, ...T[k] }));
-  const W = 560, rowH = 30, M = { t: 24, r: 54, b: 26, l: 168 };
-  const H = M.t + rows.length * rowH + M.b, iw = W - M.l - M.r;
-  const maxAbs = Math.max(...rows.map(r => Math.abs(r.change8287)));
-  const X = v => M.l + (Math.abs(v) / maxAbs) * iw;
-  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img",
-    "aria-label": "Fall in the fertility rate 1982 to 1987 by county economic type" });
+  // Seven types are sub-groups of one thing. Draw them as such: the whole
+  // first, the parts bracketed beneath it, and metro set apart as the
+  // comparison rather than an eighth peer. Every value is a fall, so the
+  // bars run left from a zero line on the right and the axis reads the way
+  // the numbers do.
+  const parts = ["Mining", "Farming", "Persistent poverty",
+                 "Government", "Manufacturing", "Retirement destination"].filter(k => T[k]);
+  const layout = [
+    { k: "All non-metro", role: "whole" },
+    ...parts.map(k => ({ k, role: "part" })),
+    { k: "Metro", role: "outgroup" },
+  ].filter(r => T[r.k]);
 
-  rows.forEach((r, i) => {
-    const y = M.t + i * rowH, isMetro = r.k === "Metro";
-    const cat = el("text", { x: M.l - 10, y: y + rowH / 2 + 4, "text-anchor": "end",
-                             class: "barcat" });
+  const W = 560, rowH = 28, gap = 14, M = { t: 24, r: 206, b: 26, l: 54 };
+  let y = M.t; const pos = {};
+  layout.forEach((r, i) => {
+    if (i && r.role !== layout[i - 1].role) y += gap;
+    pos[r.k] = y; y += rowH;
+  });
+  const H = y + M.b, iw = W - M.l - M.r, zero = W - M.r;
+  const maxAbs = Math.max(...layout.map(r => Math.abs(T[r.k].change8287)));
+  const X = v => zero - (Math.abs(v) / maxAbs) * iw;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img",
+    "aria-label": "Fall in the fertility rate 1982 to 1987: all non-metro counties, the seven non-metro types, and metro counties" });
+
+  layout.forEach(r => {
+    const v = T[r.k].change8287, ry = pos[r.k];
+    const cat = el("text", { x: zero + 10, y: ry + rowH / 2 + 4, class: "barcat" });
     cat.textContent = r.k;
-    if (isMetro) cat.setAttribute("fill", "var(--muted)");
+    if (r.role !== "part") cat.setAttribute("font-weight", "600");
+    if (r.role === "outgroup") cat.setAttribute("fill", "var(--muted)");
     svg.appendChild(cat);
-    // the two commodity sectors carry the finding; everything else recedes
     const fill = r.k === "Mining" ? "var(--series-2)"
                : r.k === "Farming" ? "var(--series-1)"
-               : isMetro ? "var(--rule-strong)" : "var(--s2)";
-    svg.appendChild(el("rect", { x: M.l, y: y + 8, height: rowH - 16,
-      width: Math.max(1.5, X(r.change8287) - M.l), class: "bar", fill }));
-    const lab = el("text", { x: X(r.change8287) + 7, y: y + rowH / 2 + 4,
-                             class: "barlabel" });
-    lab.textContent = r.change8287.toFixed(1) + "%";
+               : r.role === "whole" ? "var(--ink-2)"
+               : r.role === "outgroup" ? "var(--rule-strong)" : "var(--s2)";
+    const x0 = X(v);
+    svg.appendChild(el("rect", { x: x0, y: ry + 7, height: rowH - 14,
+      width: Math.max(1.5, zero - x0), class: "bar", fill }));
+    const lab = el("text", { x: x0 - 7, y: ry + rowH / 2 + 4, class: "barlabel",
+                             "text-anchor": "end" });
+    lab.textContent = v.toFixed(1) + "%";
     svg.appendChild(lab);
   });
-  svg.appendChild(el("line", { x1: M.l, x2: M.l, y1: M.t, y2: M.t + rows.length * rowH,
+
+  // bracket down the right of the parts, beside their names
+  const first = parts[0], last = parts[parts.length - 1];
+  if (first && last){
+    const bx = W - 16, y0 = pos[first] + 6, y1 = pos[last] + rowH - 6;
+    svg.appendChild(el("path", { d: `M${bx - 6},${y0} H${bx} V${y1} H${bx - 6}`,
+      fill: "none", stroke: "var(--rule-strong)", "stroke-width": 1 }));
+    const g = el("text", { x: bx, y: y0 - 6, class: "barlabel", fill: "var(--muted)",
+                           "text-anchor": "end" });
+    g.textContent = "by type"; svg.appendChild(g);
+  }
+
+  svg.appendChild(el("line", { x1: zero, x2: zero, y1: M.t, y2: y,
     stroke: "var(--rule-strong)", "stroke-width": 1 }));
   const cap = el("text", { x: M.l, y: H - 8, class: "barlabel" });
   cap.textContent = "\u2190 larger fall"; svg.appendChild(cap);
@@ -1243,18 +1271,18 @@ lineChart(document.getElementById("chart-gap"),
   const SER = [
     { name: "Mining", color: "--series-2", values: T.Mining.gfr },
     { name: "Farming", color: "--series-1", values: T.Farming.gfr },
-    { name: "Other rural", color: "--series-3", values: T["Other rural"].gfr },
+    { name: "All other non-metro", color: "--series-3", values: T["All other non-metro"].gfr },
     { name: "Metro", color: "--muted", values: T.Metro.gfr, dash: "4 3" },
   ];
   inlineLegend(document.getElementById("lg-sector"), SER);
   lineChart(document.getElementById("chart-sectorline"), SER,
     { ticks: [55, 65, 75, 85], fmtY: v => String(v), fmtV: v => v.toFixed(1),
-      label: "Fertility rate 1982 to 2024 for mining, farming, other rural and metro counties" });
+      label: "Fertility rate 1982 to 2024 for mining, farming, all other non-metro and metro counties" });
 
   const tbl = document.getElementById("tbl-sector");
   let h = `<thead><tr><th>1979 county type</th><th>Counties</th><th>1982</th>` +
           `<th>1987</th><th>2024</th><th>1982-87</th></tr></thead><tbody>`;
-  rows.forEach(r => {
+  layout.map(r => ({ k: r.k, ...T[r.k] })).forEach(r => {
     h += `<tr><td>${r.k}</td><td>${r.units.toLocaleString()}</td>` +
          `<td>${r.gfr[0].toFixed(1)}</td><td>${r.gfr[YEARS.indexOf(1987)].toFixed(1)}</td>` +
          `<td>${r.gfr[NY - 1].toFixed(1)}</td><td>${r.change8287.toFixed(1)}%</td></tr>`;
