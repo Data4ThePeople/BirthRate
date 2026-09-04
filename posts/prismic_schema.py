@@ -63,9 +63,20 @@ def build_schema(meta: dict, uid: str, title: str, description: str,
     if meta.get("based_on"):
         ref = meta["based_on"].strip()
         url = ref if ref.startswith("http") else f"{site_for_ref}{POST_PATH}{ref}"
-        based = {"@type": "Dataset", "@id": f"{url}#dataset", "url": url}
+        # Google validates every @type:Dataset it meets as a full Dataset, a
+        # cross-page reference included, and flags one without a description
+        # as a critical error. So the reference carries the same required and
+        # recommended fields the data page's own node does.
+        based = {"@type": "Dataset", "@id": f"{url}#dataset", "url": url,
+                 "license": meta.get("based_on_license",
+                                     "https://creativecommons.org/licenses/by/4.0/"),
+                 "creator": {"@type": "Person",
+                             "name": meta.get("author", _setting("AUTHOR", AUTHOR)),
+                             "url": meta.get("author_url", site_for_ref + AUTHOR_PATH)}}
         if meta.get("based_on_name"):
             based["name"] = meta["based_on_name"]
+        if meta.get("based_on_description"):
+            based["description"] = meta["based_on_description"]
         schema["isBasedOn"] = based
 
     schema["inLanguage"] = LANG

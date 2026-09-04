@@ -9,6 +9,7 @@ series: The American Fertility Decline
 position: 2
 based_on: us-fertility-rate-by-county
 based_on_name: US county fertility rates, 1982-2024
+based_on_description: Annual general fertility rate for 3,098 stable US county units from 1982 to 2024, built from NCHS natality microdata, Census Population Estimates births and SEER county population by age and sex.
 hero: images/01-hero-metro-vs-rural-1680x1080.png
 hero_alt: Line chart of the US fertility rate from 1982 to 2024, split into metropolitan and non-metropolitan counties. Rural fertility starts far above metro, crosses below it in 1987, recovers through the 2000s, then both fall steeply after 2008.
 ---

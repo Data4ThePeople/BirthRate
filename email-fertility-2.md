@@ -113,7 +113,7 @@ Here is what that did to births.
 Alt text:
 
 ```
-Line chart of the fertility rate from 1982 to 2024 for rural counties grouped by what their economy ran on in 1975 to 79, with metro counties for comparison. Mining and farming counties start far above the rest at 83 and 84, fall together through the 1980s, and then separate: mining converges onto other rural counties while farming holds a premium.
+Line chart of the fertility rate from 1982 to 2024 for rural counties grouped by what their economy ran on in 1975 to 79, with metro counties for comparison. Mining and farming counties start far above the rest at 83 and 84, fall together through the 1980s, and then separate: mining converges onto all other non-metro counties while farming holds a premium.
 ```
 
 ### 6 — Body copy, part two
@@ -121,21 +121,26 @@ Line chart of the fertility rate from 1982 to 2024 for rural counties grouped by
 Under the image, where the reader has just looked at it.
 
 ```
-Rural counties that ran on manufacturing, government or retirement fell about as much as the country as a whole. Rural counties that ran on things dug out of the ground or grown on it fell off a cliff. Mining counties fell 22% in five years. Farming, 15%. Metro America, 0.2%.
+Rural counties that ran on manufacturing, government or retirement fell 8 to 9%. Rural counties that ran on things dug out of the ground or grown on it fell off a cliff: mining 22% in five years, farming 15%. Metro America, 0.2%.
 
-The farm crisis and the oil bust landed on the same kind of place — counties that lived on one commodity and had borrowed against the boom.
+The farm crisis and the oil bust landed on the same kind of place — counties that were heavily reliant on a commodity and had borrowed against the boom.
 ```
 
 ### 7 — Key figures
 
 Live text, not an image. For the third of recipients with images off, this
-block is the chart.
+block is the chart. All four are from the 1970s and 80s: two from the births,
+two from the economy that broke them.
 
 ```
-21.9% — the fall in mining counties' fertility rate, 1982 to 1987; farming counties fell 14.8%, metro 0.2%
-$12.6 billion to $3.1 billion — US soybean sales to China, 2024 to 2025, after tariffs sent the buyer to Brazil
+21.9% — the fall in mining counties' fertility rate, 1982 to 1987. Farming counties: 14.8%. Metro America: 0.2%.
+17% — how far rural fertility fell overall, from 1982 to its low in 1996
+$35 to $10 — a barrel of oil, 1981 to 1986. Wheat fell by a third over the same five years.
 5% to 20% — inflation in December 1976, and where interest rates stood four years later
 ```
+
+Order is the post's: what happened to births, then the commodity bust that
+tracks it, then the rate shock that the hook says is being set up again.
 
 ### 8 — The hook
 
@@ -145,9 +150,9 @@ a bigger one. Name what rhymes; do not say what is different.
 ```
 Here is the part we did not expect.
 
-We started this analysis looking for clues about what could happen to the birth rate. The history took us somewhere broader. The 1980s setup had four parts: a boom borrowed against, an export market lost to a rival, a rate shock, and a commodity bust. Look around. Farmland is up 150% since 2010. China took its soybean business to Brazil. Fuel and fertilizer are up 20 to 40% since the Strait of Hormuz closed. And inflation is sitting roughly where it sat in 1976 — three years before Volcker, with an Iranian oil shock underway then, too.
+We started this analysis looking for clues about what could happen to the birth rate. The history took us somewhere broader. The 1980s setup had four parts: a boom borrowed against, an export market lost to a rival, a rate shock, and a commodity bust. Look around. Farmland is up 150% since 2010. China took its soybean business to Brazil. Fuel and fertilizer are up 20 to 40% since the Strait of Hormuz closed. But inflation now is still tame, a couple of points below where it was in 1976. Or is it? And even so, we can still learn a thing or two about nonlinearity from the late 1970s, when 5% inflation in 1976 required 20% interest rates to tame just a few years later.
 
-Those parallels have implications well beyond the birth rate. Read into that what you will. We are not forecasting anything — just calling attention to the similarities, and to the differences. Both are in today's Data 4 Thought. 📊💭
+In short, this is a post about the fertility rate that goes well beyond the fertility rate. Make of it what you will. We are not forecasting anything — just calling attention to the similarities, and to the differences. Both are in today's Data 4 Thought. 📊💭
 ```
 
 Every figure in this block is in the post with a source. "The differences" is

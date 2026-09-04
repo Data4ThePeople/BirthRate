@@ -11,6 +11,7 @@ series: The American Fertility Decline
 position: 3
 based_on: us-fertility-rate-by-county
 based_on_name: US county fertility rates, 1982-2024
+based_on_description: Annual general fertility rate for 3,098 stable US county units from 1982 to 2024, built from NCHS natality microdata, Census Population Estimates births and SEER county population by age and sex.
 ---
 
 # The collapse of the fertility rate in rural America in the 1980s
